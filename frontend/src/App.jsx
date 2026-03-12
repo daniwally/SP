@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './App.css'
-import SalesTab from './components/SalesTab'
-import StockTab from './components/StockTab'
 
 function App() {
-  const [activeTab, setActiveTab] = useState('sales')
   const [salesData, setSalesData] = useState({})
-  const [stockData, setStockData] = useState({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -19,68 +15,107 @@ function App() {
       setLoading(true)
       const API = window.location.origin + '/api'
       
-      const [ventasHoy, ventas7dias, stockActual] = await Promise.all([
+      const [ventasHoy, ventas7dias] = await Promise.all([
         axios.get(API + '/ml/ventas/hoy').catch(() => ({ data: {} })),
-        axios.get(API + '/ml/ventas/7dias').catch(() => ({ data: {} })),
-        axios.get(API + '/odoo/stock/actual').catch(() => ({ data: {} }))
+        axios.get(API + '/ml/ventas/7dias').catch(() => ({ data: {} }))
       ])
       
-      setSalesData({ hoy: ventasHoy.data, dias7: ventas7dias.data })
-      setStockData(stockActual.data)
+      setSalesData({ 
+        hoy: ventasHoy.data, 
+        dias7: ventas7dias.data 
+      })
       setLoading(false)
     } catch (error) {
-      console.error('Error fetching data:', error)
+      console.error('Error:', error)
       setLoading(false)
     }
   }
 
   if (loading) {
     return (
-      <div className="loading-container">
+      <div className="loading">
         <div className="spinner"></div>
-        <p>Cargando...</p>
+        <p>Cargando datos...</p>
       </div>
     )
   }
 
+  const ventasHoy = salesData.hoy || {}
+  const ventas7d = salesData.dias7 || {}
+  
+  // Calcular totales
+  const totalHoy = Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)
+  const total7d = Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
+  const totalMensual = total7d * 4.2 // Aproximación mes
+  
+  // Top 3 marcas
+  const marcasOrdenadas = Object.entries(ventas7d)
+    .sort(([, a], [, b]) => (b.total || 0) - (a.total || 0))
+    .slice(0, 3)
+
   return (
     <div className="app">
-      <div className="dashboard-wrapper">
-        {/* SIDEBAR */}
-        <aside className="sidebar">
-          <div className="sidebar-header">
-            <h1>Sobrepatas</h1>
-            <p>Dashboard</p>
-          </div>
-          
-          <nav className="sidebar-tabs">
-            <button 
-              className={`sidebar-tab ${activeTab === 'sales' ? 'active' : ''}`}
-              onClick={() => setActiveTab('sales')}
-            >
-              💰 Ventas
-            </button>
-            <button 
-              className={`sidebar-tab ${activeTab === 'stock' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stock')}
-            >
-              📦 Stock
-            </button>
-          </nav>
+      <header className="header">
+        <h1>📊 Sobrepatas Dashboard</h1>
+        <button onClick={fetchAllData} className="btn-refresh">↻</button>
+      </header>
 
-          <div className="sidebar-refresh">
-            <button onClick={fetchAllData} className="btn-refresh">
-              ↻ Actualizar
-            </button>
+      <main className="dashboard">
+        {/* VENTAS DEL DÍA */}
+        <section className="section">
+          <h2>Ventas del Día - MercadoLibre</h2>
+          <div className="cards-grid">
+            {Object.entries(ventasHoy).map(([marca, data]) => (
+              <div key={marca} className="card">
+                <h3>{marca}</h3>
+                <p className="value">${(data.total || 0).toLocaleString()}</p>
+                <p className="subtitle">{data.ordenes || 0} órdenes</p>
+              </div>
+            ))}
           </div>
-        </aside>
+          <div className="total-bar">
+            <span>Total Hoy:</span>
+            <span className="total-value">${totalHoy.toLocaleString()}</span>
+          </div>
+        </section>
 
-        {/* MAIN CONTENT */}
-        <main className="main-content">
-          {activeTab === 'sales' && <SalesTab data={salesData} />}
-          {activeTab === 'stock' && <StockTab data={stockData} />}
-        </main>
-      </div>
+        {/* COMPARATIVA */}
+        <section className="section section-2col">
+          <div className="compare-card">
+            <h2>Venta Semanal</h2>
+            <p className="big-number">${(total7d / 1000000).toFixed(2)}M</p>
+            <p className="subtitle">Últimos 7 días</p>
+          </div>
+
+          <div className="compare-card">
+            <h2>Acumulado Mensual*</h2>
+            <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
+            <p className="subtitle">Proyección (~4.2 semanas)</p>
+          </div>
+        </section>
+
+        {/* TOP 3 PRODUCTOS */}
+        <section className="section">
+          <h2>Top 3 Marcas - Últimos 7 Días</h2>
+          <div className="top3-container">
+            {marcasOrdenadas.map(([marca, data], idx) => (
+              <div key={marca} className={`top3-card rank-${idx + 1}`}>
+                <div className="rank-badge">{idx + 1}</div>
+                <h3>{marca}</h3>
+                <p className="top3-value">${(data.total / 1000000).toFixed(2)}M</p>
+                <p className="top3-orders">{data.ordenes || 0} órdenes</p>
+                <p className="top3-percent">
+                  {((data.total / total7d) * 100).toFixed(1)}% del total
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <p>Actualizado en tiempo real • Rudolf Dashboard</p>
+      </footer>
     </div>
   )
 }

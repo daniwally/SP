@@ -38,54 +38,49 @@ function App() {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <p>Cargando dashboard...</p>
+        <p>Cargando...</p>
       </div>
     )
   }
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="header-content">
-          <div className="header-title">
-            <h1>📊 Sobrepatas Dashboard</h1>
-            <p>MercadoLibre + Odoo Intelligence</p>
+      <div className="dashboard-wrapper">
+        {/* SIDEBAR */}
+        <aside className="sidebar">
+          <div className="sidebar-header">
+            <h1>Sobrepatas</h1>
+            <p>Dashboard</p>
           </div>
-          <button 
-            className="btn-refresh-large"
-            onClick={fetchAllData}
-            title="Actualizar datos"
-          >
-            ↻
-          </button>
-        </div>
-      </header>
+          
+          <nav className="sidebar-tabs">
+            <button 
+              className={`sidebar-tab ${activeTab === 'sales' ? 'active' : ''}`}
+              onClick={() => setActiveTab('sales')}
+            >
+              💰 Ventas
+            </button>
+            <button 
+              className={`sidebar-tab ${activeTab === 'stock' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stock')}
+            >
+              📦 Stock
+            </button>
+          </nav>
 
-      <nav className="tabs-nav">
-        <button 
-          className={`tab-btn ${activeTab === 'sales' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sales')}
-        >
-          <span className="tab-icon">💰</span>
-          <span className="tab-label">Ventas</span>
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
-          onClick={() => setActiveTab('stock')}
-        >
-          <span className="tab-icon">📦</span>
-          <span className="tab-label">Stock</span>
-        </button>
-      </nav>
+          <div className="sidebar-refresh">
+            <button onClick={fetchAllData} className="btn-refresh">
+              ↻ Actualizar
+            </button>
+          </div>
+        </aside>
 
-      <main className="tab-content">
-        {activeTab === 'sales' && <SalesTab data={salesData} />}
-        {activeTab === 'stock' && <StockTab data={stockData} />}
-      </main>
-
-      <footer className="app-footer">
-        <p>Actualizado en tiempo real • Rudolf Dashboard</p>
-      </footer>
+        {/* MAIN CONTENT */}
+        <main className="main-content">
+          {activeTab === 'sales' && <SalesTab data={salesData} />}
+          {activeTab === 'stock' && <StockTab data={stockData} />}
+        </main>
+      </div>
     </div>
   )
 }

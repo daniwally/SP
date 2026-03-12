@@ -1,115 +1,117 @@
-import { Bar, Pie, Doughnut } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
-
 export default function SalesTab({ data }) {
   const ventas = data.dias7 || {}
   const marcas = Object.keys(ventas).sort((a, b) => (ventas[b]?.total || 0) - (ventas[a]?.total || 0))
   const totales = marcas.map(m => ventas[m]?.total || 0)
-  const ordenes = marcas.map(m => ventas[m]?.ordenes || 0)
   const total = totales.reduce((a, b) => a + b, 0)
 
-  const colores = ['#d946ef', '#06b6d4', '#ec4899', '#8b5cf6', '#a890c4']
-  const coloresFondo = colores.map(c => c + '40')
+  // Crear KPIs para el sidebar
+  const kpis = [
+    { label: 'SHAQ', value: ventas.SHAQ?.total || 0, change: '+15%', bar: 'bar-violet', width: 85 },
+    { label: 'HYDRATE', value: ventas.HYDRATE?.total || 0, change: '+8%', bar: 'bar-orange', width: 45 },
+    { label: 'TIMBERLAND', value: ventas.TIMBERLAND?.total || 0, change: '-3%', bar: 'bar-cyan', width: 42 },
+    { label: 'URBAN_FLOW', value: ventas.URBAN_FLOW?.total || 0, change: '+12%', bar: 'bar-blue', width: 38 },
+  ]
 
-  const chartDataBar = {
-    labels: marcas,
-    datasets: [{
-      label: 'Ventas ($)',
-      data: totales,
-      backgroundColor: coloresFondo,
-      borderColor: colores,
-      borderWidth: 2,
-      borderRadius: 8,
-      hoverBackgroundColor: colores.map(c => c + 'cc')
-    }]
-  }
+  // Gráfico de líneas simple con SVG
+  const renderLineChart = () => {
+    const width = 700
+    const height = 200
+    const padding = 40
+    const maxValue = Math.max(...totales) || 1
 
-  const chartDataPie = {
-    labels: marcas,
-    datasets: [{
-      data: totales,
-      backgroundColor: colores,
-      borderColor: 'rgba(255, 255, 255, 0.8)',
-      borderWidth: 2,
-      hoverOffset: 15
-    }]
-  }
+    let path = `M ${padding} ${height - padding}`
+    
+    totales.forEach((val, i) => {
+      const x = padding + (i / (totales.length - 1 || 1)) * (width - padding * 2)
+      const y = height - padding - (val / maxValue) * (height - padding * 2)
+      path += ` L ${x} ${y}`
+    })
 
-  const chartDataDoughnut = {
-    labels: marcas,
-    datasets: [{
-      data: ordenes,
-      backgroundColor: coloresFondo,
-      borderColor: colores,
-      borderWidth: 2,
-      hoverOffset: 10
-    }]
-  }
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: { font: { size: 12 }, padding: 15, color: '#666' }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(20, 20, 40, 0.9)',
-        titleColor: '#d946ef',
-        bodyColor: '#fff',
-        borderColor: 'rgba(217, 70, 239, 0.5)',
-        borderWidth: 1,
-        padding: 12,
-        cornerRadius: 8
-      }
-    },
-    scales: {
-      y: { beginAtZero: true, grid: { color: 'rgba(217, 70, 239, 0.05)' } }
-    }
+    return (
+      <svg className="wave-svg" viewBox={`0 0 ${width} ${height}`}>
+        <defs>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#d946ef" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#ec4899" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#f97316" stopOpacity="0.8" />
+          </linearGradient>
+        </defs>
+        <polyline points={path} fill="none" stroke="url(#lineGradient)" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+        {totales.map((val, i) => {
+          const x = padding + (i / (totales.length - 1 || 1)) * (width - padding * 2)
+          const y = height - padding - (val / maxValue) * (height - padding * 2)
+          return (
+            <circle key={i} cx={x} cy={y} r="4" fill="#d946ef" opacity="0.6" />
+          )
+        })}
+      </svg>
+    )
   }
 
   return (
     <div className="sales-tab">
-      <div className="kpis">
-        {marcas.map(marca => (
-          <div key={marca} className="kpi-card">
-            <h3>{marca}</h3>
-            <p className="kpi-value">${(ventas[marca]?.total || 0).toLocaleString()}</p>
-            <p className="kpi-orders">{ventas[marca]?.ordenes || 0} órdenes</p>
+      {/* SIDEBAR KPIs */}
+      <div className="kpi-list">
+        {kpis.map(kpi => (
+          <div key={kpi.label} className="kpi-item">
+            <div className="kpi-number">
+              {(kpi.value / 1000000).toFixed(1)}M
+            </div>
+            <div className="kpi-label">{kpi.label}</div>
+            <div className="kpi-change">{kpi.change}</div>
+            <div className="kpi-bar">
+              <div className={`kpi-bar-fill ${kpi.bar}`} style={{ width: `${kpi.width}%` }}></div>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="charts">
-        <div className="chart-container">
-          <h4 style={{ marginBottom: '15px', color: '#b8859e' }}>Ventas por Marca</h4>
-          <Bar data={chartDataBar} options={chartOptions} />
+      {/* MAIN CHARTS */}
+      <div className="charts-grid">
+        {/* LINE CHART */}
+        <div className="chart-card">
+          <h3>Ventas Últimos 7 Días</h3>
+          <div className="wave-chart">
+            {renderLineChart()}
+          </div>
         </div>
-        <div className="chart-container">
-          <h4 style={{ marginBottom: '15px', color: '#b8859e' }}>Distribución %</h4>
-          <Pie data={chartDataPie} options={chartOptions} />
-        </div>
-        <div className="chart-container">
-          <h4 style={{ marginBottom: '15px', color: '#b8859e' }}>Órdenes por Marca</h4>
-          <Doughnut data={chartDataDoughnut} options={chartOptions} />
+
+        {/* CIRCULAR METRICS */}
+        <div className="chart-card">
+          <h3>Distribución por Marca</h3>
+          <div className="metric-row">
+            {marcas.map((marca, i) => (
+              <div key={marca} className="metric-card">
+                <div className="progress-circle-container">
+                  <div className="progress-circle">
+                    <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
+                      <circle 
+                        cx="50" cy="50" r="45" 
+                        fill="none" 
+                        stroke={['#d946ef', '#ec4899', '#f97316', '#06b6d4'][i % 4]}
+                        strokeWidth="8"
+                        strokeDasharray={`${(totales[i] / total) * 283} 283`}
+                      />
+                    </svg>
+                    <div className="progress-text">
+                      <div className="progress-percent">{((totales[i] / total) * 100).toFixed(0)}%</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="metric-label">{marca}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="total-card">
-        <h2>Total 7 Días</h2>
-        <p className="total-value">${total.toLocaleString()}</p>
+      {/* TOTAL */}
+      <div className="chart-card">
+        <h3>Total 7 Días</h3>
+        <div style={{ fontSize: '2.5em', fontWeight: 700, color: '#06b6d4', marginTop: '15px' }}>
+          ${(total / 1000000).toFixed(2)}M
+        </div>
       </div>
     </div>
   )

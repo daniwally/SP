@@ -4,7 +4,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import FileResponse
 from pathlib import Path
 from contextlib import asynccontextmanager
-import os
 
 from routers import ml_router, odoo_router
 from database import init_db
@@ -50,11 +49,11 @@ class SPAMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         
         # Para el resto, intentar servir archivos estáticos
-        static_dir = Path("/app/static")  # Ruta absoluta
+        static_dir = Path("/app/static")
         
-        # Si no existe static, retornar error
+        # Si no existe static, dejar que continúe
         if not static_dir.exists():
-            return FileResponse("/app/backend/offline.html") if Path("/app/backend/offline.html").exists() else await call_next(request)
+            return await call_next(request)
         
         file_path = static_dir / request.url.path.lstrip("/")
         

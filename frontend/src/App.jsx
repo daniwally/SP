@@ -61,36 +61,57 @@ function App() {
       </header>
 
       <main className="dashboard">
-        {/* VENTAS DEL DÍA */}
-        <section className="section">
-          <h2>Ventas del Día - MercadoLibre</h2>
-          <div className="cards-grid">
-            {Object.entries(ventasHoy).map(([marca, data]) => (
-              <div key={marca} className="card">
-                <h3>{marca}</h3>
-                <p className="value">${(data.total || 0).toLocaleString()}</p>
-                <p className="subtitle">{data.ordenes || 0} órdenes</p>
-              </div>
-            ))}
-          </div>
-          <div className="total-bar">
-            <span>Total Hoy:</span>
-            <span className="total-value">${totalHoy.toLocaleString()}</span>
-          </div>
-        </section>
+        {/* VENTAS DEL DÍA Y SEMANAL EN PARALELO */}
+        <div className="two-sections">
+          {/* VENTAS DEL DÍA */}
+          <section className="section">
+            <h2>Ventas del Día</h2>
+            <div className="cards-grid">
+              {Object.entries(ventasHoy).map(([marca, data]) => (
+                <div key={marca} className="card">
+                  <h3>{marca}</h3>
+                  <p className="value">${(data.total || 0).toLocaleString()}</p>
+                  <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                </div>
+              ))}
+            </div>
+            <div className="total-bar">
+              <span>Total Hoy:</span>
+              <span className="total-value">${totalHoy.toLocaleString()}</span>
+            </div>
+          </section>
+
+          {/* VENTAS DE LA SEMANA */}
+          <section className="section">
+            <h2>Ventas de la Semana</h2>
+            <div className="cards-grid">
+              {Object.entries(ventas7d).map(([marca, data]) => (
+                <div key={marca} className="card">
+                  <h3>{marca}</h3>
+                  <p className="value">${(data.total || 0).toLocaleString()}</p>
+                  <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                </div>
+              ))}
+            </div>
+            <div className="total-bar">
+              <span>Total Semana:</span>
+              <span className="total-value">${total7d.toLocaleString()}</span>
+            </div>
+          </section>
+        </div>
 
         {/* COMPARATIVA */}
         <section className="section section-2col">
           <div className="compare-card">
-            <h2>Venta Semanal</h2>
-            <p className="big-number">${(total7d / 1000000).toFixed(2)}M</p>
-            <p className="subtitle">Últimos 7 días</p>
-          </div>
-
-          <div className="compare-card">
             <h2>Acumulado Mensual*</h2>
             <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
             <p className="subtitle">Proyección (~4.2 semanas)</p>
+          </div>
+
+          <div className="compare-card">
+            <h2>Promedio Diario</h2>
+            <p className="big-number">${(total7d / 7 / 1000).toFixed(0)}K</p>
+            <p className="subtitle">Últimos 7 días</p>
           </div>
         </section>
 

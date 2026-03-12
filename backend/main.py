@@ -50,7 +50,12 @@ class SPAMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         
         # Para el resto, intentar servir archivos estáticos
-        static_dir = Path(__file__).parent.parent / "static"
+        static_dir = Path("/app/static")  # Ruta absoluta
+        
+        # Si no existe static, retornar error
+        if not static_dir.exists():
+            return FileResponse("/app/backend/offline.html") if Path("/app/backend/offline.html").exists() else await call_next(request)
+        
         file_path = static_dir / request.url.path.lstrip("/")
         
         # Si el archivo existe, servirlo

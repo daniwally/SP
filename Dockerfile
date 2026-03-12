@@ -15,13 +15,13 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
-COPY backend/ .
+COPY backend/ ./backend
 
-# Copy built frontend to static folder
-COPY --from=frontend-build /app/frontend/dist ./static
+# Copy built frontend to static folder (absolute path)
+COPY --from=frontend-build /app/frontend/dist /app/static
 
 # Expose port
 EXPOSE 8000
 
 # Run FastAPI with static files
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

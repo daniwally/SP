@@ -16,6 +16,7 @@ function App() {
 
   const fetchAllData = async () => {
     try {
+      setLoading(true)
       const API = window.location.origin + '/api'
       
       const [ventasHoy, ventas7dias, stockActual] = await Promise.all([
@@ -33,38 +34,58 @@ function App() {
     }
   }
 
-  if (loading) return <div className="loading">Cargando dashboard...</div>
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Cargando dashboard...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Sobrepatas Dashboard</h1>
-        <p>MercadoLibre + Odoo</p>
+        <div className="header-content">
+          <div className="header-title">
+            <h1>📊 Sobrepatas Dashboard</h1>
+            <p>MercadoLibre + Odoo Intelligence</p>
+          </div>
+          <button 
+            className="btn-refresh-large"
+            onClick={fetchAllData}
+            title="Actualizar datos"
+          >
+            ↻
+          </button>
+        </div>
       </header>
 
-      <div className="tabs">
+      <nav className="tabs-nav">
         <button 
           className={`tab-btn ${activeTab === 'sales' ? 'active' : ''}`}
           onClick={() => setActiveTab('sales')}
         >
-          💰 Ventas
+          <span className="tab-icon">💰</span>
+          <span className="tab-label">Ventas</span>
         </button>
         <button 
           className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
           onClick={() => setActiveTab('stock')}
         >
-          📦 Stock
+          <span className="tab-icon">📦</span>
+          <span className="tab-label">Stock</span>
         </button>
-        <button 
-          className="tab-refresh"
-          onClick={fetchAllData}
-        >
-          ↻ Actualizar
-        </button>
-      </div>
+      </nav>
 
-      {activeTab === 'sales' && <SalesTab data={salesData} />}
-      {activeTab === 'stock' && <StockTab data={stockData} />}
+      <main className="tab-content">
+        {activeTab === 'sales' && <SalesTab data={salesData} />}
+        {activeTab === 'stock' && <StockTab data={stockData} />}
+      </main>
+
+      <footer className="app-footer">
+        <p>Actualizado en tiempo real • Rudolf Dashboard</p>
+      </footer>
     </div>
   )
 }

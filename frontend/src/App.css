@@ -1,9 +1,292 @@
-.app { max-width: 1200px; margin: 0 auto; padding: 20px; }
-h1 { color: #b8859e; margin-bottom: 30px; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-.card { background: linear-gradient(135deg, #f0e6ff 0%, #fff0f5 100%); border: 1px solid rgba(200,150,220,0.25); border-radius: 10px; padding: 20px; }
-.card h3 { color: #b8859e; margin-bottom: 10px; }
-.amount { color: #a890c4; font-size: 1.5em; font-weight: bold; }
-.orders { color: #999; font-size: 0.9em; }
-.total { background: linear-gradient(135deg, #f0e6ff 0%, #ffe6f0 100%); border: 2px solid rgba(200,150,220,0.3); border-radius: 12px; padding: 30px; text-align: center; }
-.total h2 { color: #a890c4; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto';
+  background: linear-gradient(135deg, #f5f3ff 0%, #fff5f7 100%);
+  color: #333;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #f0e6ff 0%, #ffe6f0 100%);
+  border-radius: 15px;
+  border: 1px solid rgba(200, 150, 220, 0.2);
+}
+
+.app-header h1 {
+  color: #b8859e;
+  font-size: 2.5em;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.app-header p {
+  color: #999;
+  font-size: 1.1em;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2em;
+  color: #999;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.tab-btn, .tab-refresh {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: rgba(200, 150, 220, 0.1);
+  color: #b8859e;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #d4b5e8, #b8d4e8);
+  color: white;
+}
+
+.tab-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200, 150, 220, 0.2);
+}
+
+.tab-refresh {
+  margin-left: auto;
+  background: linear-gradient(135deg, #a890c4, #7a9db8);
+  color: white;
+}
+
+.tab-refresh:hover {
+  transform: scale(1.05);
+}
+
+/* TAB CONTENT */
+.tab-content {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* SALES TAB */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.kpi-card {
+  background: linear-gradient(135deg, #f0e6ff 0%, #fff0f5 100%);
+  border: 1px solid rgba(200, 150, 220, 0.25);
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(200, 150, 220, 0.15);
+}
+
+.kpi-card h3 {
+  color: #b8859e;
+  font-size: 0.95em;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.kpi-value {
+  color: #a890c4;
+  font-size: 1.7em;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.kpi-orders {
+  color: #999;
+  font-size: 0.9em;
+}
+
+.total-card {
+  background: linear-gradient(135deg, #f0e6ff 0%, #ffe6f0 100%);
+  border: 2px solid rgba(200, 150, 220, 0.3);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+}
+
+.total-card h2 {
+  color: #999;
+  margin-bottom: 15px;
+  font-size: 1em;
+}
+
+.total-value {
+  color: #a890c4;
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+/* STOCK TAB */
+.stock-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stock-card {
+  background: linear-gradient(135deg, #c4e8b8, #b8d4e8);
+  border: 1px solid rgba(100, 180, 100, 0.3);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stock-card h4 {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.stock-number {
+  color: #2d5f2d;
+  font-size: 2em;
+  font-weight: 700;
+}
+
+.stock-depositos {
+  display: grid;
+  gap: 20px;
+}
+
+.stock-deposito {
+  background: white;
+  border: 1px solid rgba(200, 150, 220, 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(200, 150, 220, 0.08);
+}
+
+.deposito-title {
+  color: #b8859e;
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(200, 150, 220, 0.2);
+}
+
+.stock-marcas {
+  display: grid;
+  gap: 10px;
+}
+
+.stock-marca {
+  border: 1px solid rgba(200, 150, 220, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.marca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: rgba(200, 150, 220, 0.05);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.marca-header:hover {
+  background: rgba(200, 150, 220, 0.1);
+}
+
+.marca-name {
+  color: #b8859e;
+  font-weight: 700;
+}
+
+.marca-qty {
+  color: #7a9db8;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.expand-icon {
+  color: #999;
+  font-size: 0.8em;
+}
+
+.productos-list {
+  padding: 15px;
+  background: rgba(240, 230, 255, 0.3);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.producto-item {
+  padding: 10px;
+  border-left: 3px solid #a890c4;
+  margin-bottom: 10px;
+}
+
+.prod-nombre {
+  color: #333;
+  font-size: 0.95em;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.prod-detalle {
+  color: #999;
+  font-size: 0.85em;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 10px;
+  }
+
+  .app-header h1 {
+    font-size: 1.8em;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tab-refresh {
+    margin-left: 0;
+  }
+
+  .kpis {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}

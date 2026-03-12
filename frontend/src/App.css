@@ -1,0 +1,9 @@
+.app { max-width: 1200px; margin: 0 auto; padding: 20px; }
+h1 { color: #b8859e; margin-bottom: 30px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+.card { background: linear-gradient(135deg, #f0e6ff 0%, #fff0f5 100%); border: 1px solid rgba(200,150,220,0.25); border-radius: 10px; padding: 20px; }
+.card h3 { color: #b8859e; margin-bottom: 10px; }
+.amount { color: #a890c4; font-size: 1.5em; font-weight: bold; }
+.orders { color: #999; font-size: 0.9em; }
+.total { background: linear-gradient(135deg, #f0e6ff 0%, #ffe6f0 100%); border: 2px solid rgba(200,150,220,0.3); border-radius: 12px; padding: 30px; text-align: center; }
+.total h2 { color: #a890c4; }

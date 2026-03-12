@@ -3,12 +3,13 @@
   --primary: #d946ef;
   --secondary: #06b6d4;
   --accent: #a890c4;
-  --bg-light: #f5f3ff;
-  --bg-dark: #fff5f7;
-  --text-dark: #1a1a2e;
-  --text-light: #999;
-  --border: rgba(200, 150, 220, 0.2);
-  --shadow: 0 8px 32px rgba(200, 150, 220, 0.12);
+  --bg-main: #0a0f1e;
+  --bg-card: #1a1530;
+  --bg-light: #252038;
+  --text-light: #b0b0c0;
+  --text-muted: #808090;
+  --border: rgba(217, 70, 239, 0.2);
+  --shadow: 0 8px 32px rgba(217, 70, 239, 0.15);
 }
 
 * {
@@ -19,8 +20,8 @@
 
 body {
   font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
-  color: var(--text-dark);
+  background: linear-gradient(135deg, #0a0f1e 0%, #1a0e2e 100%);
+  color: var(--text-light);
   line-height: 1.6;
 }
 
@@ -33,7 +34,7 @@ html, body, #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(-45deg, #f5f3ff, #fff5f7, #f0e6ff, #ffe6f0);
+  background: linear-gradient(-45deg, #0a0f1e, #1a0e2e, #0f1525, #1a0f35);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
 }
@@ -46,9 +47,9 @@ html, body, #root {
 
 /* HEADER */
 .app-header {
-  background: linear-gradient(135deg, rgba(240, 230, 255, 0.95) 0%, rgba(255, 230, 240, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(26, 21, 48, 0.9) 0%, rgba(15, 10, 35, 0.95) 100%);
   backdrop-filter: blur(10px);
-  border-bottom: 2px solid rgba(217, 70, 239, 0.2);
+  border-bottom: 2px solid var(--border);
   padding: 30px 20px;
   box-shadow: var(--shadow);
   position: sticky;
@@ -79,7 +80,7 @@ html, body, #root {
 }
 
 .header-title p {
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 1em;
   font-weight: 500;
 }
@@ -89,7 +90,7 @@ html, body, #root {
   height: 50px;
   border-radius: 50%;
   border: 2px solid var(--primary);
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.1), rgba(6, 182, 212, 0.05));
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.15), rgba(6, 182, 212, 0.08));
   color: var(--primary);
   font-size: 1.5em;
   font-weight: bold;
@@ -102,7 +103,7 @@ html, body, #root {
 
 .btn-refresh-large:hover {
   transform: rotate(180deg) scale(1.1);
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.2), rgba(6, 182, 212, 0.1));
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.25), rgba(6, 182, 212, 0.15));
   box-shadow: 0 0 20px rgba(217, 70, 239, 0.3);
 }
 
@@ -130,7 +131,7 @@ html, body, #root {
 }
 
 .loading-container p {
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 1.1em;
 }
 
@@ -151,7 +152,7 @@ html, body, #root {
   padding: 12px 24px;
   border: none;
   background: transparent;
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 1em;
   font-weight: 600;
   cursor: pointer;
@@ -161,7 +162,7 @@ html, body, #root {
 }
 
 .tab-btn:hover {
-  color: var(--accent);
+  color: var(--primary);
 }
 
 .tab-btn.active {
@@ -203,8 +204,8 @@ html, body, #root {
 }
 
 .kpi-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 230, 255, 0.5));
-  border: 1px solid rgba(217, 70, 239, 0.2);
+  background: linear-gradient(135deg, rgba(26, 21, 48, 0.8), rgba(37, 32, 56, 0.6));
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 25px;
   backdrop-filter: blur(10px);
@@ -220,7 +221,7 @@ html, body, #root {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.05), rgba(6, 182, 212, 0.02));
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.08), rgba(6, 182, 212, 0.03));
   pointer-events: none;
 }
 
@@ -228,6 +229,7 @@ html, body, #root {
   transform: translateY(-8px);
   box-shadow: var(--shadow);
   border-color: rgba(217, 70, 239, 0.4);
+  background: linear-gradient(135deg, rgba(26, 21, 48, 0.95), rgba(37, 32, 56, 0.8));
 }
 
 .kpi-card h3 {
@@ -242,7 +244,7 @@ html, body, #root {
 }
 
 .kpi-value {
-  color: var(--accent);
+  color: var(--secondary);
   font-size: 2em;
   font-weight: 700;
   margin-bottom: 8px;
@@ -251,7 +253,7 @@ html, body, #root {
 }
 
 .kpi-orders {
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 0.9em;
   position: relative;
   z-index: 1;
@@ -259,8 +261,8 @@ html, body, #root {
 
 /* TOTAL CARD */
 .total-card {
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.1), rgba(6, 182, 212, 0.05));
-  border: 2px solid rgba(217, 70, 239, 0.3);
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.12), rgba(6, 182, 212, 0.08));
+  border: 2px solid var(--border);
   border-radius: 16px;
   padding: 40px;
   text-align: center;
@@ -269,7 +271,7 @@ html, body, #root {
 }
 
 .total-card h2 {
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 0.95em;
   margin-bottom: 15px;
   text-transform: uppercase;
@@ -294,8 +296,8 @@ html, body, #root {
 }
 
 .stock-card {
-  background: linear-gradient(135deg, rgba(196, 232, 184, 0.2), rgba(168, 227, 156, 0.1));
-  border: 1px solid rgba(100, 180, 100, 0.3);
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.12), rgba(6, 182, 212, 0.08));
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
   text-align: center;
@@ -305,11 +307,12 @@ html, body, #root {
 
 .stock-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(100, 180, 100, 0.15);
+  box-shadow: 0 8px 20px rgba(217, 70, 239, 0.2);
+  border-color: rgba(217, 70, 239, 0.4);
 }
 
 .stock-card h4 {
-  color: #555;
+  color: var(--text-muted);
   font-size: 0.85em;
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -317,14 +320,14 @@ html, body, #root {
 }
 
 .stock-number {
-  color: #2d5f2d;
+  color: var(--secondary);
   font-size: 2.2em;
   font-weight: 700;
 }
 
 .stock-deposito {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 230, 255, 0.6));
-  border: 1px solid rgba(217, 70, 239, 0.2);
+  background: linear-gradient(135deg, rgba(26, 21, 48, 0.8), rgba(37, 32, 56, 0.6));
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 25px;
   margin-bottom: 20px;
@@ -336,7 +339,7 @@ html, body, #root {
   font-size: 1.3em;
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 2px solid rgba(217, 70, 239, 0.2);
+  border-bottom: 2px solid var(--border);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -348,10 +351,10 @@ html, body, #root {
 }
 
 .stock-marca {
-  border: 1px solid rgba(217, 70, 239, 0.15);
+  border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
-  background: white;
+  background: rgba(37, 32, 56, 0.5);
 }
 
 .marca-header {
@@ -359,14 +362,14 @@ html, body, #root {
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.08), rgba(6, 182, 212, 0.05));
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.12), rgba(6, 182, 212, 0.08));
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
 }
 
 .marca-header:hover {
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.15), rgba(6, 182, 212, 0.1));
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.2), rgba(6, 182, 212, 0.12));
 }
 
 .marca-name {
@@ -382,14 +385,14 @@ html, body, #root {
 }
 
 .expand-icon {
-  color: var(--text-light);
+  color: var(--text-muted);
   transition: transform 0.2s;
   font-size: 0.8em;
 }
 
 .productos-list {
   padding: 15px;
-  background: rgba(240, 230, 255, 0.3);
+  background: rgba(15, 10, 35, 0.5);
   max-height: 300px;
   overflow-y: auto;
 }
@@ -398,19 +401,19 @@ html, body, #root {
   padding: 10px;
   border-left: 3px solid var(--primary);
   margin-bottom: 10px;
-  background: white;
+  background: rgba(26, 21, 48, 0.6);
   border-radius: 6px;
 }
 
 .prod-nombre {
-  color: var(--text-dark);
+  color: var(--text-light);
   font-size: 0.95em;
   font-weight: 600;
   margin-bottom: 3px;
 }
 
 .prod-detalle {
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 0.85em;
 }
 
@@ -418,7 +421,7 @@ html, body, #root {
 .app-footer {
   text-align: center;
   padding: 20px;
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 0.9em;
   border-top: 1px solid rgba(217, 70, 239, 0.1);
   margin-top: auto;
@@ -433,12 +436,18 @@ html, body, #root {
 }
 
 .chart-container {
-  background: white;
-  border: 1px solid rgba(217, 70, 239, 0.15);
+  background: linear-gradient(135deg, rgba(26, 21, 48, 0.8), rgba(37, 32, 56, 0.6));
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 25px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
+}
+
+.chart-container h4 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-size: 1em;
 }
 
 /* RESPONSIVE */

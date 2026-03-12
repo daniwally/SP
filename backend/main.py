@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import FileResponse
+from pathlib import Path
 from contextlib import asynccontextmanager
 import os
 
@@ -14,7 +16,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Sobrepatas Dashboard API",
-    description="API para dashboard de ventas y stock",
     version="0.1.0",
     lifespan=lifespan
 )
@@ -32,16 +33,35 @@ app.add_middleware(
 app.include_router(ml_router.router, prefix="/api/ml", tags=["MercadoLibre"])
 app.include_router(odoo_router.router, prefix="/api/odoo", tags=["Odoo"])
 
-# Health check
-@app.get("/")
-async def root():
-    return {"status": "ok", "message": "Sobrepatas Dashboard API"}
-
+# Rutas base
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
 
-# Servir frontend estático
-static_dir = os.path.join(os.path.dirname(__file__), '..', 'static')
-if os.path.exists(static_dir):
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+@app.get("/api")
+async def api_info():
+    return {"status": "ok"}
+
+# SPA Middleware - sirve index.html como fallback
+class SPAMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        # Dejar que los endpoints API funcionen
+        if request.url.path.startswith("/api") or request.url.path == "/health":
+            return await call_next(request)
+        
+        # Para el resto, intentar servir archivos estáticos
+        static_dir = Path(__file__).parent.parent / "static"
+        file_path = static_dir / request.url.path.lstrip("/")
+        
+        # Si el archivo existe, servirlo
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        
+        # Si no, servir index.html (SPA)
+        index_file = static_dir / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+        
+        return await call_next(request)
+
+app.add_middleware(SPAMiddleware)

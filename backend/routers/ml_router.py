@@ -27,9 +27,21 @@ TEST_DATA_HOY = {
             {"nombre": "GTM Negro", "cantidad": 1}
         ]
     },
-    "HYDRATE": {"total": 0, "ordenes": 0, "productos": []},
-    "TIMBERLAND": {"total": 0, "ordenes": 0, "productos": []},
-    "URBAN_FLOW": {"total": 0, "ordenes": 0, "productos": []},
+    "HYDRATE": {
+        "total": 0, 
+        "ordenes": 0, 
+        "productos": []
+    },
+    "TIMBERLAND": {
+        "total": 0, 
+        "ordenes": 0, 
+        "productos": []
+    },
+    "URBAN_FLOW": {
+        "total": 0, 
+        "ordenes": 0, 
+        "productos": []
+    },
 }
 
 TEST_DATA_7DIAS = {
@@ -47,9 +59,9 @@ TEST_DATA_7DIAS = {
         "total": 536848, 
         "ordenes": 12,
         "productos": [
-            {"nombre": "Hydrate Blue", "cantidad": 8},
-            {"nombre": "Hydrate Green", "cantidad": 6},
-            {"nombre": "Hydrate Red", "cantidad": 3}
+            {"nombre": "Botella 710ML", "cantidad": 8},
+            {"nombre": "Vaso 500ML", "cantidad": 6},
+            {"nombre": "Jarro 1L", "cantidad": 3}
         ]
     },
     "TIMBERLAND": {

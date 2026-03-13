@@ -312,38 +312,50 @@ function App() {
         <>
           {/* KPI CARDS - TOTAL INVENTARIO + POR MARCA */}
           <section className="section">
-            {/* KPI - Solo Cantidades */}
-            <div style={{ marginBottom: '25px' }}>
+            {/* KPI - Solo Cantidades - Una línea */}
+            <div style={{ marginBottom: '25px', textAlign: 'center' }}>
               <div style={{
                 background: 'rgba(0, 0, 0, 0.5)',
                 border: '1px solid rgba(217, 70, 239, 0.2)',
                 borderRadius: '12px',
-                padding: '15px',
-                textAlign: 'center'
+                padding: '12px 20px',
+                display: 'flex',
+                justifyContent: 'space-around',
+                alignItems: 'center',
+                gap: '20px'
               }}>
-                <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '12px' }}>INVENTARIO TOTAL</p>
-                <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 700, marginBottom: '15px' }}>
-                  {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
-                </p>
-                
-                {/* Desglose por Depósito */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                  <div>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', marginBottom: '4px' }}>Artilleros</p>
-                    <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700 }}>
-                      {Object.values(stockData).reduce((sum, marca) => {
-                        return sum + (marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
-                      }, 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', marginBottom: '4px' }}>Aduana</p>
-                    <p style={{ color: '#fbbf24', fontSize: '1.5em', fontWeight: 700 }}>
-                      {Object.values(stockData).reduce((sum, marca) => {
-                        return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
-                      }, 0).toLocaleString()}
-                    </p>
-                  </div>
+                {/* Total */}
+                <div style={{ flex: 1 }}>
+                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>INVENTARIO TOTAL</p>
+                  <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                    {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Separador */}
+                <div style={{ width: '1px', height: '50px', background: 'rgba(217, 70, 239, 0.2)' }}></div>
+
+                {/* Artilleros */}
+                <div style={{ flex: 1 }}>
+                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Artilleros</p>
+                  <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                    {Object.values(stockData).reduce((sum, marca) => {
+                      return sum + (marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                    }, 0).toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Separador */}
+                <div style={{ width: '1px', height: '50px', background: 'rgba(217, 70, 239, 0.2)' }}></div>
+
+                {/* Aduana */}
+                <div style={{ flex: 1 }}>
+                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Aduana</p>
+                  <p style={{ color: '#fbbf24', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                    {Object.values(stockData).reduce((sum, marca) => {
+                      return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                    }, 0).toLocaleString()}
+                  </p>
                 </div>
               </div>
             </div>

@@ -367,6 +367,36 @@ function App() {
 
           </section>
 
+          {/* INVENTARIO POR MARCA Y DEPÓSITO - PRIMER CARD */}
+          <section className="section">
+            <h2>📦 Inventario por Marca & Depósito</h2>
+            <div className="cards-grid">
+              {Object.entries(stockData).map(([marca, data]) => {
+                const artilleros = data.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
+                const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
+                
+                return (
+                  <div key={marca} className="card">
+                    <h3>{marca}</h3>
+                    <div style={{ display: 'flex', gap: '15px', marginTop: '12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Artilleros</p>
+                        <p style={{ color: '#06b6d4', fontSize: '1.3em', fontWeight: 700 }}>{artilleros.toLocaleString()}</p>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Aduana</p>
+                        <p style={{ color: '#fbbf24', fontSize: '1.3em', fontWeight: 700 }}>{aduana.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
+                      <p style={{ color: '#d946ef', fontSize: '0.85em', fontWeight: 600 }}>Total: {(artilleros + aduana).toLocaleString()}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
           {/* VALUACIÓN STOCK CRUZADO - ARTILLEROS + ZONA FRANCA */}
           <section className="section">
             <h2>💎 Valuación Stock Cruzado (Artilleros + Zona Franca)</h2>
@@ -440,77 +470,7 @@ function App() {
             </div>
           </section>
 
-          {/* VALUACIÓN POR MARCA - LISTA MAYORISTAS */}
-          <section className="section">
-            <h2>💰 Valuación por Marca (Lista Mayoristas)</h2>
-            <div className="cards-grid">
-              {Object.entries(stockData).map(([marca, data]) => {
-                const totalUnidades = data.total_unidades || 0
-                // Precios promedio Mayoristas estimados por marca
-                const preciosPromedio = {
-                  'SHAQ': 2500,
-                  'STARTER': 3200,
-                  'HYDRATE': 850,
-                  'TIMBERLAND': 5500,
-                  'ELSYS': 1200
-                }
-                
-                const precioPromedio = preciosPromedio[marca] || 1000
-                const valuacion = totalUnidades * precioPromedio
-                
-                return (
-                  <div key={marca} className="card">
-                    <h3>{marca}</h3>
-                    <div style={{ marginBottom: '8px' }}>
-                      <p style={{ color: '#7f8c8d', fontSize: '0.75em', marginBottom: '2px' }}>Cantidad</p>
-                      <p style={{ color: '#06b6d4', fontSize: '1.4em', fontWeight: 700, margin: 0 }}>
-                        {totalUnidades.toLocaleString()}
-                      </p>
-                    </div>
-                    <div style={{ paddingTop: '8px', borderTop: '1px solid rgba(217, 70, 239, 0.2)' }}>
-                      <p style={{ color: '#7f8c8d', fontSize: '0.75em', marginBottom: '2px' }}>Valuación</p>
-                      <p style={{ color: '#fbbf24', fontSize: '1.4em', fontWeight: 700, margin: 0 }}>
-                        ${(valuacion / 1000000).toFixed(1)}M
-                      </p>
-                      <p style={{ color: '#95a5a6', fontSize: '0.7em', marginTop: '4px' }}>
-                        @ ${precioPromedio.toLocaleString()}/u
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
 
-          {/* INVENTARIO POR MARCA Y DEPÓSITO */}
-          <section className="section">
-            <h2>📦 Inventario por Marca & Depósito</h2>
-            <div className="cards-grid">
-              {Object.entries(stockData).map(([marca, data]) => {
-                const artilleros = data.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
-                const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
-                
-                return (
-                  <div key={marca} className="card">
-                    <h3>{marca}</h3>
-                    <div style={{ display: 'flex', gap: '15px', marginTop: '12px' }}>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Artilleros</p>
-                        <p style={{ color: '#06b6d4', fontSize: '1.3em', fontWeight: 700 }}>{artilleros.toLocaleString()}</p>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Aduana</p>
-                        <p style={{ color: '#fbbf24', fontSize: '1.3em', fontWeight: 700 }}>{aduana.toLocaleString()}</p>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                      <p style={{ color: '#d946ef', fontSize: '0.85em', fontWeight: 600 }}>Total: {(artilleros + aduana).toLocaleString()}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
         </>
         )}
       </main>

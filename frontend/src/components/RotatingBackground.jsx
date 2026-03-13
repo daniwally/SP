@@ -20,6 +20,7 @@ export default function RotatingBackground() {
           }}
         />
       ))}
+      <div className="gradient-overlay"></div>
     </div>
   )
 }

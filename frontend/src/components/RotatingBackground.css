@@ -27,13 +27,13 @@
   0% {
     opacity: 0;
   }
-  16% {
+  5% {
+    opacity: 0.08;
+  }
+  20% {
     opacity: 0.08;
   }
   25% {
-    opacity: 0.08;
-  }
-  33% {
     opacity: 0;
   }
   100% {

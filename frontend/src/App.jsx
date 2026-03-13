@@ -312,32 +312,36 @@ function App() {
         <>
           {/* KPI CARDS - TOTAL INVENTARIO + POR MARCA */}
           <section className="section">
-            {/* Totales */}
-            <div className="section-2col">
+            {/* Totales - Compactos */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '25px' }}>
               {/* Total Unidades */}
-              <div className="compare-card">
-                <h2>Inventario Total</h2>
-                <p className="big-number">
-                  {Object.values(stockData).reduce((sum, marca) => {
-                    const art = marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
-                    const adu = marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
-                    return sum + art + adu
-                  }, 0).toLocaleString()}
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(217, 70, 239, 0.2)',
+                borderRadius: '12px',
+                padding: '15px',
+                textAlign: 'center'
+              }}>
+                <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '8px' }}>INVENTARIO TOTAL</p>
+                <p style={{ color: '#06b6d4', fontSize: '2.2em', fontWeight: 700, marginBottom: '4px' }}>
+                  {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
                 </p>
-                <p className="subtitle">Artilleros + Aduana</p>
+                <p style={{ color: '#95a5a6', fontSize: '0.75em' }}>Artilleros + Aduana</p>
               </div>
               
               {/* Costo Total Inventario */}
-              <div className="compare-card">
-                <h2>Valor Inventario</h2>
-                <p className="big-number">
-                  ${(Object.values(stockData).reduce((sum, marca) => {
-                    const artCosto = Object.values(marca.almacenes?.['Artilleros']?.productos || []).reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0)
-                    const aduCosto = Object.values(marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos || []).reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0)
-                    return sum + artCosto + aduCosto
-                  }, 0) / 1000000).toFixed(1)}M
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(217, 70, 239, 0.2)',
+                borderRadius: '12px',
+                padding: '15px',
+                textAlign: 'center'
+              }}>
+                <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '8px' }}>VALOR INVENTARIO</p>
+                <p style={{ color: '#fbbf24', fontSize: '2.2em', fontWeight: 700, marginBottom: '4px' }}>
+                  ${(Object.values(stockData).reduce((sum, marca) => sum + (marca.costo_total || 0), 0) / 1000000).toFixed(1)}M
                 </p>
-                <p className="subtitle">Artilleros + Aduana</p>
+                <p style={{ color: '#95a5a6', fontSize: '0.75em' }}>Artilleros + Aduana</p>
               </div>
             </div>
 

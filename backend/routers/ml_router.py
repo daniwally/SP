@@ -341,11 +341,13 @@ async def ventas_mes():
         # Si no hay token, usar datos de prueba (aproximado del mes)
         if not token:
             # Estimar del mes completo basado en datos de 7 días
-            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": []})
             resultado[marca] = {
                 "total": int(data_7d["total"] * 4.2),  # Aproximación
                 "ordenes": int(data_7d["ordenes"] * 4.2),
-                "productos": data_7d.get("productos", [])
+                "productos": data_7d.get("productos", []),
+                "alertas": data_7d.get("alertas", []),
+                "recomendaciones": data_7d.get("recomendaciones", [])
             }
             continue
         
@@ -358,25 +360,32 @@ async def ventas_mes():
                 ordenes = data.get("results", [])
                 total = sum(o.get("total_amount", 0) for o in ordenes)
                 productos = extract_productos(ordenes)
+                data_7d = TEST_DATA_7DIAS.get(marca, {})
                 resultado[marca] = {
                     "total": total, 
                     "ordenes": len(ordenes),
-                    "productos": productos[:5]
+                    "productos": productos[:5],
+                    "alertas": data_7d.get("alertas", []),
+                    "recomendaciones": data_7d.get("recomendaciones", [])
                 }
             else:
-                data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+                data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": []})
                 resultado[marca] = {
                     "total": int(data_7d["total"] * 4.2),
                     "ordenes": int(data_7d["ordenes"] * 4.2),
-                    "productos": data_7d.get("productos", [])
+                    "productos": data_7d.get("productos", []),
+                    "alertas": data_7d.get("alertas", []),
+                    "recomendaciones": data_7d.get("recomendaciones", [])
                 }
         except Exception as e:
             print(f"Error processing {marca}: {e}")
-            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": []})
             resultado[marca] = {
                 "total": int(data_7d["total"] * 4.2),
                 "ordenes": int(data_7d["ordenes"] * 4.2),
-                "productos": data_7d.get("productos", [])
+                "productos": data_7d.get("productos", []),
+                "alertas": data_7d.get("alertas", []),
+                "recomendaciones": data_7d.get("recomendaciones", [])
             }
     
     return resultado

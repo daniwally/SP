@@ -2,10 +2,10 @@ import './RotatingBackground.css'
 
 export default function RotatingBackground() {
   const backgrounds = [
-    '/static/backgrounds/bg1.jpg',
-    '/static/backgrounds/bg2.jpg',
-    '/static/backgrounds/bg3.jpg',
-    '/static/backgrounds/bg4.jpg'
+    '/backgrounds/bg1.jpg',
+    '/backgrounds/bg2.jpg',
+    '/backgrounds/bg3.jpg',
+    '/backgrounds/bg4.jpg'
   ]
 
   return (

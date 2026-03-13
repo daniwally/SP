@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && mkdir -p dist/static && cp -r public/backgrounds dist/static/",
+    "build": "vite build && cp -r public/backgrounds dist/",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -23,9 +23,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #000000;
+  background: transparent;
   position: relative;
-  z-index: 0;
+  z-index: 1;
 }
 
 .header {

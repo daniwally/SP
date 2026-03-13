@@ -480,7 +480,9 @@ async def ventas_7dias():
                 print(f"7DIAS - {marca}: Data falsa o sin results")
                 resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
         except Exception as e:
+            import traceback
             print(f"7DIAS - Error processing {marca}: {e}")
+            print(f"7DIAS - Traceback: {traceback.format_exc()}")
             resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
     
     return resultado

@@ -450,29 +450,34 @@ async def ventas_7dias():
     for cuenta_num, (uid, marca) in CUENTAS.items():
         token = get_token(cuenta_num)
         
-        # Si no hay token, usar datos de prueba
+        # Si no hay token, devolver ceros
         if not token:
+            print(f"7DIAS - {marca}: Token no encontrado")
             resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
             continue
         
         # Si hay token, intentar obtener datos en vivo
         try:
             url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&limit=50"
+            print(f"7DIAS - {marca}: Llamando API: {url[:80]}...")
             data = api_call(url, token)
+            print(f"7DIAS - {marca}: Respuesta: {data is not None}, tiene 'results': {data and 'results' in data if data else False}")
             
             if data and "results" in data:
                 ordenes = data.get("results", [])
                 total = sum(o.get("total_amount", 0) for o in ordenes)
                 productos = extract_productos(ordenes)
+                print(f"7DIAS - {marca}: OK {len(ordenes)} órdenes, ${total}")
                 resultado[marca] = {
-                    "total": total, 
+                    "total": int(total), 
                     "ordenes": len(ordenes),
                     "productos": productos[:5]  # Top 5 productos
                 }
             else:
+                print(f"7DIAS - {marca}: Data falsa o sin results")
                 resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
         except Exception as e:
-            print(f"Error processing {marca}: {e}")
+            print(f"7DIAS - Error processing {marca}: {e}")
             resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
     
     return resultado

@@ -33,6 +33,7 @@ function App() {
   const [salesData, setSalesData] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
+  const [activeTab, setActiveTab] = useState('mercadolibre')
 
   useEffect(() => {
     const today = new Date()
@@ -97,11 +98,29 @@ function App() {
       <RotatingBackground />
       <div className="app">
         <header className="header">
-        <h1>📊 Sobrepatas Dashboard</h1>
-        <button onClick={fetchAllData} className="btn-refresh">↻</button>
+        <h1>SP - MercadoLibre</h1>
+        <div className="header-actions">
+          <div className="tabs">
+            <button 
+              className={`tab-btn ${activeTab === 'mercadolibre' ? 'active' : ''}`}
+              onClick={() => setActiveTab('mercadolibre')}
+            >
+              💰 Ventas
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stock')}
+            >
+              📦 Stock
+            </button>
+          </div>
+          <button onClick={fetchAllData} className="btn-refresh">↻</button>
+        </div>
       </header>
 
       <main className="dashboard">
+        {activeTab === 'mercadolibre' && (
+        <>
         {/* VENTAS DEL DÍA Y SEMANAL EN PARALELO */}
         <div className="two-sections">
           {/* VENTAS DEL DÍA */}
@@ -209,6 +228,17 @@ function App() {
             ))}
           </div>
         </section>
+        </>
+        )}
+
+        {activeTab === 'stock' && (
+        <section className="section" style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <h2>📦 Stock</h2>
+          <p style={{ color: '#95a5a6', fontSize: '1.1em', marginTop: '20px' }}>
+            Panel de Stock - En desarrollo
+          </p>
+        </section>
+        )}
       </main>
 
       <footer className="footer">

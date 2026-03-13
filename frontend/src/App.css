@@ -444,6 +444,27 @@ body {
   white-space: nowrap;
 }
 
+/* PREGUNTAS */
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.question-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s;
+}
+
+.question-card:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(0, 0, 0, 0.7);
+}
+
 /* ALERTAS Y RECOMENDACIONES */
 .alerts-grid {
   display: grid;

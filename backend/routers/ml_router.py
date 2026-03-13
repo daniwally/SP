@@ -37,11 +37,6 @@ TEST_DATA_HOY = {
         "ordenes": 0, 
         "productos": []
     },
-    "URBAN_FLOW": {
-        "total": 0, 
-        "ordenes": 0, 
-        "productos": []
-    },
 }
 
 TEST_DATA_7DIAS = {
@@ -143,24 +138,6 @@ TEST_DATA_7DIAS = {
             "Contactar clientes insatisfechos para compensar"
         ]
     },
-    "URBAN_FLOW": {
-        "total": 453068, 
-        "ordenes": 4,
-        "productos": [
-            {"nombre": "Urban Flow Black", "cantidad": 2},
-            {"nombre": "Urban Flow White", "cantidad": 2}
-        ],
-        "alertas": [
-            "Nivel 5 Verde: métricas excelentes",
-            "Tasa de entrega: 99.2%",
-            "Reputación positiva: 98.5%"
-        ],
-        "recomendaciones": [
-            "Aprovechar buena reputación: lanzar nuevos SKUs",
-            "Participar en promos de MercadoLibre (mayor visibilidad)",
-            "Expandir línea: agregar 2-3 variantes de color"
-        ]
-    },
 }
 
 CUENTAS = {
@@ -168,7 +145,7 @@ CUENTAS = {
     2: (2339108379, "STARTER"),
     3: (231953468, "HYDRATE"),
     4: (1434057904, "TIMBERLAND"),
-    5: (1630806191, "URBAN_FLOW"),
+    # 5: Nueva marca real - PENDIENTE
 }
 
 

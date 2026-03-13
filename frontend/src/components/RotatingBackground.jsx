@@ -16,7 +16,7 @@ export default function RotatingBackground() {
           className="bg-layer"
           style={{
             backgroundImage: `url('${bg}')`,
-            animationDelay: `${idx * 6}s`
+            animationDelay: `${idx * 15}s`
           }}
         />
       ))}

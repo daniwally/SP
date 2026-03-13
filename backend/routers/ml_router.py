@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 import urllib.request
 import json
 import os
+import re
 from collections import defaultdict
 
 router = APIRouter()
@@ -114,21 +115,43 @@ def api_call(url, token):
 
 
 def clean_product_name(title):
-    """Limpia el nombre del producto, buscando solo la parte principal"""
+    """Extrae tipo y calibre del producto (ej: 'Botella 710ML')"""
     if not title:
         return "Producto desconocido"
     
-    # Quitar variantes comunes: colores, tallas, etc.
-    # Buscar la primera parte antes de "-" o patrones comunes
-    parts = title.split(" - ")
-    if parts:
-        main_name = parts[0].strip()
-        # Si el nombre es muy corto, devolverlo completo
-        if len(main_name) < 5:
-            return title[:50]  # Truncar a 50 caracteres
-        return main_name[:50]
+    # Patrones a buscar: tipo + calibre
+    # Tipos: Botella, Vaso, Taza, Termo, Jarro, Matero, etc.
+    tipo_pattern = r'\b(Botella|Vaso|Taza|Termo|Jarro|Matero|Lata|Tupper|Contenedor|Mate|Pava|Tetera)\b'
+    # Calibres: 710ML, 500ML, 1L, 2LT, etc.
+    calibre_pattern = r'(\d+\s*(?:ML|Ml|ml|LT|L|Litros?|mililitros?))'
     
-    return title[:50]
+    tipo_match = re.search(tipo_pattern, title, re.IGNORECASE)
+    calibre_match = re.search(calibre_pattern, title, re.IGNORECASE)
+    
+    # Construir nombre limpio
+    if tipo_match and calibre_match:
+        tipo = tipo_match.group(1).capitalize()
+        calibre = calibre_match.group(1).upper().replace(' ', '')
+        return f"{tipo} {calibre}"
+    
+    elif tipo_match:
+        return tipo_match.group(1).capitalize()
+    
+    elif calibre_match:
+        return calibre_match.group(1).upper().replace(' ', '')
+    
+    # Si no encuentra patrón, buscar la marca (Hydrate, Shaq, etc.) + algo
+    marcas = ['Hydrate', 'Shaq', 'Motivate', 'Posture', 'Starter', 'Timberland', 'Urban', 'GTM']
+    for marca in marcas:
+        if marca.lower() in title.lower():
+            idx = title.lower().find(marca.lower())
+            # Obtener hasta el siguiente espacio significativo
+            rest = title[idx:].split()[:2]  # Tomar marca + 1 palabra
+            return ' '.join(rest)[:50]
+    
+    # Fallback: primeras 2 palabras
+    words = title.split()[:2]
+    return ' '.join(words)[:50]
 
 
 def extract_productos(ordenes):

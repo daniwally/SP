@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import RotatingBackground from './components/RotatingBackground'
 import './App.css'
 
 // Función para formatear fecha en español
@@ -103,8 +104,10 @@ function App() {
     .slice(0, 3)
 
   return (
-    <div className="app">
-      <header className="header">
+    <>
+      <RotatingBackground />
+      <div className="app">
+        <header className="header">
         <h1>📊 Sobrepatas Dashboard</h1>
         <button onClick={fetchAllData} className="btn-refresh">↻</button>
       </header>
@@ -235,7 +238,8 @@ function App() {
       <footer className="footer">
         <p>Actualizado en tiempo real • Rudolf Dashboard</p>
       </footer>
-    </div>
+      </div>
+    </>
   )
 }
 

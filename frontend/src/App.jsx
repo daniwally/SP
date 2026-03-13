@@ -2,11 +2,40 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './App.css'
 
+// Función para formatear fecha en español
+const formatDateSpanish = (date) => {
+  const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+  const day = days[date.getDay()]
+  const dayNum = date.getDate()
+  const month = months[date.getMonth()]
+  return `${day} ${dayNum} de ${month}`
+}
+
+// Función para obtener el sábado de esta semana
+const getSaturdayOfWeek = (date) => {
+  const d = new Date(date)
+  const day = d.getDay()
+  // Si hoy es sábado (6), devolver hoy. Si es domingo (0), devolver hace 1 día. etc.
+  const diff = day === 6 ? 0 : day === 0 ? 1 : day + 1
+  d.setDate(d.getDate() - diff)
+  return d
+}
+
 function App() {
   const [salesData, setSalesData] = useState({})
   const [loading, setLoading] = useState(true)
+  const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
 
   useEffect(() => {
+    const today = new Date()
+    const saturday = getSaturdayOfWeek(today)
+    
+    setDateInfo({
+      today: formatDateSpanish(today),
+      weekRange: `${formatDateSpanish(saturday)} - ${formatDateSpanish(today)}`
+    })
+    
     fetchAllData()
   }, [])
 
@@ -66,6 +95,7 @@ function App() {
           {/* VENTAS DEL DÍA */}
           <section className="section">
             <h2>Ventas del Día</h2>
+            <p className="section-date">{dateInfo.today}</p>
             <div className="cards-grid">
               {Object.entries(ventasHoy).map(([marca, data]) => (
                 <div key={marca} className="card">
@@ -93,6 +123,7 @@ function App() {
           {/* VENTAS DE LA SEMANA */}
           <section className="section">
             <h2>Ventas de la Semana</h2>
+            <p className="section-date">{dateInfo.weekRange}</p>
             <div className="cards-grid">
               {Object.entries(ventas7d).map(([marca, data]) => (
                 <div key={marca} className="card">

@@ -40,7 +40,7 @@ body {
 .header h1 {
   font-size: 1.8em;
   color: #fff;
-  font-weight: 500;
+  font-weight: 900;
   letter-spacing: -0.5px;
   font-family: 'Inter', sans-serif;
 }
@@ -87,7 +87,7 @@ body {
 .section h2 {
   font-size: 1.3em;
   color: #fff;
-  font-weight: 500;
+  font-weight: 900;
   letter-spacing: -0.3px;
   font-family: 'Inter', sans-serif;
 }
@@ -131,7 +131,7 @@ body {
 .card h3 {
   color: #d946ef;
   font-size: 0.9em;
-  font-weight: 500;
+  font-weight: 900;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -243,7 +243,7 @@ body {
 .compare-card h2 {
   font-size: 1.05em;
   color: #95a5a6;
-  font-weight: 500;
+  font-weight: 900;
   margin-bottom: 14px;
   font-family: 'Inter', sans-serif;
 }
@@ -310,7 +310,7 @@ body {
 .top3-card h3 {
   color: #d946ef;
   font-size: 1.05em;
-  font-weight: 500;
+  font-weight: 900;
   margin-bottom: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -338,6 +338,15 @@ body {
   font-size: 0.8em;
   font-weight: 700;
   font-family: 'Inter', sans-serif;
+}
+
+/* FECHAS */
+.section-date {
+  font-size: 0.85em;
+  color: #95a5a6;
+  margin-bottom: 15px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
 }
 
 .top3-card:hover {

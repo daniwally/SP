@@ -178,8 +178,25 @@ async def ventas_hoy():
 
 @router.get("/ventas/7dias")
 async def ventas_7dias():
-    """Ventas últimos 7 días por marca con productos"""
+    """Ventas de la semana (sábado a hoy) por marca con productos"""
     resultado = {}
+    
+    NOW = datetime.now(ART)
+    HOY = NOW.strftime("%Y-%m-%d")
+    
+    # Calcular el sábado de esta semana
+    # 6 = sábado, 0 = domingo, etc.
+    day_of_week = NOW.weekday()  # 0=lunes, 5=sábado, 6=domingo
+    if day_of_week == 5:  # sábado
+        dias_atras = 0
+    elif day_of_week == 6:  # domingo
+        dias_atras = 1
+    else:  # lunes a viernes
+        dias_atras = (day_of_week + 2) % 7
+    
+    SABADO = (NOW - timedelta(days=dias_atras)).strftime("%Y-%m-%d")
+    fecha_from = f"{SABADO}T00:00:00.000-03:00"
+    fecha_to = f"{HOY}T23:59:59.000-03:00"
     
     for cuenta_num, (uid, marca) in CUENTAS.items():
         token = get_token(cuenta_num)
@@ -191,12 +208,6 @@ async def ventas_7dias():
         
         # Si hay token, intentar obtener datos en vivo
         try:
-            NOW = datetime.now(ART)
-            HOY = NOW.strftime("%Y-%m-%d")
-            HACE_7 = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
-            fecha_from = f"{HACE_7}T00:00:00.000-03:00"
-            fecha_to = f"{HOY}T23:59:59.000-03:00"
-            
             url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&limit=50"
             data = api_call(url, token)
             

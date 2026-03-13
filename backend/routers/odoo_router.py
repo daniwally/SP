@@ -160,7 +160,10 @@ def get_marca_map():
     return {}
 
 def get_stock_real():
-    """Obtiene stock real desde Odoo agrupado por marca y almacén"""
+    """Obtiene stock real desde Odoo agrupado por marca y almacén - DESACTIVADA"""
+    # DESACTIVADA - Odoo tiene demasiados registros
+    return {}
+    
     try:
         uid = get_uid()
         if not uid:

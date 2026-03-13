@@ -372,30 +372,31 @@ function App() {
 
 
 
-          {/* ANÁLISIS DE COSTOS */}
+          {/* INVENTARIO POR UBICACIÓN */}
           <section className="section">
-            <h2>💰 Análisis de Costos por Marca</h2>
-            <div className="cards-grid">
-              {Object.entries(stockData).map(([marca, data]) => {
-                const totalUnidades = data.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0 +
-                                     data.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
-                const totalCosto = (data.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0) || 0) +
-                                  (data.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0) || 0)
-                const costoPorUnidad = totalUnidades > 0 ? (totalCosto / totalUnidades).toFixed(2) : 0
-                
-                return (
-                  <div key={marca} className="card">
-                    <h3>{marca}</h3>
-                    <p className="value">${totalCosto.toLocaleString()}</p>
-                    <p className="subtitle">{totalUnidades.toLocaleString()} unidades</p>
-                    <div className="productos-list" style={{ marginTop: '12px' }}>
-                      <p style={{ color: '#fbbf24', fontSize: '0.8em', fontWeight: 600 }}>
-                        ${costoPorUnidad} / unidad
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
+            <h2>📍 Inventario por Ubicación</h2>
+            <div className="section-2col">
+              {/* ARTILLEROS */}
+              <div className="compare-card">
+                <h2>Artilleros</h2>
+                <p className="big-number">
+                  {Object.values(stockData).reduce((sum, marca) => {
+                    return sum + (marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                  }, 0).toLocaleString()}
+                </p>
+                <p className="subtitle">unidades</p>
+              </div>
+
+              {/* ADUANA */}
+              <div className="compare-card">
+                <h2>Aduana</h2>
+                <p className="big-number">
+                  {Object.values(stockData).reduce((sum, marca) => {
+                    return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                  }, 0).toLocaleString()}
+                </p>
+                <p className="subtitle">unidades</p>
+              </div>
             </div>
           </section>
         </>

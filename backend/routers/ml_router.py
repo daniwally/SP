@@ -59,9 +59,9 @@ TEST_DATA_7DIAS = {
         "total": 536848, 
         "ordenes": 12,
         "productos": [
-            {"nombre": "Botella 710ML", "cantidad": 8},
-            {"nombre": "Vaso 500ML", "cantidad": 6},
-            {"nombre": "Jarro 1L", "cantidad": 3}
+            {"nombre": "Botella 710ML Azul", "cantidad": 8},
+            {"nombre": "Vaso 500ML Verde", "cantidad": 6},
+            {"nombre": "Jarro 1L Rojo", "cantidad": 3}
         ]
     },
     "TIMBERLAND": {
@@ -127,30 +127,50 @@ def api_call(url, token):
 
 
 def clean_product_name(title):
-    """Extrae tipo y calibre del producto (ej: 'Botella 710ML')"""
+    """Extrae tipo, calibre y color del producto (ej: 'Botella 710ML Azul')"""
     if not title:
         return "Producto desconocido"
     
-    # Patrones a buscar: tipo + calibre
+    # Patrones a buscar: tipo + calibre + color
     # Tipos: Botella, Vaso, Taza, Termo, Jarro, Matero, etc.
     tipo_pattern = r'\b(Botella|Vaso|Taza|Termo|Jarro|Matero|Lata|Tupper|Contenedor|Mate|Pava|Tetera)\b'
     # Calibres: 710ML, 500ML, 1L, 2LT, etc.
     calibre_pattern = r'(\d+\s*(?:ML|Ml|ml|LT|L|Litros?|mililitros?))'
+    # Colores: Blue, Red, Green, Black, White, etc.
+    color_pattern = r'\b(Blue|Red|Green|Black|White|Yellow|Orange|Purple|Pink|Gray|Silver|Gold|Blanco|Negro|Azul|Rojo|Verde|Amarillo|Naranja|Morado|Gris|Plateado|Dorado)\b'
     
     tipo_match = re.search(tipo_pattern, title, re.IGNORECASE)
     calibre_match = re.search(calibre_pattern, title, re.IGNORECASE)
+    color_match = re.search(color_pattern, title, re.IGNORECASE)
+    
+    # Traducir colores al español
+    color_map = {
+        'blue': 'Azul', 'red': 'Rojo', 'green': 'Verde', 'black': 'Negro',
+        'white': 'Blanco', 'yellow': 'Amarillo', 'orange': 'Naranja',
+        'purple': 'Morado', 'pink': 'Rosa', 'gray': 'Gris', 'grey': 'Gris',
+        'silver': 'Plateado', 'gold': 'Dorado',
+        'blanco': 'Blanco', 'negro': 'Negro', 'azul': 'Azul', 'rojo': 'Rojo',
+        'verde': 'Verde', 'amarillo': 'Amarillo', 'naranja': 'Naranja',
+        'morado': 'Morado', 'gris': 'Gris', 'plateado': 'Plateado', 'dorado': 'Dorado'
+    }
     
     # Construir nombre limpio
-    if tipo_match and calibre_match:
-        tipo = tipo_match.group(1).capitalize()
+    nombre = ""
+    if tipo_match:
+        nombre = tipo_match.group(1).capitalize()
+    
+    if calibre_match:
         calibre = calibre_match.group(1).upper().replace(' ', '')
-        return f"{tipo} {calibre}"
+        nombre = f"{nombre} {calibre}".strip()
     
-    elif tipo_match:
-        return tipo_match.group(1).capitalize()
+    # Agregar color si existe
+    if color_match:
+        color_raw = color_match.group(1).lower()
+        color = color_map.get(color_raw, color_match.group(1).capitalize())
+        nombre = f"{nombre} {color}".strip()
     
-    elif calibre_match:
-        return calibre_match.group(1).upper().replace(' ', '')
+    if nombre:
+        return nombre[:50]
     
     # Si no encuentra patrón, buscar la marca (Hydrate, Shaq, etc.) + algo
     marcas = ['Hydrate', 'Shaq', 'Motivate', 'Posture', 'Starter', 'Timberland', 'Urban', 'GTM']

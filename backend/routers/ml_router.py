@@ -113,6 +113,24 @@ def api_call(url, token):
         return None
 
 
+def clean_product_name(title):
+    """Limpia el nombre del producto, buscando solo la parte principal"""
+    if not title:
+        return "Producto desconocido"
+    
+    # Quitar variantes comunes: colores, tallas, etc.
+    # Buscar la primera parte antes de "-" o patrones comunes
+    parts = title.split(" - ")
+    if parts:
+        main_name = parts[0].strip()
+        # Si el nombre es muy corto, devolverlo completo
+        if len(main_name) < 5:
+            return title[:50]  # Truncar a 50 caracteres
+        return main_name[:50]
+    
+    return title[:50]
+
+
 def extract_productos(ordenes):
     """Extrae y agrupa productos de las órdenes"""
     productos_dict = defaultdict(int)
@@ -121,7 +139,8 @@ def extract_productos(ordenes):
         # La API de órdenes puede traer order_items directamente o necesitar otra llamada
         if "order_items" in orden:
             for item in orden["order_items"]:
-                nombre = item.get("item", {}).get("title", "Producto desconocido")
+                nombre_raw = item.get("item", {}).get("title", "Producto desconocido")
+                nombre = clean_product_name(nombre_raw)
                 cantidad = item.get("quantity", 1)
                 productos_dict[nombre] += cantidad
     
@@ -172,6 +191,64 @@ async def ventas_hoy():
         except Exception as e:
             print(f"Error processing {marca}: {e}")
             resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+    
+    return resultado
+
+
+@router.get("/ventas/mes")
+async def ventas_mes():
+    """Ventas del mes (1 de este mes hasta hoy)"""
+    resultado = {}
+    
+    NOW = datetime.now(ART)
+    HOY = NOW.strftime("%Y-%m-%d")
+    PRIMER_DIA = NOW.replace(day=1).strftime("%Y-%m-%d")
+    fecha_from = f"{PRIMER_DIA}T00:00:00.000-03:00"
+    fecha_to = f"{HOY}T23:59:59.000-03:00"
+    
+    for cuenta_num, (uid, marca) in CUENTAS.items():
+        token = get_token(cuenta_num)
+        
+        # Si no hay token, usar datos de prueba (aproximado del mes)
+        if not token:
+            # Estimar del mes completo basado en datos de 7 días
+            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            resultado[marca] = {
+                "total": int(data_7d["total"] * 4.2),  # Aproximación
+                "ordenes": int(data_7d["ordenes"] * 4.2),
+                "productos": data_7d.get("productos", [])
+            }
+            continue
+        
+        # Si hay token, obtener datos en vivo
+        try:
+            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&limit=50"
+            data = api_call(url, token)
+            
+            if data and "results" in data:
+                ordenes = data.get("results", [])
+                total = sum(o.get("total_amount", 0) for o in ordenes)
+                productos = extract_productos(ordenes)
+                resultado[marca] = {
+                    "total": total, 
+                    "ordenes": len(ordenes),
+                    "productos": productos[:5]
+                }
+            else:
+                data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+                resultado[marca] = {
+                    "total": int(data_7d["total"] * 4.2),
+                    "ordenes": int(data_7d["ordenes"] * 4.2),
+                    "productos": data_7d.get("productos", [])
+                }
+        except Exception as e:
+            print(f"Error processing {marca}: {e}")
+            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            resultado[marca] = {
+                "total": int(data_7d["total"] * 4.2),
+                "ordenes": int(data_7d["ordenes"] * 4.2),
+                "productos": data_7d.get("productos", [])
+            }
     
     return resultado
 

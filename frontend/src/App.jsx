@@ -44,14 +44,16 @@ function App() {
       setLoading(true)
       const API = window.location.origin + '/api'
       
-      const [ventasHoy, ventas7dias] = await Promise.all([
+      const [ventasHoy, ventas7dias, ventasMes] = await Promise.all([
         axios.get(API + '/ml/ventas/hoy').catch(() => ({ data: {} })),
-        axios.get(API + '/ml/ventas/7dias').catch(() => ({ data: {} }))
+        axios.get(API + '/ml/ventas/7dias').catch(() => ({ data: {} })),
+        axios.get(API + '/ml/ventas/mes').catch(() => ({ data: {} }))
       ])
       
       setSalesData({ 
         hoy: ventasHoy.data, 
-        dias7: ventas7dias.data 
+        dias7: ventas7dias.data,
+        mes: ventasMes.data
       })
       setLoading(false)
     } catch (error) {
@@ -71,11 +73,29 @@ function App() {
 
   const ventasHoy = salesData.hoy || {}
   const ventas7d = salesData.dias7 || {}
+  const ventasMes = salesData.mes || {}
   
   // Calcular totales
   const totalHoy = Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)
   const total7d = Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
-  const totalMensual = total7d * 4.2 // Aproximación mes
+  const totalMensual = Object.values(ventasMes).reduce((sum, v) => sum + (v.total || 0), 0)
+  
+  // Top 3 productos globales del mes
+  const productosGlobales = {}
+  Object.values(ventasMes).forEach(data => {
+    if (data.productos) {
+      data.productos.forEach(prod => {
+        if (!productosGlobales[prod.nombre]) {
+          productosGlobales[prod.nombre] = 0
+        }
+        productosGlobales[prod.nombre] += prod.cantidad
+      })
+    }
+  })
+  const top3Productos = Object.entries(productosGlobales)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([nombre, cantidad]) => ({ nombre, cantidad }))
   
   // Top 3 marcas
   const marcasOrdenadas = Object.entries(ventas7d)
@@ -114,10 +134,6 @@ function App() {
                 </div>
               ))}
             </div>
-            <div className="total-bar">
-              <span>Total Hoy:</span>
-              <span className="total-value">${totalHoy.toLocaleString()}</span>
-            </div>
           </section>
 
           {/* VENTAS DE LA SEMANA */}
@@ -142,26 +158,59 @@ function App() {
                 </div>
               ))}
             </div>
-            <div className="total-bar">
-              <span>Total Semana:</span>
-              <span className="total-value">${total7d.toLocaleString()}</span>
-            </div>
           </section>
         </div>
 
+        {/* TOTALES EN LÍNEA */}
+        <div className="totals-row">
+          <div className="total-item">
+            <span>Total Hoy:</span>
+            <span className="total-item-value">${totalHoy.toLocaleString()}</span>
+          </div>
+          <div className="total-item">
+            <span>Total Semana:</span>
+            <span className="total-item-value">${total7d.toLocaleString()}</span>
+          </div>
+        </div>
+
         {/* COMPARATIVA */}
-        <section className="section section-2col">
-          <div className="compare-card">
-            <h2>Acumulado Mensual*</h2>
-            <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
-            <p className="subtitle">Proyección (~4.2 semanas)</p>
+        <section className="section">
+          <h2>Acumulado Mensual</h2>
+          <div className="section-2col">
+            <div className="compare-card">
+              <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
+              <p className="subtitle">Acumulado del mes</p>
+            </div>
+
+            <div className="compare-card">
+              <p className="big-number">${(total7d / 7 / 1000).toFixed(0)}K</p>
+              <p className="subtitle">Promedio diario (últimos 7 días)</p>
+            </div>
           </div>
 
-          <div className="compare-card">
-            <h2>Promedio Diario</h2>
-            <p className="big-number">${(total7d / 7 / 1000).toFixed(0)}K</p>
-            <p className="subtitle">Últimos 7 días</p>
-          </div>
+          {/* TOP 3 PRODUCTOS DEL MES */}
+          {top3Productos.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <p style={{ fontSize: '0.85em', color: '#95a5a6', marginBottom: '12px' }}>Productos más vendidos:</p>
+              {top3Productos.map((prod, idx) => (
+                <p key={idx} style={{
+                  fontSize: '0.75em',
+                  color: '#b0b0c0',
+                  fontFamily: "'Inter', sans-serif",
+                  marginBottom: '6px'
+                }}>
+                  {prod.nombre} <span style={{
+                    color: '#06b6d4',
+                    fontWeight: 700,
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    marginLeft: '8px'
+                  }}>x{prod.cantidad}</span>
+                </p>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* TOP 3 PRODUCTOS */}

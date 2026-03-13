@@ -14,7 +14,7 @@ WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend code to /app/backend
+# Copy backend code and config to /app/backend
 COPY backend/ /app/backend/
 
 # Copy built frontend (including public/backgrounds) to static

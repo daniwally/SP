@@ -211,10 +211,15 @@ def _load_token_config():
     if _CONFIG_LOADED:
         return
     
+    # Agregar directorio actual al path de búsqueda
+    import pathlib
+    current_dir = pathlib.Path(__file__).parent
+    
     config_paths = [
-        "/app/backend/config_tokens.json",  # Railway
+        "/app/backend/config_tokens.json",  # Railway (path absoluto)
+        str(current_dir / "config_tokens.json"),  # Relativo al archivo
         "/tmp/SP/backend/config_tokens.json",  # Local dev
-        "./config_tokens.json",  # Relativo
+        "./config_tokens.json",  # Relativo al CWD
         "/tmp/config_tokens.json",  # Alternativo
     ]
     
@@ -225,10 +230,12 @@ def _load_token_config():
                 print(f"✅ Tokens cargados desde {path}")
                 _CONFIG_LOADED = True
                 return
-        except:
-            pass
+        except FileNotFoundError:
+            print(f"   ❌ No existe: {path}")
+        except Exception as e:
+            print(f"   ❌ Error en {path}: {e}")
     
-    print("⚠️ config_tokens.json no encontrado, usando fallback")
+    print("⚠️ config_tokens.json no encontrado en ninguna ruta")
     _CONFIG_LOADED = True
 
 def get_token(cuenta_num):

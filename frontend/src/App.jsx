@@ -32,6 +32,7 @@ const getSaturdayOfWeek = (date) => {
 function App() {
   const [salesData, setSalesData] = useState({})
   const [stockData, setStockData] = useState({})
+  const [valuationData, setValuationData] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
@@ -61,15 +62,17 @@ function App() {
         axios.get(API + '/ml/ventas/hoy', axiosConfig),
         axios.get(API + '/ml/ventas/7dias', axiosConfig),
         axios.get(API + '/ml/ventas/mes', axiosConfig),
-        axios.get(API + '/odoo/stock/actual', axiosConfig)
+        axios.get(API + '/odoo/stock/actual', axiosConfig),
+        axios.get(API + '/odoo/valuacion', axiosConfig)
       ])
       
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
       const ventas7dias = results[1].status === 'fulfilled' ? results[1].value.data : {}
       const ventasMes = results[2].status === 'fulfilled' ? results[2].value.data : {}
       const stock = results[3].status === 'fulfilled' ? results[3].value.data : {}
+      const valuacion = results[4].status === 'fulfilled' ? results[4].value.data : {}
       
-      console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock })
+      console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
       setSalesData({ 
         hoy: ventasHoy, 
@@ -77,6 +80,7 @@ function App() {
         mes: ventasMes
       })
       setStockData(stock)
+      setValuationData(valuacion)
       setLoading(false)
     } catch (error) {
       console.error('❌ Error fetching data:', error)
@@ -363,7 +367,78 @@ function App() {
 
           </section>
 
+          {/* VALUACIÓN STOCK CRUZADO - ARTILLEROS + ZONA FRANCA */}
+          <section className="section">
+            <h2>💎 Valuación Stock Cruzado (Artilleros + Zona Franca)</h2>
+            <div style={{
+              background: 'rgba(0, 0, 0, 0.5)',
+              border: '1px solid rgba(217, 70, 239, 0.3)',
+              borderRadius: '12px',
+              padding: '20px',
+              marginBottom: '20px'
+            }}>
+              <p style={{ color: '#06b6d4', fontSize: '2em', fontWeight: 700, margin: '0 0 5px 0', textAlign: 'center' }}>
+                ${(valuationData.TOTAL_GENERAL / 1000000000).toFixed(2)}B
+              </p>
+              <p style={{ color: '#95a5a6', fontSize: '0.9em', textAlign: 'center', margin: 0 }}>
+                Valor Total Inventario
+              </p>
+            </div>
 
+            <div className="cards-grid">
+              {Object.entries(valuationData)
+                .filter(([key]) => key !== 'TOTAL_GENERAL')
+                .map(([marca, data]) => {
+                  const artData = data.almacenes?.['ARTILLEROS'] || {}
+                  const zfData = data.almacenes?.['ZONA FRANCA'] || {}
+                  
+                  return (
+                    <div key={marca} className="card" style={{
+                      borderColor: marca === 'SHAQ' ? 'rgba(217, 70, 239, 0.4)' : 'rgba(6, 182, 212, 0.2)'
+                    }}>
+                      <h3 style={{ marginBottom: '15px' }}>{marca}</h3>
+                      
+                      {/* Fila Artilleros */}
+                      <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid rgba(217, 70, 239, 0.1)' }}>
+                        <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>ARTILLEROS</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                          <p style={{ color: '#06b6d4', fontSize: '1.2em', fontWeight: 700, margin: 0 }}>
+                            {artData.unidades?.toLocaleString() || 0}
+                          </p>
+                          <p style={{ color: '#fbbf24', fontSize: '1em', fontWeight: 700, margin: 0 }}>
+                            ${(artData.valor / 1000000).toFixed(1)}M
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Fila Zona Franca */}
+                      <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid rgba(217, 70, 239, 0.1)' }}>
+                        <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>ZONA FRANCA</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                          <p style={{ color: '#06b6d4', fontSize: '1.2em', fontWeight: 700, margin: 0 }}>
+                            {zfData.unidades?.toLocaleString() || 0}
+                          </p>
+                          <p style={{ color: '#fbbf24', fontSize: '1em', fontWeight: 700, margin: 0 }}>
+                            ${(zfData.valor / 1000000).toFixed(1)}M
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Subtotal */}
+                      <div>
+                        <p style={{ color: '#86efac', fontSize: '0.75em', fontWeight: 700, marginBottom: '4px' }}>SUBTOTAL</p>
+                        <p style={{ color: '#d946ef', fontSize: '1.4em', fontWeight: 700, margin: 0 }}>
+                          ${(data.total_valor / 1000000).toFixed(1)}M
+                        </p>
+                        <p style={{ color: '#95a5a6', fontSize: '0.7em', marginTop: '6px' }}>
+                          {data.total_unidades?.toLocaleString() || 0} unidades
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          </section>
 
           {/* VALUACIÓN POR MARCA - LISTA MAYORISTAS */}
           <section className="section">

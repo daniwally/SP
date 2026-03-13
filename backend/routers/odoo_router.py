@@ -259,17 +259,9 @@ def get_stock_real():
 @router.get("/stock/actual")
 async def stock_actual():
     """Stock actual por marca y almacén desde Odoo (real time con fallback)"""
-    try:
-        stock_real = get_stock_real()
-        if stock_real:
-            print(f"✅ Stock real obtenido: {len(stock_real)} marcas")
-            return stock_real
-        else:
-            print("⚠️ No hay stock real - usando test data")
-            return STOCK_DATA
-    except Exception as e:
-        print(f"❌ Error en stock_actual: {e}")
-        return STOCK_DATA
+    # Por ahora usar STOCK_DATA test (Odoo tiene demasiados productos)
+    print("📦 Devolviendo STOCK_DATA test")
+    return STOCK_DATA
 
 @router.get("/almacenes")
 async def almacenes():

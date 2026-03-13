@@ -231,19 +231,22 @@ function App() {
 
         {/* PREGUNTAS Y RESPUESTAS POR MARCA */}
         <section className="section">
-          <h2>💬 Preguntas & Respuestas</h2>
+          <h2>Preguntas & Respuestas</h2>
           <div className="questions-grid">
-            {Object.entries(ventasMes).map(([marca, data]) => (
-              <div key={marca} className="question-card">
-                <h3 style={{ color: '#06b6d4', marginBottom: '12px' }}>{marca}</h3>
-                <div style={{ fontSize: '0.85em', lineHeight: '1.6' }}>
-                  <p><strong>📊 Total preguntas:</strong> <span style={{ color: '#06b6d4' }}>127</span></p>
-                  <p><strong>❓ Sin responder:</strong> <span style={{ color: '#ef4444' }}>8</span> (⚠️)</p>
-                  <p><strong>⏱️ Tiempo promedio:</strong> <span style={{ color: '#86efac' }}>2.3h</span></p>
-                  <p><strong>📈 Tasa respuesta:</strong> <span style={{ color: '#86efac' }}>93.7%</span></p>
+            {Object.entries(ventasMes).map(([marca, data]) => {
+              const preg = data.preguntas || { total: 0, sin_responder: 0, tiempo_promedio_horas: 0, tasa_respuesta: 0 }
+              return (
+                <div key={marca} className="question-card">
+                  <h3 style={{ color: '#06b6d4', marginBottom: '12px' }}>{marca}</h3>
+                  <div style={{ fontSize: '0.85em', lineHeight: '1.6' }}>
+                    <p><strong>Total preguntas:</strong> <span style={{ color: '#06b6d4' }}>{preg.total}</span></p>
+                    <p><strong>Sin responder:</strong> <span style={{ color: preg.sin_responder > 10 ? '#ef4444' : '#86efac' }}>{preg.sin_responder}</span> {preg.sin_responder > 10 && '⚠️'}</p>
+                    <p><strong>Tiempo promedio:</strong> <span style={{ color: '#86efac' }}>{preg.tiempo_promedio_horas.toFixed(1)}h</span></p>
+                    <p><strong>Tasa respuesta:</strong> <span style={{ color: preg.tasa_respuesta >= 90 ? '#86efac' : '#fbbf24' }}>{preg.tasa_respuesta.toFixed(1)}%</span></p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
 

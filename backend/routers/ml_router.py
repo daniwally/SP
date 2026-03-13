@@ -63,7 +63,13 @@ TEST_DATA_7DIAS = {
             "Reponer urgente: Motivate y Posture (stock < 50 unidades)",
             "Ampliar descripción de H.o.f Negro (600+ caracteres, 4.8K visitas)",
             "Consolidar duplicados: Radiate/Spin Move (reducir competencia interna)"
-        ]
+        ],
+        "preguntas": {
+            "total": 287,
+            "sin_responder": 12,
+            "tiempo_promedio_horas": 1.8,
+            "tasa_respuesta": 95.8
+        }
     },
     "HYDRATE": {
         "total": 536848, 
@@ -105,7 +111,13 @@ TEST_DATA_7DIAS = {
             "Acelerar procesamiento de pedidos (máx 48h)",
             "Crear promoción: descuentos por cantidad",
             "Mejorar fotos del producto (agregar 3+ ángulos)"
-        ]
+        ],
+        "preguntas": {
+            "total": 45,
+            "sin_responder": 3,
+            "tiempo_promedio_horas": 5.1,
+            "tasa_respuesta": 93.3
+        }
     },
     "HYDRATE": {
         "total": 536848, 
@@ -124,7 +136,13 @@ TEST_DATA_7DIAS = {
             "Lanzar campaña de visibilidad (ads MercadoLibre)",
             "Ofrecer envío gratis en 2+ unidades",
             "Expandir línea: agregar 4-5 colores nuevos"
-        ]
+        ],
+        "preguntas": {
+            "total": 156,
+            "sin_responder": 18,
+            "tiempo_promedio_horas": 3.2,
+            "tasa_respuesta": 88.5
+        }
     },
     "TIMBERLAND": {
         "total": 509598, 
@@ -141,7 +159,13 @@ TEST_DATA_7DIAS = {
             "URGENTE: Resolver reclamos pendientes (1 semana máx)",
             "Mejorar calidad de envíos (auditar empaque)",
             "Contactar clientes insatisfechos para compensar"
-        ]
+        ],
+        "preguntas": {
+            "total": 89,
+            "sin_responder": 22,
+            "tiempo_promedio_horas": 8.5,
+            "tasa_respuesta": 75.3
+        }
     },
     "URBAN_FLOW": {
         "total": 287540,
@@ -159,7 +183,13 @@ TEST_DATA_7DIAS = {
             "Acelerar liquidación: aumentar promociones y descuentos",
             "Bundlear productos por talle/color (cerrar stock rápido)",
             "Crear alertas para stock bajo (reabastecer o cerrar SKU)"
-        ]
+        ],
+        "preguntas": {
+            "total": 62,
+            "sin_responder": 7,
+            "tiempo_promedio_horas": 2.9,
+            "tasa_respuesta": 88.7
+        }
     },
 }
 
@@ -347,7 +377,8 @@ async def ventas_mes():
                 "ordenes": int(data_7d["ordenes"] * 4.2),
                 "productos": data_7d.get("productos", []),
                 "alertas": data_7d.get("alertas", []),
-                "recomendaciones": data_7d.get("recomendaciones", [])
+                "recomendaciones": data_7d.get("recomendaciones", []),
+                "preguntas": data_7d.get("preguntas", {})
             }
             continue
         
@@ -366,26 +397,29 @@ async def ventas_mes():
                     "ordenes": len(ordenes),
                     "productos": productos[:5],
                     "alertas": data_7d.get("alertas", []),
-                    "recomendaciones": data_7d.get("recomendaciones", [])
+                    "recomendaciones": data_7d.get("recomendaciones", []),
+                    "preguntas": data_7d.get("preguntas", {})
                 }
             else:
-                data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": []})
+                data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": [], "preguntas": {}})
                 resultado[marca] = {
                     "total": int(data_7d["total"] * 4.2),
                     "ordenes": int(data_7d["ordenes"] * 4.2),
                     "productos": data_7d.get("productos", []),
                     "alertas": data_7d.get("alertas", []),
-                    "recomendaciones": data_7d.get("recomendaciones", [])
+                    "recomendaciones": data_7d.get("recomendaciones", []),
+                    "preguntas": data_7d.get("preguntas", {})
                 }
         except Exception as e:
             print(f"Error processing {marca}: {e}")
-            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": []})
+            data_7d = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": [], "alertas": [], "recomendaciones": [], "preguntas": {}})
             resultado[marca] = {
                 "total": int(data_7d["total"] * 4.2),
                 "ordenes": int(data_7d["ordenes"] * 4.2),
                 "productos": data_7d.get("productos", []),
                 "alertas": data_7d.get("alertas", []),
-                "recomendaciones": data_7d.get("recomendaciones", [])
+                "recomendaciones": data_7d.get("recomendaciones", []),
+                "preguntas": data_7d.get("preguntas", {})
             }
     
     return resultado

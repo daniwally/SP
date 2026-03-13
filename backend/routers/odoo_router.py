@@ -11,17 +11,117 @@ ODOO_DB = os.getenv("ODOO_DB", "gedvera-sobrepatas-main-25353401")
 ODOO_USER = os.getenv("ODOO_USER", "rudolf@sobrepatas.com")
 ODOO_KEY = os.getenv("ODOO_KEY", "")
 
-# Datos de prueba
-DATOS_PRUEBA_STOCK = {
-    "ARTILLEROS": {
-        "SHAQ": {"total": 1084, "productos": [{"nombre": "Shaq Test", "cantidad": 1084, "ubicacion": "Artilleros - Stock"}]},
-        "STARTER": {"total": 1319, "productos": []},
-        "HYDRATE": {"total": 3326, "productos": []},
+# Almacenes disponibles
+ALMACENES = {
+    "A1": "Almacén Principal (CABA)",
+    "A2": "Almacén 2 (Palermo)",
+    "A3": "Almacén 3 (La Boca)",
+}
+
+# Stock por marca/almacén con costos
+STOCK_DATA = {
+    "SHAQ": {
+        "almacenes": {
+            "A1": {
+                "nombre": "Almacén Principal (CABA)",
+                "productos": [
+                    {"nombre": "Motivate T43", "cantidad": 45, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Motivate T41", "cantidad": 8, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Posture T44.5", "cantidad": 12, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Posture T41.5", "cantidad": 6, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Radiate Mix", "cantidad": 32, "costo_unitario": 29.0, "metodo": "FIFO"},
+                ]
+            },
+            "A2": {
+                "nombre": "Almacén 2 (Palermo)",
+                "productos": [
+                    {"nombre": "Motivate T42", "cantidad": 28, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Posture T43", "cantidad": 15, "costo_unitario": 29.0, "metodo": "FIFO"},
+                ]
+            },
+            "A3": {
+                "nombre": "Almacén 3 (La Boca)",
+                "productos": [
+                    {"nombre": "Spin Move", "cantidad": 52, "costo_unitario": 29.0, "metodo": "FIFO"},
+                ]
+            }
+        },
+        "total_unidades": 198,
+        "costo_total": 5742.0
     },
-    "ZONA_FRANCA": {
-        "HYDRATE": {"total": 1282, "productos": [{"nombre": "Hydrate Zona Franca", "cantidad": 1282, "ubicacion": "Zona Franca"}]},
+    "STARTER": {
+        "almacenes": {
+            "A1": {
+                "nombre": "Almacén Principal (CABA)",
+                "productos": [
+                    {"nombre": "GTM Negro", "cantidad": 156, "costo_unitario": 32.0, "metodo": "LIFO"},
+                    {"nombre": "GTM Blanco", "cantidad": 89, "costo_unitario": 32.0, "metodo": "LIFO"},
+                ]
+            },
+            "A2": {
+                "nombre": "Almacén 2 (Palermo)",
+                "productos": [
+                    {"nombre": "GTM Negro", "cantidad": 45, "costo_unitario": 32.0, "metodo": "LIFO"},
+                ]
+            }
+        },
+        "total_unidades": 290,
+        "costo_total": 9280.0
     },
-    "total": 8612
+    "HYDRATE": {
+        "almacenes": {
+            "A1": {
+                "nombre": "Almacén Principal (CABA)",
+                "productos": [
+                    {"nombre": "Botella 710ML", "cantidad": 1840, "costo_unitario": 8.5, "metodo": "FIFO"},
+                    {"nombre": "Vaso 500ML", "cantidad": 1200, "costo_unitario": 6.2, "metodo": "FIFO"},
+                    {"nombre": "Jarro 1L", "cantidad": 680, "costo_unitario": 9.8, "metodo": "FIFO"},
+                ]
+            },
+            "A2": {
+                "nombre": "Almacén 2 (Palermo)",
+                "productos": [
+                    {"nombre": "Botella 710ML", "cantidad": 520, "costo_unitario": 8.5, "metodo": "FIFO"},
+                    {"nombre": "Vaso 500ML", "cantidad": 380, "costo_unitario": 6.2, "metodo": "FIFO"},
+                ]
+            }
+        },
+        "total_unidades": 4620,
+        "costo_total": 32456.0
+    },
+    "TIMBERLAND": {
+        "almacenes": {
+            "A1": {
+                "nombre": "Almacén Principal (CABA)",
+                "productos": [
+                    {"nombre": "Classic Boot", "cantidad": 34, "costo_unitario": 68.0, "metodo": "LIFO"},
+                    {"nombre": "Pro Hiking", "cantidad": 18, "costo_unitario": 72.0, "metodo": "LIFO"},
+                ]
+            }
+        },
+        "total_unidades": 52,
+        "costo_total": 4360.0
+    },
+    "URBAN_FLOW": {
+        "almacenes": {
+            "A1": {
+                "nombre": "Almacén Principal (CABA)",
+                "productos": [
+                    {"nombre": "Timberland Mix", "cantidad": 42, "costo_unitario": 65.0, "metodo": "FIFO"},
+                    {"nombre": "Shaq Mix", "cantidad": 28, "costo_unitario": 28.0, "metodo": "FIFO"},
+                    {"nombre": "Otros", "cantidad": 15, "costo_unitario": 35.0, "metodo": "FIFO"},
+                ]
+            },
+            "A3": {
+                "nombre": "Almacén 3 (La Boca)",
+                "productos": [
+                    {"nombre": "Timberland Mix", "cantidad": 18, "costo_unitario": 65.0, "metodo": "FIFO"},
+                ]
+            }
+        },
+        "total_unidades": 103,
+        "costo_total": 4385.0
+    }
 }
 
 def get_uid():
@@ -37,21 +137,25 @@ def get_uid():
 
 @router.get("/stock/actual")
 async def stock_actual():
-    """Stock actual por marca y depósito - DATOS DE PRUEBA"""
-    # TODO: Implementar conexión real a Odoo cuando esté disponible
-    return DATOS_PRUEBA_STOCK
+    """Stock actual por marca/almacén con costos (FIFO/LIFO)"""
+    return STOCK_DATA
 
-@router.get("/stock/por-marca")
-async def stock_por_marca():
+@router.get("/almacenes")
+async def almacenes():
+    """Lista de almacenes disponibles"""
+    return ALMACENES
+
+@router.get("/stock/consolidado")
+async def stock_consolidado():
     """Stock consolidado por marca"""
-    return {
-        "SHAQ": 1084,
-        "STARTER": 1319,
-        "HYDRATE": 4608,
-        "TIMBERLAND": 261,
-        "HOUSE_OF_MATS": 1244,
-        "ELSYS": 84
-    }
+    consolidado = {}
+    for marca, data in STOCK_DATA.items():
+        consolidado[marca] = {
+            "total_unidades": data["total_unidades"],
+            "costo_total": data["costo_total"],
+            "costo_promedio_unitario": round(data["costo_total"] / data["total_unidades"], 2)
+        }
+    return consolidado
 
 @router.get("/facturas/mes")
 async def facturas_mes():

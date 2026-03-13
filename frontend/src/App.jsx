@@ -31,6 +31,7 @@ const getSaturdayOfWeek = (date) => {
 
 function App() {
   const [salesData, setSalesData] = useState({})
+  const [stockData, setStockData] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
@@ -52,10 +53,11 @@ function App() {
       setLoading(true)
       const API = window.location.origin + '/api'
       
-      const [ventasHoy, ventas7dias, ventasMes] = await Promise.all([
+      const [ventasHoy, ventas7dias, ventasMes, stock] = await Promise.all([
         axios.get(API + '/ml/ventas/hoy').catch(() => ({ data: {} })),
         axios.get(API + '/ml/ventas/7dias').catch(() => ({ data: {} })),
-        axios.get(API + '/ml/ventas/mes').catch(() => ({ data: {} }))
+        axios.get(API + '/ml/ventas/mes').catch(() => ({ data: {} })),
+        axios.get(API + '/odoo/stock/actual').catch(() => ({ data: {} }))
       ])
       
       setSalesData({ 
@@ -63,6 +65,7 @@ function App() {
         dias7: ventas7dias.data,
         mes: ventasMes.data
       })
+      setStockData(stock.data)
       setLoading(false)
     } catch (error) {
       console.error('Error:', error)
@@ -295,12 +298,63 @@ function App() {
         )}
 
         {activeTab === 'stock' && (
-        <section className="section" style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <h2>📦 Stock</h2>
-          <p style={{ color: '#95a5a6', fontSize: '1.1em', marginTop: '20px' }}>
-            Panel de Stock - En desarrollo
-          </p>
-        </section>
+        <>
+          {/* STOCK POR MARCA/ALMACÉN */}
+          <section className="section">
+            <h2>Stock por Marca & Almacén</h2>
+            <div className="stock-container">
+              {Object.entries(stockData).map(([marca, data]) => (
+                <div key={marca} className="stock-brand-card">
+                  <h3 style={{ color: '#d946ef', marginBottom: '12px' }}>{marca}</h3>
+                  
+                  {/* Resumen */}
+                  <div style={{ 
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)', 
+                    padding: '10px', 
+                    borderRadius: '8px', 
+                    marginBottom: '15px',
+                    fontSize: '0.85em'
+                  }}>
+                    <p><strong>Total:</strong> <span style={{ color: '#06b6d4' }}>{data.total_unidades} unidades</span></p>
+                    <p><strong>Costo Inventario:</strong> <span style={{ color: '#86efac' }}>${data.costo_total.toLocaleString()}</span></p>
+                  </div>
+
+                  {/* Almacenes */}
+                  <div style={{ fontSize: '0.8em' }}>
+                    {Object.entries(data.almacenes).map(([almID, almacen]) => (
+                      <div key={almID} style={{ marginBottom: '12px', paddingBottom: '10px', borderBottom: '1px solid rgba(217, 70, 239, 0.1)' }}>
+                        <p style={{ color: '#fbbf24', fontWeight: 600, marginBottom: '6px' }}>{almacen.nombre}</p>
+                        {almacen.productos.map((prod, idx) => (
+                          <p key={idx} style={{ color: '#b0b0c0', marginBottom: '3px' }}>
+                            {prod.nombre}: <span style={{ color: '#06b6d4' }}>{prod.cantidad}u</span> @ ${prod.costo_unitario.toFixed(2)} ({prod.metodo})
+                          </p>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* RESUMEN DE COSTOS */}
+          <section className="section">
+            <h2>Resumen de Costos de Inventario</h2>
+            <div className="costs-grid">
+              {Object.entries(stockData).map(([marca, data]) => {
+                const costoPorUnidad = (data.costo_total / data.total_unidades).toFixed(2)
+                return (
+                  <div key={marca} className="cost-card">
+                    <h3 style={{ color: '#06b6d4', marginBottom: '10px' }}>{marca}</h3>
+                    <p><strong>Unidades:</strong> <span style={{ color: '#86efac' }}>{data.total_unidades}</span></p>
+                    <p><strong>Costo Total:</strong> <span style={{ color: '#d946ef' }}>${data.costo_total.toLocaleString()}</span></p>
+                    <p><strong>Costo x Unidad:</strong> <span style={{ color: '#fbbf24' }}>${costoPorUnidad}</span></p>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        </>
         )}
       </main>
 

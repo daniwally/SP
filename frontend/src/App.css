@@ -14,7 +14,7 @@ html, body, #root {
 }
 
 body {
-  background: #0a0f1e;
+  background: #000000;
   color: #b0b0c0;
 }
 
@@ -23,7 +23,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #0a0f1e;
+  background: #000000;
 }
 
 /* HEADER */
@@ -33,14 +33,14 @@ body {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(217, 70, 239, 0.15);
-  background: rgba(10, 15, 30, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(8px);
 }
 
 .header h1 {
   font-size: 1.8em;
   color: #fff;
-  font-weight: 300;
+  font-weight: 500;
   letter-spacing: -0.5px;
   font-family: 'Inter', sans-serif;
 }
@@ -87,7 +87,7 @@ body {
 .section h2 {
   font-size: 1.3em;
   color: #fff;
-  font-weight: 300;
+  font-weight: 500;
   letter-spacing: -0.3px;
   font-family: 'Inter', sans-serif;
 }
@@ -131,7 +131,7 @@ body {
 .card h3 {
   color: #d946ef;
   font-size: 0.9em;
-  font-weight: 300;
+  font-weight: 500;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -195,7 +195,7 @@ body {
 .compare-card h2 {
   font-size: 1.05em;
   color: #95a5a6;
-  font-weight: 300;
+  font-weight: 500;
   margin-bottom: 14px;
   font-family: 'Inter', sans-serif;
 }
@@ -261,7 +261,7 @@ body {
 .top3-card h3 {
   color: #d946ef;
   font-size: 1.05em;
-  font-weight: 300;
+  font-weight: 500;
   margin-bottom: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;

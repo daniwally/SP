@@ -118,7 +118,7 @@ export default function SalesTab({ data }) {
       {/* TOTAL */}
       <div className="chart-card">
         <h3>Total 7 Días</h3>
-        <div style={{ fontSize: '2.5em', fontWeight: 300, color: '#06b6d4', marginTop: '15px', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ fontSize: '2.5em', fontWeight: 500, color: '#06b6d4', marginTop: '15px', fontFamily: "'Inter', sans-serif" }}>
           ${(total / 1000000).toFixed(2)}M
         </div>
       </div>

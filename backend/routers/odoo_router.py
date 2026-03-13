@@ -148,8 +148,6 @@ def get_marca_map():
                     marca_map[m['id']] = 'HYDRATE'
                 elif 'TIMBERLAND' in name:
                     marca_map[m['id']] = 'TIMBERLAND'
-                elif 'HOUSE' in name or 'MATS' in name:
-                    marca_map[m['id']] = 'HOUSE OF MATS'
                 elif 'ELSYS' in name:
                     marca_map[m['id']] = 'ELSYS'
                 else:
@@ -310,7 +308,7 @@ async def stock_actual():
                     marca = marca_map.get(categ_id[0] if categ_id else None, 'OTROS')
                     
                     # Skip if not in main brands
-                    if marca not in ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS', 'HOUSE OF MATS']:
+                    if marca not in ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS']:
                         continue
                     
                     # Init marca

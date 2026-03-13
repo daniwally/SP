@@ -80,7 +80,7 @@ async def get_valuacion():
         
         prod_map = {p['id']: p for p in all_prods}
         
-        categ_marca_map = {8: 'SHAQ', 7: 'STARTER', 11: 'HYDRATE', 6: 'TIMBERLAND', 10: 'ELSYS', 9: 'HOUSE OF MATS'}
+        categ_marca_map = {8: 'SHAQ', 7: 'STARTER', 11: 'HYDRATE', 6: 'TIMBERLAND', 10: 'ELSYS'}
         
         def get_precio(prod_id, marca):
             if marca in PRECIO_TEMPORAL:

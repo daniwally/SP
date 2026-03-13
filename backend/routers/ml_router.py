@@ -171,8 +171,8 @@ TEST_DATA_7DIAS = {
         "total": 287540,
         "ordenes": 8,
         "productos": [
-            {"nombre": "Timberland Remate", "cantidad": 5},
-            {"nombre": "Shaq Remate", "cantidad": 3}
+            {"nombre": "Timberland", "cantidad": 5},
+            {"nombre": "Shaq", "cantidad": 3}
         ],
         "alertas": [
             "Cuenta de agote/remate: stock limitado",

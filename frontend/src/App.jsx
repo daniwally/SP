@@ -247,20 +247,6 @@ function App() {
           </div>
         </section>
 
-        {/* DEMO - MARCAS DE EJEMPLO */}
-        <section className="section">
-          <h2>🎭 Demo - Marcas de Ejemplo</h2>
-          <p style={{ color: '#fbbf24', fontSize: '0.9em', marginBottom: '15px' }}>⚠️ Estas son marcas de demostración (no son cuentas reales en MercadoLibre)</p>
-          <div className="alerts-grid">
-            <div className="alert-card" style={{ borderColor: 'rgba(251, 191, 36, 0.3)' }}>
-              <h3 style={{ color: '#fbbf24' }}>🎭 URBAN_FLOW (Demo)</h3>
-              <p style={{ fontSize: '0.8em', color: '#95a5a6', marginBottom: '8px' }}>Marca ficticia para demostración</p>
-              <p style={{ fontSize: '0.75em', color: '#b0b0c0' }}>• Urban Flow Black x2</p>
-              <p style={{ fontSize: '0.75em', color: '#b0b0c0' }}>• Urban Flow White x2</p>
-            </div>
-          </div>
-        </section>
-
         {/* ALERTAS Y RECOMENDACIONES POR MARCA */}
         <section className="section">
           <h2>📋 Alertas & Recomendaciones</h2>

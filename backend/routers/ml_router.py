@@ -37,6 +37,11 @@ TEST_DATA_HOY = {
         "ordenes": 0, 
         "productos": []
     },
+    "URBAN_FLOW": {
+        "total": 0,
+        "ordenes": 0,
+        "productos": []
+    },
 }
 
 TEST_DATA_7DIAS = {
@@ -138,6 +143,24 @@ TEST_DATA_7DIAS = {
             "Contactar clientes insatisfechos para compensar"
         ]
     },
+    "URBAN_FLOW": {
+        "total": 287540,
+        "ordenes": 8,
+        "productos": [
+            {"nombre": "Timberland Outlet", "cantidad": 5},
+            {"nombre": "Shaq Outlet", "cantidad": 3}
+        ],
+        "alertas": [
+            "Cuenta outlet: stock variado multiproducto",
+            "Nivel 3 Amarillo: métricas regulares",
+            "Volumen bajo comparado con marcas principales"
+        ],
+        "recomendaciones": [
+            "Aumentar frecuencia de uploads (3-4 por semana)",
+            "Crear colecciones por marca principal (Timberland, Shaq)",
+            "Implementar descripción estándar para outlet (talles, lotes, etc.)"
+        ]
+    },
 }
 
 CUENTAS = {
@@ -145,7 +168,7 @@ CUENTAS = {
     2: (2339108379, "STARTER"),
     3: (231953468, "HYDRATE"),
     4: (1434057904, "TIMBERLAND"),
-    # 5: Nueva marca real - PENDIENTE
+    5: (1630806191, "URBAN_FLOW"),
 }
 
 

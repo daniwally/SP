@@ -245,18 +245,20 @@ def get_token(cuenta_num):
     # Intentar desde config
     tokens = _TOKEN_CONFIG.get("tokens", {})
     if str(cuenta_num) in tokens:
-        print(f"✅ Token {cuenta_num} desde config")
-        return tokens[str(cuenta_num)]
+        token = tokens[str(cuenta_num)]
+        print(f"✅ Token {cuenta_num} desde config: {token[:50]}...")
+        return token
     
     # Fallback: archivo local
     token_path = f"/home/ubuntu/.config/meli/token_cuenta{cuenta_num}.json"
     try:
         with open(token_path) as f:
             data = json.load(f)
-            print(f"✅ Token {cuenta_num} desde archivo local")
-            return data.get("access_token")
-    except:
-        print(f"❌ Token {cuenta_num} no encontrado")
+            token = data.get("access_token")
+            print(f"✅ Token {cuenta_num} desde archivo local: {token[:50]}...")
+            return token
+    except Exception as e:
+        print(f"❌ Token {cuenta_num} no encontrado: {e}")
         return None
 
 

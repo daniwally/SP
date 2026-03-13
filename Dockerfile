@@ -20,6 +20,9 @@ COPY backend/ /app/backend/
 # Copy built frontend to static folder
 COPY --from=frontend-build /app/frontend/dist /app/static
 
+# Copy background images to static
+COPY backend/static/backgrounds /app/static/backgrounds
+
 # Expose port
 EXPOSE 8000
 

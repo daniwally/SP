@@ -261,85 +261,92 @@ def get_stock_real():
 
 @router.get("/stock/actual")
 async def stock_actual():
-    """Stock actual - SOLO TEST DATA (Odoo desactivado)"""
-    # SOLO devolver STOCK_DATA de test - NUNCA llamar a get_stock_real()
-    return {
-        "SHAQ": {
-            "almacenes": {
-                "Artilleros": {
-                    "nombre": "Artilleros",
-                    "productos": [
-                        {"nombre": "Motivate T43", "cantidad": 145, "costo_unitario": 29.0},
-                        {"nombre": "Motivate T41", "cantidad": 58, "costo_unitario": 29.0},
-                        {"nombre": "Posture T44.5", "cantidad": 82, "costo_unitario": 29.0},
-                        {"nombre": "Posture T41.5", "cantidad": 36, "costo_unitario": 29.0},
-                        {"nombre": "Radiate Mix", "cantidad": 112, "costo_unitario": 29.0},
-                    ]
-                },
-                "Aduana (Tránsito – Solo interno)": {
-                    "nombre": "Aduana (Tránsito – Solo interno)",
-                    "productos": [
-                        {"nombre": "Motivate T42", "cantidad": 78, "costo_unitario": 29.0},
-                        {"nombre": "Posture T43", "cantidad": 45, "costo_unitario": 29.0},
-                        {"nombre": "Spin Move", "cantidad": 62, "costo_unitario": 29.0},
-                    ]
-                }
-            }
-        },
-        "STARTER": {
-            "almacenes": {
-                "Artilleros": {
-                    "nombre": "Artilleros",
-                    "productos": [
-                        {"nombre": "GTM Negro", "cantidad": 256, "costo_unitario": 32.0},
-                        {"nombre": "GTM Blanco", "cantidad": 189, "costo_unitario": 32.0},
-                    ]
-                },
-                "Aduana (Tránsito – Solo interno)": {
-                    "nombre": "Aduana (Tránsito – Solo interno)",
-                    "productos": [
-                        {"nombre": "GTM Gris", "cantidad": 95, "costo_unitario": 32.0},
-                    ]
-                }
-            }
-        },
-        "HYDRATE": {
-            "almacenes": {
-                "Artilleros": {
-                    "nombre": "Artilleros",
-                    "productos": [
-                        {"nombre": "Botella 710ML", "cantidad": 1840, "costo_unitario": 8.5},
-                        {"nombre": "Vaso 500ML", "cantidad": 1200, "costo_unitario": 6.2},
-                        {"nombre": "Jarro 1L", "cantidad": 680, "costo_unitario": 9.8},
-                    ]
-                },
-                "Aduana (Tránsito – Solo interno)": {
-                    "nombre": "Aduana (Tránsito – Solo interno)",
-                    "productos": [
-                        {"nombre": "Botella 710ML Rosa", "cantidad": 620, "costo_unitario": 8.5},
-                        {"nombre": "Vaso 500ML Azul", "cantidad": 480, "costo_unitario": 6.2},
-                    ]
-                }
-            }
-        },
-        "TIMBERLAND": {
-            "almacenes": {
-                "Artilleros": {
-                    "nombre": "Artilleros",
-                    "productos": [
-                        {"nombre": "Classic Boot", "cantidad": 54, "costo_unitario": 68.0},
-                        {"nombre": "Pro Hiking", "cantidad": 38, "costo_unitario": 72.0},
-                    ]
-                },
-                "Aduana (Tránsito – Solo interno)": {
-                    "nombre": "Aduana (Tránsito – Solo interno)",
-                    "productos": [
-                        {"nombre": "Classic Boot Leather", "cantidad": 28, "costo_unitario": 68.0},
-                    ]
-                }
-            }
-        }
-    }
+    """Stock actual REAL desde Odoo"""
+    try:
+        uid = get_uid()
+        if not uid:
+            print("❌ No auth - retornando test data")
+            return STOCK_DATA
+        
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=20)
+        marca_map = get_marca_map()
+        
+        result = {}
+        
+        # Solo procesar Artilleros y Aduana
+        warehouse_locs = {'Artilleros': 5, 'Aduana (Tránsito – Solo interno)': 24}
+        
+        for wh_name, loc_id in warehouse_locs.items():
+            try:
+                # Buscar quants
+                domain = [('location_id', '=', loc_id), ('quantity', '>', 0)]
+                quant_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'search', [domain], {'limit': 1000})
+                
+                if not quant_ids:
+                    continue
+                
+                # Leer quants
+                quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids], ['product_id', 'quantity'])
+                
+                # Extraer IDs de productos
+                prod_ids = [q['product_id'][0] for q in quants if q['product_id']]
+                
+                # Leer productos en batch
+                products = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', prod_ids, ['id', 'name', 'categ_id', 'standard_price'])
+                
+                prod_map = {p['id']: p for p in products}
+                
+                # Procesar quants
+                for q in quants:
+                    prod_id = q['product_id'][0] if q['product_id'] else None
+                    if not prod_id or prod_id not in prod_map:
+                        continue
+                    
+                    prod_data = prod_map[prod_id]
+                    categ_id = prod_data.get('categ_id')
+                    marca = marca_map.get(categ_id[0] if categ_id else None, 'OTROS')
+                    
+                    # Skip if not in main brands
+                    if marca not in ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS', 'HOUSE OF MATS']:
+                        continue
+                    
+                    # Init marca
+                    if marca not in result:
+                        result[marca] = {'almacenes': {}, 'total_unidades': 0, 'costo_total': 0.0}
+                    
+                    # Init almacén
+                    if wh_name not in result[marca]['almacenes']:
+                        result[marca]['almacenes'][wh_name] = {'nombre': wh_name, 'productos': []}
+                    
+                    cantidad = int(q['quantity'])
+                    costo_u = float(prod_data.get('standard_price', 0)) or 0.0
+                    
+                    # Agregar producto (solo primeros 3 para display)
+                    if len(result[marca]['almacenes'][wh_name]['productos']) < 3:
+                        result[marca]['almacenes'][wh_name]['productos'].append({
+                            'nombre': prod_data['name'],
+                            'cantidad': cantidad,
+                            'costo_unitario': costo_u
+                        })
+                    
+                    # Actualizar totales
+                    result[marca]['total_unidades'] += cantidad
+                    result[marca]['costo_total'] += cantidad * costo_u
+            
+            except Exception as e:
+                print(f"❌ Error almacén {wh_name}: {e}")
+                continue
+        
+        if result:
+            print(f"✅ Stock real: {list(result.keys())}")
+            return result
+        else:
+            print("⚠️ No hay datos - retornando test")
+            return STOCK_DATA
+    
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return STOCK_DATA
 
 @router.get("/almacenes")
 async def almacenes():

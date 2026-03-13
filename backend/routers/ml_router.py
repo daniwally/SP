@@ -53,6 +53,16 @@ TEST_DATA_7DIAS = {
             {"nombre": "Shaq Posture", "cantidad": 8},
             {"nombre": "Shaq Radiate", "cantidad": 4},
             {"nombre": "Shaq Spin Move", "cantidad": 2}
+        ],
+        "alertas": [
+            "Stock crítico en Motivate (solo T43)",
+            "Posture agotado en tallas 41.5 y 44.5",
+            "Tasa de envío demorado: 3.2%"
+        ],
+        "recomendaciones": [
+            "Reponer urgente: Motivate y Posture (stock < 50 unidades)",
+            "Ampliar descripción de H.o.f Negro (600+ caracteres, 4.8K visitas)",
+            "Consolidar duplicados: Radiate/Spin Move (reducir competencia interna)"
         ]
     },
     "HYDRATE": {
@@ -85,6 +95,70 @@ TEST_DATA_7DIAS = {
         "productos": [
             {"nombre": "GTM Negro", "cantidad": 1},
             {"nombre": "GTM Blanco", "cantidad": 1}
+        ],
+        "alertas": [
+            "Handling time demorado: 6.05% (umbral crítico > 2%)",
+            "Riesgo de bajada de nivel si no mejora",
+            "Conversión baja: 1.2% vs promedio 3.5%"
+        ],
+        "recomendaciones": [
+            "Acelerar procesamiento de pedidos (máx 48h)",
+            "Crear promoción: descuentos por cantidad",
+            "Mejorar fotos del producto (agregar 3+ ángulos)"
+        ]
+    },
+    "HYDRATE": {
+        "total": 536848, 
+        "ordenes": 12,
+        "productos": [
+            {"nombre": "Botella 710ML Azul", "cantidad": 8},
+            {"nombre": "Vaso 500ML Verde", "cantidad": 6},
+            {"nombre": "Jarro 1L Rojo", "cantidad": 3}
+        ],
+        "alertas": [
+            "Nivel 3 Amarillo: métricas regulares",
+            "Stock: 4.6K unidades distribuidas",
+            "Marca nueva: 15 días de antigüedad"
+        ],
+        "recomendaciones": [
+            "Lanzar campaña de visibilidad (ads MercadoLibre)",
+            "Ofrecer envío gratis en 2+ unidades",
+            "Agregar reseñas de clientes verificados"
+        ]
+    },
+    "TIMBERLAND": {
+        "total": 509598, 
+        "ordenes": 2,
+        "productos": [
+            {"nombre": "Timberland Classic", "cantidad": 2}
+        ],
+        "alertas": [
+            "🚨 CRÍTICO: Nivel 1 Rojo (riesgo suspensión)",
+            "Claims: 5.75% (máx permitido: 2%)",
+            "Cancelaciones: 6 últimas 30 días"
+        ],
+        "recomendaciones": [
+            "URGENTE: Resolver reclamos pendientes (1 semana máx)",
+            "Mejorar calidad de envíos (auditar empaque)",
+            "Contactar clientes insatisfechos para compensar"
+        ]
+    },
+    "URBAN_FLOW": {
+        "total": 453068, 
+        "ordenes": 4,
+        "productos": [
+            {"nombre": "Urban Flow Black", "cantidad": 2},
+            {"nombre": "Urban Flow White", "cantidad": 2}
+        ],
+        "alertas": [
+            "Nivel 5 Verde: métricas excelentes",
+            "Tasa de entrega: 99.2%",
+            "Reputación positiva: 98.5%"
+        ],
+        "recomendaciones": [
+            "Aprovechar buena reputación: lanzar nuevos SKUs",
+            "Participar en promos de MercadoLibre (mayor visibilidad)",
+            "Expandir línea: agregar 2-3 variantes de color"
         ]
     },
 }

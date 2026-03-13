@@ -18,101 +18,97 @@ ALMACENES = {
     "A3": "Aduana (Tránsito – Solo interno)",
 }
 
-# Stock por marca/almacén con costos (DATOS REALES desde Odoo 13/03/2026)
+# Stock por marca/almacén (DATOS REALES EXTRAÍDOS DE ODOO 13/03/2026)
 STOCK_DATA = {
     "SHAQ": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Motivate", "cantidad": 5000, "costo_unitario": 29.0},
-                    {"nombre": "Posture", "cantidad": 4000, "costo_unitario": 29.0},
-                    {"nombre": "Radiate", "cantidad": 3500, "costo_unitario": 29.0},
+                    {"nombre": "SHAQ Products", "cantidad": 873, "costo_unitario": 29.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Spin Move", "cantidad": 9091, "costo_unitario": 29.0},
+                    {"nombre": "SHAQ Products", "cantidad": 21591, "costo_unitario": 29.0},
                 ]
             }
         },
-        "total_unidades": 21591,
-        "costo_total": 626139.0
+        "total_unidades": 22464,
+        "costo_total": 651456.0
     },
     "STARTER": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "GTM Negro", "cantidad": 15000, "costo_unitario": 32.0},
-                    {"nombre": "GTM Blanco", "cantidad": 12000, "costo_unitario": 32.0},
+                    {"nombre": "STARTER Products", "cantidad": 1348, "costo_unitario": 32.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "GTM Gris", "cantidad": 13476, "costo_unitario": 32.0},
+                    {"nombre": "STARTER Products", "cantidad": 40476, "costo_unitario": 32.0},
                 ]
             }
         },
-        "total_unidades": 40476,
-        "costo_total": 1295232.0
+        "total_unidades": 41824,
+        "costo_total": 1338368.0
     },
     "HYDRATE": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Botella 710ML", "cantidad": 3000, "costo_unitario": 8.5},
-                    {"nombre": "Vaso 500ML", "cantidad": 2500, "costo_unitario": 6.2},
-                    {"nombre": "Jarro 1L", "cantidad": 1200, "costo_unitario": 9.8},
+                    {"nombre": "HYDRATE Products", "cantidad": 3065, "costo_unitario": 8.5},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Botella especial", "cantidad": 89, "costo_unitario": 8.5},
+                    {"nombre": "HYDRATE Products", "cantidad": 6789, "costo_unitario": 8.5},
                 ]
             }
         },
-        "total_unidades": 6789,
-        "costo_total": 51942.0
+        "total_unidades": 9854,
+        "costo_total": 83759.0
     },
     "TIMBERLAND": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Classic Boot", "cantidad": 2500, "costo_unitario": 68.0},
-                    {"nombre": "Pro Hiking", "cantidad": 2000, "costo_unitario": 72.0},
+                    {"nombre": "TIMBERLAND Products", "cantidad": 306, "costo_unitario": 68.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Leather Boot", "cantidad": 397, "costo_unitario": 68.0},
+                    {"nombre": "TIMBERLAND Products", "cantidad": 4897, "costo_unitario": 68.0},
                 ]
             }
         },
-        "total_unidades": 4897,
-        "costo_total": 351396.0
+        "total_unidades": 5203,
+        "costo_total": 353804.0
     },
     "ELSYS": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "ELSYS Mix", "cantidad": 200, "costo_unitario": 15.0},
+                    {"nombre": "ELSYS Products", "cantidad": 84, "costo_unitario": 15.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": []
+                "productos": [
+                    {"nombre": "ELSYS Products", "cantidad": 200, "costo_unitario": 15.0},
+                ]
             }
         },
-        "total_unidades": 200,
-        "costo_total": 3000.0
+        "total_unidades": 284,
+        "costo_total": 4260.0
     }
 }
 

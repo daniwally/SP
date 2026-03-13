@@ -18,54 +18,54 @@ ALMACENES = {
     "A3": "Aduana (Tránsito – Solo interno)",
 }
 
-# Stock por marca/almacén con costos
+# Stock por marca/almacén con costos (Test Data - Artilleros + Aduana)
 STOCK_DATA = {
     "SHAQ": {
         "almacenes": {
-            "A1": {
+            "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Motivate T43", "cantidad": 45, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Motivate T41", "cantidad": 8, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Posture T44.5", "cantidad": 12, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Posture T41.5", "cantidad": 6, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Radiate Mix", "cantidad": 32, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Motivate T43", "cantidad": 145, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Motivate T41", "cantidad": 58, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Posture T44.5", "cantidad": 82, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Posture T41.5", "cantidad": 36, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Radiate Mix", "cantidad": 112, "costo_unitario": 29.0, "metodo": "FIFO"},
                 ]
             },
-            "A2": {
-                "nombre": "JOTSA",
+            "Aduana (Tránsito – Solo interno)": {
+                "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Motivate T42", "cantidad": 28, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Posture T43", "cantidad": 15, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Spin Move", "cantidad": 52, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Motivate T42", "cantidad": 78, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Posture T43", "cantidad": 45, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Spin Move", "cantidad": 62, "costo_unitario": 29.0, "metodo": "FIFO"},
                 ]
             }
         },
-        "total_unidades": 198,
-        "costo_total": 5742.0
+        "total_unidades": 618,
+        "costo_total": 17922.0
     },
     "STARTER": {
         "almacenes": {
-            "A1": {
+            "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "GTM Negro", "cantidad": 156, "costo_unitario": 32.0, "metodo": "LIFO"},
-                    {"nombre": "GTM Blanco", "cantidad": 89, "costo_unitario": 32.0, "metodo": "LIFO"},
+                    {"nombre": "GTM Negro", "cantidad": 256, "costo_unitario": 32.0, "metodo": "LIFO"},
+                    {"nombre": "GTM Blanco", "cantidad": 189, "costo_unitario": 32.0, "metodo": "LIFO"},
                 ]
             },
-            "A2": {
-                "nombre": "JOTSA",
+            "Aduana (Tránsito – Solo interno)": {
+                "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "GTM Negro", "cantidad": 45, "costo_unitario": 32.0, "metodo": "LIFO"},
+                    {"nombre": "GTM Gris", "cantidad": 95, "costo_unitario": 32.0, "metodo": "LIFO"},
                 ]
             }
         },
-        "total_unidades": 290,
-        "costo_total": 9280.0
+        "total_unidades": 540,
+        "costo_total": 17280.0
     },
     "HYDRATE": {
         "almacenes": {
-            "A1": {
+            "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
                     {"nombre": "Botella 710ML", "cantidad": 1840, "costo_unitario": 8.5, "metodo": "FIFO"},
@@ -73,49 +73,35 @@ STOCK_DATA = {
                     {"nombre": "Jarro 1L", "cantidad": 680, "costo_unitario": 9.8, "metodo": "FIFO"},
                 ]
             },
-            "A2": {
-                "nombre": "JOTSA",
+            "Aduana (Tránsito – Solo interno)": {
+                "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Botella 710ML", "cantidad": 520, "costo_unitario": 8.5, "metodo": "FIFO"},
-                    {"nombre": "Vaso 500ML", "cantidad": 380, "costo_unitario": 6.2, "metodo": "FIFO"},
+                    {"nombre": "Botella 710ML Rosa", "cantidad": 620, "costo_unitario": 8.5, "metodo": "FIFO"},
+                    {"nombre": "Vaso 500ML Azul", "cantidad": 480, "costo_unitario": 6.2, "metodo": "FIFO"},
                 ]
             }
         },
-        "total_unidades": 4620,
-        "costo_total": 32456.0
+        "total_unidades": 4820,
+        "costo_total": 35244.0
     },
     "TIMBERLAND": {
         "almacenes": {
-            "A1": {
+            "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Classic Boot", "cantidad": 34, "costo_unitario": 68.0, "metodo": "LIFO"},
-                    {"nombre": "Pro Hiking", "cantidad": 18, "costo_unitario": 72.0, "metodo": "LIFO"},
-                ]
-            }
-        },
-        "total_unidades": 52,
-        "costo_total": 4360.0
-    },
-    "URBAN_FLOW": {
-        "almacenes": {
-            "A1": {
-                "nombre": "Artilleros",
-                "productos": [
-                    {"nombre": "Timberland Mix", "cantidad": 42, "costo_unitario": 65.0, "metodo": "FIFO"},
-                    {"nombre": "Shaq Mix", "cantidad": 28, "costo_unitario": 28.0, "metodo": "FIFO"},
-                    {"nombre": "Otros", "cantidad": 15, "costo_unitario": 35.0, "metodo": "FIFO"},
+                    {"nombre": "Classic Boot", "cantidad": 54, "costo_unitario": 68.0, "metodo": "LIFO"},
+                    {"nombre": "Pro Hiking", "cantidad": 38, "costo_unitario": 72.0, "metodo": "LIFO"},
                 ]
             },
-            "A2": {
-                "nombre": "JOTSA",
+            "Aduana (Tránsito – Solo interno)": {
+                "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Timberland Mix", "cantidad": 18, "costo_unitario": 65.0, "metodo": "FIFO"},
+                    {"nombre": "Classic Boot Leather", "cantidad": 28, "costo_unitario": 68.0, "metodo": "LIFO"},
                 ]
             }
         },
-        "total_unidades": 103,
-        "costo_total": 4385.0
+        "total_unidades": 120,
+        "costo_total": 8320.0
     }
 }
 

@@ -378,7 +378,9 @@ function App() {
           <section className="section">
             <h2>📦 Inventario por Marca & Depósito</h2>
             <div className="cards-grid">
-              {Object.entries(stockData).map(([marca, data]) => {
+              {Object.entries(stockData)
+                .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(marca))
+                .map(([marca, data]) => {
                 const artilleros = data.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
                 const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
                 
@@ -424,7 +426,7 @@ function App() {
 
             <div className="cards-grid">
               {Object.entries(valuationData)
-                .filter(([key]) => key !== 'TOTAL_GENERAL')
+                .filter(([key]) => key !== 'TOTAL_GENERAL' && ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(key))
                 .map(([marca, data]) => {
                   console.log(`Renderizando marca: ${marca}`, data)
                   const artData = data.almacenes?.['ARTILLEROS'] || {}

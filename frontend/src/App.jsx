@@ -81,6 +81,13 @@ function App() {
       })
       setStockData(stock)
       setValuationData(valuacion)
+      
+      // Debug: verificar valuacion
+      console.log('📊 Valuacion data loaded:', {
+        total_general: valuacion.TOTAL_GENERAL,
+        marcas: Object.keys(valuacion).filter(k => k !== 'TOTAL_GENERAL')
+      })
+      
       setLoading(false)
     } catch (error) {
       console.error('❌ Error fetching data:', error)
@@ -419,6 +426,7 @@ function App() {
               {Object.entries(valuationData)
                 .filter(([key]) => key !== 'TOTAL_GENERAL')
                 .map(([marca, data]) => {
+                  console.log(`Renderizando marca: ${marca}`, data)
                   const artData = data.almacenes?.['ARTILLEROS'] || {}
                   const zfData = data.almacenes?.['ZONA FRANCA'] || {}
                   

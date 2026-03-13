@@ -312,9 +312,8 @@ function App() {
         <>
           {/* KPI CARDS - TOTAL INVENTARIO + POR MARCA */}
           <section className="section">
-            {/* Totales - Compactos */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '25px' }}>
-              {/* Total Unidades */}
+            {/* KPI - Solo Cantidades */}
+            <div style={{ marginBottom: '25px' }}>
               <div style={{
                 background: 'rgba(0, 0, 0, 0.5)',
                 border: '1px solid rgba(217, 70, 239, 0.2)',
@@ -323,51 +322,14 @@ function App() {
                 textAlign: 'center'
               }}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '8px' }}>INVENTARIO TOTAL</p>
-                <p style={{ color: '#06b6d4', fontSize: '2.2em', fontWeight: 700, marginBottom: '4px' }}>
+                <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 700, marginBottom: '4px' }}>
                   {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
-                </p>
-                <p style={{ color: '#95a5a6', fontSize: '0.75em' }}>Artilleros + Aduana</p>
-              </div>
-              
-              {/* Costo Total Inventario */}
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.5)',
-                border: '1px solid rgba(217, 70, 239, 0.2)',
-                borderRadius: '12px',
-                padding: '15px',
-                textAlign: 'center'
-              }}>
-                <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '8px' }}>VALOR INVENTARIO</p>
-                <p style={{ color: '#fbbf24', fontSize: '2.2em', fontWeight: 700, marginBottom: '4px' }}>
-                  ${(Object.values(stockData).reduce((sum, marca) => sum + (marca.costo_total || 0), 0) / 1000000).toFixed(1)}M
                 </p>
                 <p style={{ color: '#95a5a6', fontSize: '0.75em' }}>Artilleros + Aduana</p>
               </div>
             </div>
 
-            {/* Inventario por Marca */}
-            <div style={{ marginTop: '30px' }}>
-              <h3 style={{ color: '#d946ef', fontSize: '0.95em', fontWeight: 700, marginBottom: '15px' }}>📦 Inventario por Marca</h3>
-              <div className="cards-grid">
-                {Object.entries(stockData).map(([marca, data]) => {
-                  const totalMarca = data.total_unidades || 0
-                  const costMarca = data.costo_total || 0
-                  
-                  return (
-                    <div key={marca} className="card">
-                      <h3>{marca}</h3>
-                      <p className="value">{totalMarca.toLocaleString()}</p>
-                      <p className="subtitle">unidades</p>
-                      <div className="productos-list">
-                        <p style={{ color: '#fbbf24', fontSize: '0.85em', fontWeight: 600 }}>
-                          ${costMarca.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+
           </section>
 
 

@@ -321,11 +321,30 @@ function App() {
                 padding: '15px',
                 textAlign: 'center'
               }}>
-                <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '8px' }}>INVENTARIO TOTAL</p>
-                <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 700, marginBottom: '4px' }}>
+                <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '12px' }}>INVENTARIO TOTAL</p>
+                <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 700, marginBottom: '15px' }}>
                   {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
                 </p>
-                <p style={{ color: '#95a5a6', fontSize: '0.75em' }}>Artilleros + Aduana</p>
+                
+                {/* Desglose por Depósito */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
+                  <div>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', marginBottom: '4px' }}>Artilleros</p>
+                    <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700 }}>
+                      {Object.values(stockData).reduce((sum, marca) => {
+                        return sum + (marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                      }, 0).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', marginBottom: '4px' }}>Aduana</p>
+                    <p style={{ color: '#fbbf24', fontSize: '1.5em', fontWeight: 700 }}>
+                      {Object.values(stockData).reduce((sum, marca) => {
+                        return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                      }, 0).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

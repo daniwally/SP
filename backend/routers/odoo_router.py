@@ -131,8 +131,50 @@ def get_uid():
         print(f"Auth error: {e}")
         return None
 
+def get_marca_map():
+    """Mapea IDs de categoría a nombres de marca"""
+    try:
+        uid = get_uid()
+        if not uid:
+            return {}
+        
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
+        
+        # Obtener subcategorías de "Marcas"
+        marca_categ = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.category', 'search', [[('name', '=', 'Marcas')]])
+        if marca_categ:
+            subcats = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.category', 'search', [[('parent_id', '=', marca_categ[0])]])
+            marcas = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.category', 'read', [subcats])
+            
+            # Mapear: ID categoría -> Nombre marca (normalizado)
+            marca_map = {}
+            for m in marcas:
+                name = m['name']
+                # Normalizar nombres
+                if 'SHAQUILLE' in name or 'SHAQ' in name:
+                    marca_map[m['id']] = 'SHAQ'
+                elif 'STARTER' in name:
+                    marca_map[m['id']] = 'STARTER'
+                elif 'HYDRATE' in name:
+                    marca_map[m['id']] = 'HYDRATE'
+                elif 'TIMBERLAND' in name:
+                    marca_map[m['id']] = 'TIMBERLAND'
+                elif 'HOUSE' in name or 'MATS' in name:
+                    marca_map[m['id']] = 'HOUSE OF MATS'
+                elif 'ELSYS' in name:
+                    marca_map[m['id']] = 'ELSYS'
+                else:
+                    marca_map[m['id']] = name
+            
+            return marca_map
+    
+    except Exception as e:
+        print(f"Error getting marca map: {e}")
+    
+    return {}
+
 def get_stock_real():
-    """Obtiene stock real desde Odoo agrupado por almacén"""
+    """Obtiene stock real desde Odoo agrupado por marca y almacén"""
     try:
         uid = get_uid()
         if not uid:
@@ -141,6 +183,9 @@ def get_stock_real():
         
         models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
         
+        # Obtener mapeo de marcas
+        marca_map = get_marca_map()
+        
         # Ubicaciones de stock por almacén (IDs reales de Odoo)
         warehouse_locations = {
             'Artilleros': 5,
@@ -148,7 +193,7 @@ def get_stock_real():
             'Aduana (Tránsito – Solo interno)': 24
         }
         
-        result = {}
+        result = {}  # {marca -> {almacenes -> {...}, total_unidades, costo_total}}
         
         for wh_name, loc_id in warehouse_locations.items():
             try:
@@ -159,28 +204,50 @@ def get_stock_real():
                 if quant_ids:
                     quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids])
                     
-                    productos = []
                     for q in quants:
                         product_id = q['product_id']
                         if product_id:
-                            # Obtener datos del producto
-                            product = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', [product_id[0]])
+                            # Obtener datos del producto (incluyendo categoría)
+                            product = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', 
+                                                       [product_id[0]], ['name', 'standard_price', 'categ_id'])
                             if product:
                                 prod_data = product[0]
-                                productos.append({
+                                
+                                # Extraer marca de la categoría
+                                categ_id = prod_data.get('categ_id')
+                                marca = 'OTROS'
+                                if categ_id:
+                                    marca = marca_map.get(categ_id[0], 'OTROS')
+                                
+                                # Asegurar que marca existe en result
+                                if marca not in result:
+                                    result[marca] = {
+                                        'almacenes': {},
+                                        'total_unidades': 0,
+                                        'costo_total': 0.0
+                                    }
+                                
+                                # Asegurar que almacén existe en marca
+                                if wh_name not in result[marca]['almacenes']:
+                                    result[marca]['almacenes'][wh_name] = {
+                                        'nombre': wh_name,
+                                        'productos': []
+                                    }
+                                
+                                # Agregar producto
+                                costo_unitario = float(prod_data.get('standard_price', 0)) or 0.0
+                                cantidad = int(q['quantity'])
+                                
+                                result[marca]['almacenes'][wh_name]['productos'].append({
                                     'nombre': prod_data['name'],
-                                    'cantidad': int(q['quantity']),
-                                    'costo_unitario': float(prod_data.get('standard_price', 0)) or 0.0,
+                                    'cantidad': cantidad,
+                                    'costo_unitario': costo_unitario,
                                     'metodo': 'FIFO'
                                 })
-                    
-                    if productos:
-                        result[wh_name] = {
-                            'nombre': wh_name,
-                            'productos': productos,
-                            'total_unidades': sum(p['cantidad'] for p in productos),
-                            'costo_total': sum(p['cantidad'] * p['costo_unitario'] for p in productos)
-                        }
+                                
+                                # Actualizar totales
+                                result[marca]['total_unidades'] += cantidad
+                                result[marca]['costo_total'] += cantidad * costo_unitario
             
             except Exception as e:
                 print(f"Error en almacén {wh_name}: {e}")
@@ -194,47 +261,11 @@ def get_stock_real():
 
 @router.get("/stock/actual")
 async def stock_actual():
-    """Stock actual por almacén desde Odoo (real time)"""
+    """Stock actual por marca y almacén desde Odoo (real time)"""
     stock_real = get_stock_real()
     
-    # Formatear resultado en estructura por marca (extraída del nombre de producto)
-    formatted_result = {}
-    
-    for almacen_name, almacen_data in stock_real.items():
-        # Agrupar productos por marca (basada en el nombre del producto o categoría)
-        # Por ahora, crear una estructura similar a STOCK_DATA pero con datos reales
-        for prod in almacen_data['productos']:
-            # Extraer marca del nombre (primer parte antes de space o dash)
-            marca = 'GENERAL'  # Por defecto
-            if formatted_result.get(marca) is None:
-                formatted_result[marca] = {'almacenes': {}}
-            
-            # Asegurar que el almacén existe en la marca
-            if almacen_name not in formatted_result[marca]['almacenes']:
-                formatted_result[marca]['almacenes'][almacen_name] = {
-                    'nombre': almacen_name,
-                    'productos': []
-                }
-            
-            formatted_result[marca]['almacenes'][almacen_name]['productos'].append(prod)
-    
-    # Calcular totales por marca/almacén
-    for marca, data in formatted_result.items():
-        total_unidades = 0
-        total_costo = 0
-        
-        for almacen_name, almacen_data in data['almacenes'].items():
-            almacen_total = sum(p['cantidad'] for p in almacen_data['productos'])
-            almacen_costo = sum(p['cantidad'] * p['costo_unitario'] for p in almacen_data['productos'])
-            
-            total_unidades += almacen_total
-            total_costo += almacen_costo
-        
-        data['total_unidades'] = total_unidades
-        data['costo_total'] = total_costo
-    
     # Si no hay datos reales, devolver test data
-    return formatted_result if formatted_result else STOCK_DATA
+    return stock_real if stock_real else STOCK_DATA
 
 @router.get("/almacenes")
 async def almacenes():

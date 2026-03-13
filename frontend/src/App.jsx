@@ -81,25 +81,8 @@ function App() {
   const total7d = Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
   const totalMensual = Object.values(ventasMes).reduce((sum, v) => sum + (v.total || 0), 0)
   
-  // Top 3 productos globales del mes
-  const productosGlobales = {}
-  Object.values(ventasMes).forEach(data => {
-    if (data.productos) {
-      data.productos.forEach(prod => {
-        if (!productosGlobales[prod.nombre]) {
-          productosGlobales[prod.nombre] = 0
-        }
-        productosGlobales[prod.nombre] += prod.cantidad
-      })
-    }
-  })
-  const top3Productos = Object.entries(productosGlobales)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3)
-    .map(([nombre, cantidad]) => ({ nombre, cantidad }))
-  
-  // Top 3 marcas
-  const marcasOrdenadas = Object.entries(ventas7d)
+  // Top 3 marcas del mes
+  const marcasOrdenadas = Object.entries(ventasMes)
     .sort(([, a], [, b]) => (b.total || 0) - (a.total || 0))
     .slice(0, 3)
 
@@ -190,35 +173,11 @@ function App() {
               <p className="subtitle">Promedio diario (últimos 7 días)</p>
             </div>
           </div>
-
-          {/* TOP 3 PRODUCTOS DEL MES */}
-          {top3Productos.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <p style={{ fontSize: '0.85em', color: '#95a5a6', marginBottom: '12px' }}>Productos más vendidos:</p>
-              {top3Productos.map((prod, idx) => (
-                <p key={idx} style={{
-                  fontSize: '0.75em',
-                  color: '#b0b0c0',
-                  fontFamily: "'Inter', sans-serif",
-                  marginBottom: '6px'
-                }}>
-                  {prod.nombre} <span style={{
-                    color: '#06b6d4',
-                    fontWeight: 700,
-                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    marginLeft: '8px'
-                  }}>x{prod.cantidad}</span>
-                </p>
-              ))}
-            </div>
-          )}
         </section>
 
-        {/* TOP 3 PRODUCTOS */}
+        {/* TOP 3 MARCAS DEL MES */}
         <section className="section">
-          <h2>Top 3 Marcas - Últimos 7 Días</h2>
+          <h2>Top 3 Marcas - Mes</h2>
           <div className="top3-container">
             {marcasOrdenadas.map(([marca, data], idx) => (
               <div key={marca} className={`top3-card rank-${idx + 1}`}>
@@ -227,7 +186,7 @@ function App() {
                 <p className="top3-value">${(data.total / 1000000).toFixed(2)}M</p>
                 <p className="top3-orders">{data.ordenes || 0} órdenes</p>
                 <p className="top3-percent">
-                  {((data.total / total7d) * 100).toFixed(1)}% del total
+                  {((data.total / totalMensual) * 100).toFixed(1)}% del total
                 </p>
               </div>
             ))}

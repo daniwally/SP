@@ -323,7 +323,7 @@ async def ventas_hoy():
         
         # Si no hay token, usar datos de prueba
         if not token:
-            resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
             continue
         
         # Si hay token, intentar obtener datos en vivo
@@ -346,10 +346,10 @@ async def ventas_hoy():
                     "productos": productos[:5]  # Top 5 productos
                 }
             else:
-                resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+                resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
         except Exception as e:
             print(f"Error processing {marca}: {e}")
-            resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
     
     return resultado
 
@@ -452,7 +452,7 @@ async def ventas_7dias():
         
         # Si no hay token, usar datos de prueba
         if not token:
-            resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
             continue
         
         # Si hay token, intentar obtener datos en vivo
@@ -470,9 +470,9 @@ async def ventas_7dias():
                     "productos": productos[:5]  # Top 5 productos
                 }
             else:
-                resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+                resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
         except Exception as e:
             print(f"Error processing {marca}: {e}")
-            resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
+            resultado[marca] = {"total": 0, "ordenes": 0, "productos": []}
     
     return resultado

@@ -5,7 +5,7 @@ from starlette.responses import FileResponse
 from pathlib import Path
 from contextlib import asynccontextmanager
 
-from routers import ml_router, odoo_router
+from routers import ml_router, odoo_router, valuation_router
 from database import init_db
 
 @asynccontextmanager
@@ -31,6 +31,7 @@ app.add_middleware(
 # Routers API
 app.include_router(ml_router.router, prefix="/api/ml", tags=["MercadoLibre"])
 app.include_router(odoo_router.router, prefix="/api/odoo", tags=["Odoo"])
+app.include_router(valuation_router.router, tags=["Valuation"])
 
 # Rutas base
 @app.get("/health")

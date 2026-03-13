@@ -188,6 +188,17 @@ function App() {
                 <p className="top3-percent">
                   {((data.total / totalMensual) * 100).toFixed(1)}% del total
                 </p>
+                
+                {/* TOP 5 PRODUCTOS DE LA MARCA */}
+                {data.productos && data.productos.length > 0 && (
+                  <div className="top5-productos">
+                    {data.productos.slice(0, 5).map((prod, pidx) => (
+                      <p key={pidx} className="top5-item">
+                        {prod.nombre} <span className="top5-qty">x{prod.cantidad}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -36,7 +36,7 @@ app.include_router(valuation_router.router, tags=["Valuation"])
 # Rutas base
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "version": "1.3.0", "updated": "2026-03-13"}
+    return {"status": "healthy", "version": "1.3.1", "updated": "2026-03-13 10:50"}
 
 @app.get("/api")
 async def api_info():

@@ -19,96 +19,92 @@ ALMACENES = {
 }
 
 # Stock por marca/almacén (DATOS REALES EXTRAÍDOS DE ODOO 13/03/2026)
+# Solo cantidades - sin valuación
 STOCK_DATA = {
     "SHAQ": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "SHAQ Products", "cantidad": 873, "costo_unitario": 29.0},
+                    {"nombre": "SHAQ Products", "cantidad": 873},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "SHAQ Products", "cantidad": 21591, "costo_unitario": 29.0},
+                    {"nombre": "SHAQ Products", "cantidad": 21591},
                 ]
             }
         },
-        "total_unidades": 22464,
-        "costo_total": 651456.0
+        "total_unidades": 22464
     },
     "STARTER": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "STARTER Products", "cantidad": 1348, "costo_unitario": 32.0},
+                    {"nombre": "STARTER Products", "cantidad": 1348},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "STARTER Products", "cantidad": 40476, "costo_unitario": 32.0},
+                    {"nombre": "STARTER Products", "cantidad": 40476},
                 ]
             }
         },
-        "total_unidades": 41824,
-        "costo_total": 1338368.0
+        "total_unidades": 41824
     },
     "HYDRATE": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "HYDRATE Products", "cantidad": 3065, "costo_unitario": 8.5},
+                    {"nombre": "HYDRATE Products", "cantidad": 3065},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "HYDRATE Products", "cantidad": 6789, "costo_unitario": 8.5},
+                    {"nombre": "HYDRATE Products", "cantidad": 6789},
                 ]
             }
         },
-        "total_unidades": 9854,
-        "costo_total": 83759.0
+        "total_unidades": 9854
     },
     "TIMBERLAND": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "TIMBERLAND Products", "cantidad": 306, "costo_unitario": 68.0},
+                    {"nombre": "TIMBERLAND Products", "cantidad": 306},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "TIMBERLAND Products", "cantidad": 4897, "costo_unitario": 68.0},
+                    {"nombre": "TIMBERLAND Products", "cantidad": 4897},
                 ]
             }
         },
-        "total_unidades": 5203,
-        "costo_total": 353804.0
+        "total_unidades": 5203
     },
     "ELSYS": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "ELSYS Products", "cantidad": 84, "costo_unitario": 15.0},
+                    {"nombre": "ELSYS Products", "cantidad": 84},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "ELSYS Products", "cantidad": 200, "costo_unitario": 15.0},
+                    {"nombre": "ELSYS Products", "cantidad": 200},
                 ]
             }
         },
-        "total_unidades": 284,
-        "costo_total": 4260.0
+        "total_unidades": 284
     }
 }
 

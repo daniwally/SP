@@ -362,7 +362,7 @@ function App() {
                 {/* Aduana */}
                 <div style={{ flex: 1 }}>
                   <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Aduana</p>
-                  <p style={{ color: '#fbbf24', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                  <p style={{ color: '#3e7fff', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
                     {Object.values(stockData).reduce((sum, marca) => {
                       return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
                     }, 0).toLocaleString()}
@@ -392,7 +392,7 @@ function App() {
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Aduana</p>
-                        <p style={{ color: '#fbbf24', fontSize: '1.3em', fontWeight: 700 }}>{aduana.toLocaleString()}</p>
+                        <p style={{ color: '#3e7fff', fontSize: '1.3em', fontWeight: 700 }}>{aduana.toLocaleString()}</p>
                       </div>
                     </div>
                     <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
@@ -443,7 +443,7 @@ function App() {
                           <p style={{ color: '#06b6d4', fontSize: '1.2em', fontWeight: 700, margin: 0 }}>
                             {artData.unidades?.toLocaleString() || 0}
                           </p>
-                          <p style={{ color: '#fbbf24', fontSize: '1em', fontWeight: 700, margin: 0 }}>
+                          <p style={{ color: '#3e7fff', fontSize: '1em', fontWeight: 700, margin: 0 }}>
                             ${(artData.valor / 1000000).toFixed(1)}M
                           </p>
                         </div>
@@ -456,7 +456,7 @@ function App() {
                           <p style={{ color: '#06b6d4', fontSize: '1.2em', fontWeight: 700, margin: 0 }}>
                             {zfData.unidades?.toLocaleString() || 0}
                           </p>
-                          <p style={{ color: '#fbbf24', fontSize: '1em', fontWeight: 700, margin: 0 }}>
+                          <p style={{ color: '#3e7fff', fontSize: '1em', fontWeight: 700, margin: 0 }}>
                             ${(zfData.valor / 1000000).toFixed(1)}M
                           </p>
                         </div>

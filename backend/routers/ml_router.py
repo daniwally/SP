@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 import urllib.request
 import json
 import os
+from collections import defaultdict
 
 router = APIRouter()
 
@@ -10,19 +11,69 @@ ART = timezone(timedelta(hours=-3))
 
 # Datos de prueba realistas
 TEST_DATA_HOY = {
-    "SHAQ": {"total": 530618, "ordenes": 5},
-    "STARTER": {"total": 83400, "ordenes": 1},
-    "HYDRATE": {"total": 0, "ordenes": 0},
-    "TIMBERLAND": {"total": 0, "ordenes": 0},
-    "URBAN_FLOW": {"total": 0, "ordenes": 0},
+    "SHAQ": {
+        "total": 530618, 
+        "ordenes": 5,
+        "productos": [
+            {"nombre": "Shaq Motivate", "cantidad": 3},
+            {"nombre": "Shaq Posture", "cantidad": 2}
+        ]
+    },
+    "STARTER": {
+        "total": 83400, 
+        "ordenes": 1,
+        "productos": [
+            {"nombre": "GTM Negro", "cantidad": 1}
+        ]
+    },
+    "HYDRATE": {"total": 0, "ordenes": 0, "productos": []},
+    "TIMBERLAND": {"total": 0, "ordenes": 0, "productos": []},
+    "URBAN_FLOW": {"total": 0, "ordenes": 0, "productos": []},
 }
 
 TEST_DATA_7DIAS = {
-    "SHAQ": {"total": 1773238, "ordenes": 18},
-    "HYDRATE": {"total": 536848, "ordenes": 12},
-    "TIMBERLAND": {"total": 509598, "ordenes": 2},
-    "URBAN_FLOW": {"total": 453068, "ordenes": 4},
-    "STARTER": {"total": 166800, "ordenes": 2},
+    "SHAQ": {
+        "total": 1773238, 
+        "ordenes": 18,
+        "productos": [
+            {"nombre": "Shaq Motivate", "cantidad": 12},
+            {"nombre": "Shaq Posture", "cantidad": 8},
+            {"nombre": "Shaq Radiate", "cantidad": 4},
+            {"nombre": "Shaq Spin Move", "cantidad": 2}
+        ]
+    },
+    "HYDRATE": {
+        "total": 536848, 
+        "ordenes": 12,
+        "productos": [
+            {"nombre": "Hydrate Blue", "cantidad": 8},
+            {"nombre": "Hydrate Green", "cantidad": 6},
+            {"nombre": "Hydrate Red", "cantidad": 3}
+        ]
+    },
+    "TIMBERLAND": {
+        "total": 509598, 
+        "ordenes": 2,
+        "productos": [
+            {"nombre": "Timberland Classic", "cantidad": 2}
+        ]
+    },
+    "URBAN_FLOW": {
+        "total": 453068, 
+        "ordenes": 4,
+        "productos": [
+            {"nombre": "Urban Flow Black", "cantidad": 2},
+            {"nombre": "Urban Flow White", "cantidad": 2}
+        ]
+    },
+    "STARTER": {
+        "total": 166800, 
+        "ordenes": 2,
+        "productos": [
+            {"nombre": "GTM Negro", "cantidad": 1},
+            {"nombre": "GTM Blanco", "cantidad": 1}
+        ]
+    },
 }
 
 CUENTAS = {
@@ -62,9 +113,31 @@ def api_call(url, token):
         return None
 
 
+def extract_productos(ordenes):
+    """Extrae y agrupa productos de las órdenes"""
+    productos_dict = defaultdict(int)
+    
+    for orden in ordenes:
+        # La API de órdenes puede traer order_items directamente o necesitar otra llamada
+        if "order_items" in orden:
+            for item in orden["order_items"]:
+                nombre = item.get("item", {}).get("title", "Producto desconocido")
+                cantidad = item.get("quantity", 1)
+                productos_dict[nombre] += cantidad
+    
+    # Ordenar por cantidad descendente
+    productos_ordenados = sorted(
+        [{"nombre": k, "cantidad": v} for k, v in productos_dict.items()],
+        key=lambda x: x["cantidad"],
+        reverse=True
+    )
+    
+    return productos_ordenados
+
+
 @router.get("/ventas/hoy")
 async def ventas_hoy():
-    """Ventas de hoy por marca"""
+    """Ventas de hoy por marca con productos"""
     resultado = {}
     
     for cuenta_num, (uid, marca) in CUENTAS.items():
@@ -72,7 +145,7 @@ async def ventas_hoy():
         
         # Si no hay token, usar datos de prueba
         if not token:
-            resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0})
+            resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
             continue
         
         # Si hay token, intentar obtener datos en vivo
@@ -88,19 +161,24 @@ async def ventas_hoy():
             if data and "results" in data:
                 ordenes = data.get("results", [])
                 total = sum(o.get("total_amount", 0) for o in ordenes)
-                resultado[marca] = {"total": total, "ordenes": len(ordenes)}
+                productos = extract_productos(ordenes)
+                resultado[marca] = {
+                    "total": total, 
+                    "ordenes": len(ordenes),
+                    "productos": productos[:5]  # Top 5 productos
+                }
             else:
-                resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0})
+                resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
         except Exception as e:
             print(f"Error processing {marca}: {e}")
-            resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0})
+            resultado[marca] = TEST_DATA_HOY.get(marca, {"total": 0, "ordenes": 0, "productos": []})
     
     return resultado
 
 
 @router.get("/ventas/7dias")
 async def ventas_7dias():
-    """Ventas últimos 7 días por marca"""
+    """Ventas últimos 7 días por marca con productos"""
     resultado = {}
     
     for cuenta_num, (uid, marca) in CUENTAS.items():
@@ -108,7 +186,7 @@ async def ventas_7dias():
         
         # Si no hay token, usar datos de prueba
         if not token:
-            resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0})
+            resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
             continue
         
         # Si hay token, intentar obtener datos en vivo
@@ -125,11 +203,16 @@ async def ventas_7dias():
             if data and "results" in data:
                 ordenes = data.get("results", [])
                 total = sum(o.get("total_amount", 0) for o in ordenes)
-                resultado[marca] = {"total": total, "ordenes": len(ordenes)}
+                productos = extract_productos(ordenes)
+                resultado[marca] = {
+                    "total": total, 
+                    "ordenes": len(ordenes),
+                    "productos": productos[:5]  # Top 5 productos
+                }
             else:
-                resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0})
+                resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
         except Exception as e:
             print(f"Error processing {marca}: {e}")
-            resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0})
+            resultado[marca] = TEST_DATA_7DIAS.get(marca, {"total": 0, "ordenes": 0, "productos": []})
     
     return resultado

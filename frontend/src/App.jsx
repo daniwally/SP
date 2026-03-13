@@ -72,6 +72,15 @@ function App() {
                   <h3>{marca}</h3>
                   <p className="value">${(data.total || 0).toLocaleString()}</p>
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                  {data.productos && data.productos.length > 0 && (
+                    <div className="productos-list">
+                      {data.productos.map((prod, idx) => (
+                        <p key={idx} className="producto-item">
+                          {prod.nombre} <span className="cantidad">x{prod.cantidad}</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -90,6 +99,15 @@ function App() {
                   <h3>{marca}</h3>
                   <p className="value">${(data.total || 0).toLocaleString()}</p>
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                  {data.productos && data.productos.length > 0 && (
+                    <div className="productos-list">
+                      {data.productos.map((prod, idx) => (
+                        <p key={idx} className="producto-item">
+                          {prod.nombre} <span className="cantidad">x{prod.cantidad}</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

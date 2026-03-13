@@ -13,9 +13,9 @@ ODOO_KEY = os.getenv("ODOO_KEY", "")
 
 # Almacenes disponibles
 ALMACENES = {
-    "A1": "Almacén Principal (CABA)",
-    "A2": "Almacén 2 (Palermo)",
-    "A3": "Almacén 3 (La Boca)",
+    "A1": "Artilleros",
+    "A2": "JOTSA",
+    "A3": "Aduana (Tránsito – Solo interno)",
 }
 
 # Stock por marca/almacén con costos
@@ -23,7 +23,7 @@ STOCK_DATA = {
     "SHAQ": {
         "almacenes": {
             "A1": {
-                "nombre": "Almacén Principal (CABA)",
+                "nombre": "Artilleros",
                 "productos": [
                     {"nombre": "Motivate T43", "cantidad": 45, "costo_unitario": 29.0, "metodo": "FIFO"},
                     {"nombre": "Motivate T41", "cantidad": 8, "costo_unitario": 29.0, "metodo": "FIFO"},
@@ -33,15 +33,10 @@ STOCK_DATA = {
                 ]
             },
             "A2": {
-                "nombre": "Almacén 2 (Palermo)",
+                "nombre": "JOTSA",
                 "productos": [
                     {"nombre": "Motivate T42", "cantidad": 28, "costo_unitario": 29.0, "metodo": "FIFO"},
                     {"nombre": "Posture T43", "cantidad": 15, "costo_unitario": 29.0, "metodo": "FIFO"},
-                ]
-            },
-            "A3": {
-                "nombre": "Almacén 3 (La Boca)",
-                "productos": [
                     {"nombre": "Spin Move", "cantidad": 52, "costo_unitario": 29.0, "metodo": "FIFO"},
                 ]
             }
@@ -52,14 +47,14 @@ STOCK_DATA = {
     "STARTER": {
         "almacenes": {
             "A1": {
-                "nombre": "Almacén Principal (CABA)",
+                "nombre": "Artilleros",
                 "productos": [
                     {"nombre": "GTM Negro", "cantidad": 156, "costo_unitario": 32.0, "metodo": "LIFO"},
                     {"nombre": "GTM Blanco", "cantidad": 89, "costo_unitario": 32.0, "metodo": "LIFO"},
                 ]
             },
             "A2": {
-                "nombre": "Almacén 2 (Palermo)",
+                "nombre": "JOTSA",
                 "productos": [
                     {"nombre": "GTM Negro", "cantidad": 45, "costo_unitario": 32.0, "metodo": "LIFO"},
                 ]
@@ -71,7 +66,7 @@ STOCK_DATA = {
     "HYDRATE": {
         "almacenes": {
             "A1": {
-                "nombre": "Almacén Principal (CABA)",
+                "nombre": "Artilleros",
                 "productos": [
                     {"nombre": "Botella 710ML", "cantidad": 1840, "costo_unitario": 8.5, "metodo": "FIFO"},
                     {"nombre": "Vaso 500ML", "cantidad": 1200, "costo_unitario": 6.2, "metodo": "FIFO"},
@@ -79,7 +74,7 @@ STOCK_DATA = {
                 ]
             },
             "A2": {
-                "nombre": "Almacén 2 (Palermo)",
+                "nombre": "JOTSA",
                 "productos": [
                     {"nombre": "Botella 710ML", "cantidad": 520, "costo_unitario": 8.5, "metodo": "FIFO"},
                     {"nombre": "Vaso 500ML", "cantidad": 380, "costo_unitario": 6.2, "metodo": "FIFO"},
@@ -92,7 +87,7 @@ STOCK_DATA = {
     "TIMBERLAND": {
         "almacenes": {
             "A1": {
-                "nombre": "Almacén Principal (CABA)",
+                "nombre": "Artilleros",
                 "productos": [
                     {"nombre": "Classic Boot", "cantidad": 34, "costo_unitario": 68.0, "metodo": "LIFO"},
                     {"nombre": "Pro Hiking", "cantidad": 18, "costo_unitario": 72.0, "metodo": "LIFO"},
@@ -105,15 +100,15 @@ STOCK_DATA = {
     "URBAN_FLOW": {
         "almacenes": {
             "A1": {
-                "nombre": "Almacén Principal (CABA)",
+                "nombre": "Artilleros",
                 "productos": [
                     {"nombre": "Timberland Mix", "cantidad": 42, "costo_unitario": 65.0, "metodo": "FIFO"},
                     {"nombre": "Shaq Mix", "cantidad": 28, "costo_unitario": 28.0, "metodo": "FIFO"},
                     {"nombre": "Otros", "cantidad": 15, "costo_unitario": 35.0, "metodo": "FIFO"},
                 ]
             },
-            "A3": {
-                "nombre": "Almacén 3 (La Boca)",
+            "A2": {
+                "nombre": "JOTSA",
                 "productos": [
                     {"nombre": "Timberland Mix", "cantidad": 18, "costo_unitario": 65.0, "metodo": "FIFO"},
                 ]

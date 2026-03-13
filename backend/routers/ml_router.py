@@ -116,14 +116,14 @@ TEST_DATA_7DIAS = {
             {"nombre": "Jarro 1L Rojo", "cantidad": 3}
         ],
         "alertas": [
-            "Nivel 3 Amarillo: métricas regulares",
-            "Stock: 4.6K unidades distribuidas",
-            "Marca nueva: 15 días de antigüedad"
+            "Nivel 3 Amarillo: métricas por mejorar",
+            "Stock: 4.6K unidades distribuidas en 3 depósitos",
+            "Conversión: 2.1% (promedio categorial: 3.8%)"
         ],
         "recomendaciones": [
             "Lanzar campaña de visibilidad (ads MercadoLibre)",
             "Ofrecer envío gratis en 2+ unidades",
-            "Agregar reseñas de clientes verificados"
+            "Expandir línea: agregar 4-5 colores nuevos"
         ]
     },
     "TIMBERLAND": {

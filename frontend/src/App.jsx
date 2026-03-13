@@ -374,6 +374,20 @@ function App() {
 
           </section>
 
+          {/* DEBUG VALUACION */}
+          <div style={{ 
+            background: 'rgba(255, 0, 0, 0.1)', 
+            border: '1px solid rgba(255, 0, 0, 0.3)',
+            padding: '10px',
+            marginBottom: '10px',
+            borderRadius: '8px',
+            fontSize: '0.8em',
+            color: '#ff6b6b'
+          }}>
+            <p><strong>DEBUG:</strong> valuationData = {JSON.stringify(Object.keys(valuationData)).replace(/"/g, '')}</p>
+            <p>SHAQ present: {('SHAQ' in valuationData) ? '✅ YES' : '❌ NO'}</p>
+          </div>
+
           {/* INVENTARIO POR MARCA Y DEPÓSITO - PRIMER CARD */}
           <section className="section">
             <h2>📦 Inventario por Marca & Depósito</h2>

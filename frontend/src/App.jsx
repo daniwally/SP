@@ -53,22 +53,33 @@ function App() {
       setLoading(true)
       const API = window.location.origin + '/api'
       
-      const [ventasHoy, ventas7dias, ventasMes, stock] = await Promise.all([
-        axios.get(API + '/ml/ventas/hoy').catch(() => ({ data: {} })),
-        axios.get(API + '/ml/ventas/7dias').catch(() => ({ data: {} })),
-        axios.get(API + '/ml/ventas/mes').catch(() => ({ data: {} })),
-        axios.get(API + '/odoo/stock/actual').catch(() => ({ data: {} }))
+      console.log('🔄 Fetching data from:', API)
+      
+      const axiosConfig = { timeout: 10000 }
+      
+      const results = await Promise.allSettled([
+        axios.get(API + '/ml/ventas/hoy', axiosConfig),
+        axios.get(API + '/ml/ventas/7dias', axiosConfig),
+        axios.get(API + '/ml/ventas/mes', axiosConfig),
+        axios.get(API + '/odoo/stock/actual', axiosConfig)
       ])
       
+      const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
+      const ventas7dias = results[1].status === 'fulfilled' ? results[1].value.data : {}
+      const ventasMes = results[2].status === 'fulfilled' ? results[2].value.data : {}
+      const stock = results[3].status === 'fulfilled' ? results[3].value.data : {}
+      
+      console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock })
+      
       setSalesData({ 
-        hoy: ventasHoy.data, 
-        dias7: ventas7dias.data,
-        mes: ventasMes.data
+        hoy: ventasHoy, 
+        dias7: ventas7dias,
+        mes: ventasMes
       })
-      setStockData(stock.data)
+      setStockData(stock)
       setLoading(false)
     } catch (error) {
-      console.error('Error:', error)
+      console.error('❌ Error fetching data:', error)
       setLoading(false)
     }
   }

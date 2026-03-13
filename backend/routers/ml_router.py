@@ -202,35 +202,54 @@ CUENTAS = {
 }
 
 
-def get_token(cuenta_num):
-    """Lee token del archivo local o variables de entorno"""
-    # Intentar múltiples nombres de env vars
-    env_keys = [
-        f"MELI_TOKEN_{cuenta_num}",
-        f"MELI_TOKEN_CUENTA_{cuenta_num}",
-        f"ML_TOKEN_{cuenta_num}",
-        f"TOKEN_CUENTA_{cuenta_num}",
+# Cargar config de tokens al iniciar
+_TOKEN_CONFIG = {}
+_CONFIG_LOADED = False
+
+def _load_token_config():
+    global _TOKEN_CONFIG, _CONFIG_LOADED
+    if _CONFIG_LOADED:
+        return
+    
+    config_paths = [
+        "/app/backend/config_tokens.json",  # Railway
+        "/tmp/SP/backend/config_tokens.json",  # Local dev
+        "./config_tokens.json",  # Relativo
+        "/tmp/config_tokens.json",  # Alternativo
     ]
     
-    for env_key in env_keys:
-        if env_key in os.environ:
-            token = os.environ[env_key]
-            if token:
-                print(f"✅ Token {cuenta_num} encontrado en {env_key}")
-                return token
+    for path in config_paths:
+        try:
+            with open(path) as f:
+                _TOKEN_CONFIG = json.load(f)
+                print(f"✅ Tokens cargados desde {path}")
+                _CONFIG_LOADED = True
+                return
+        except:
+            pass
     
-    print(f"❌ Token {cuenta_num}: NO encontrado en variables de entorno")
-    print(f"   Intenté: {', '.join(env_keys)}")
+    print("⚠️ config_tokens.json no encontrado, usando fallback")
+    _CONFIG_LOADED = True
+
+def get_token(cuenta_num):
+    """Lee token desde archivo de configuración"""
+    _load_token_config()
     
-    # Si no, intentar desde archivo local
+    # Intentar desde config
+    tokens = _TOKEN_CONFIG.get("tokens", {})
+    if str(cuenta_num) in tokens:
+        print(f"✅ Token {cuenta_num} desde config")
+        return tokens[str(cuenta_num)]
+    
+    # Fallback: archivo local
     token_path = f"/home/ubuntu/.config/meli/token_cuenta{cuenta_num}.json"
     try:
         with open(token_path) as f:
             data = json.load(f)
-            print(f"✅ Token {cuenta_num} encontrado en archivo local")
+            print(f"✅ Token {cuenta_num} desde archivo local")
             return data.get("access_token")
-    except Exception as e:
-        print(f"❌ Token {cuenta_num}: archivo local NO encontrado")
+    except:
+        print(f"❌ Token {cuenta_num} no encontrado")
         return None
 
 

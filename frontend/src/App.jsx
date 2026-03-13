@@ -112,7 +112,7 @@ function App() {
       <RotatingBackground />
       <div className="app">
         <header className="header">
-        <h1>SP - MercadoLibre</h1>
+        <h1>SP</h1>
         <div className="header-actions">
           <div className="tabs">
             <button 
@@ -310,43 +310,34 @@ function App() {
 
         {activeTab === 'stock' && (
         <>
-          {/* KPI CARDS - TOTAL INVENTARIO */}
+          {/* KPI CARDS - TOTAL INVENTARIO (Artilleros + JOTSA) */}
           <section className="section">
             <div className="section-2col">
               {/* Total Unidades */}
               <div className="compare-card">
                 <h2>Inventario Total</h2>
-                <p className="big-number">{Object.values(stockData).reduce((sum, d) => sum + (d.total_unidades || 0), 0).toLocaleString()}</p>
-                <p className="subtitle">unidades en stock</p>
+                <p className="big-number">
+                  {Object.values(stockData).reduce((sum, marca) => {
+                    const art = marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
+                    const jot = marca.almacenes?.['JOTSA']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
+                    return sum + art + jot
+                  }, 0).toLocaleString()}
+                </p>
+                <p className="subtitle">Artilleros + JOTSA</p>
               </div>
               
               {/* Costo Total Inventario */}
               <div className="compare-card">
                 <h2>Valor Inventario</h2>
-                <p className="big-number">${(Object.values(stockData).reduce((sum, d) => sum + (d.costo_total || 0), 0) / 1000000).toFixed(1)}M</p>
-                <p className="subtitle">costo total</p>
+                <p className="big-number">
+                  ${(Object.values(stockData).reduce((sum, marca) => {
+                    const artCosto = Object.values(marca.almacenes?.['Artilleros']?.productos || []).reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0)
+                    const jotCosto = Object.values(marca.almacenes?.['JOTSA']?.productos || []).reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0)
+                    return sum + artCosto + jotCosto
+                  }, 0) / 1000000).toFixed(1)}M
+                </p>
+                <p className="subtitle">Artilleros + JOTSA</p>
               </div>
-            </div>
-          </section>
-
-          {/* TOP 3 MARCAS - MÁS INVENTARIO */}
-          <section className="section">
-            <h2>Top 3 Marcas - Más Inventario</h2>
-            <div className="top3-container">
-              {Object.entries(stockData)
-                .sort(([, a], [, b]) => (b.total_unidades || 0) - (a.total_unidades || 0))
-                .slice(0, 3)
-                .map(([marca, data], idx) => (
-                  <div key={marca} className={`top3-card rank-${idx + 1}`}>
-                    <div className="rank-badge">{idx + 1}</div>
-                    <h3>{marca}</h3>
-                    <p className="top3-value">{(data.total_unidades || 0).toLocaleString()} unidades</p>
-                    <p className="top3-orders">${(data.costo_total || 0).toLocaleString()}</p>
-                    <p className="top3-percent">
-                      Costo promedio: ${((data.costo_total || 0) / (data.total_unidades || 1)).toFixed(2)}/u
-                    </p>
-                  </div>
-                ))}
             </div>
           </section>
 
@@ -355,46 +346,53 @@ function App() {
             <h2>Desglose por Marca & Almacén</h2>
             <div className="top3-container">
               {Object.entries(stockData).map(([marca, data]) => (
-                <div key={marca} className="top3-card">
-                  <h3 style={{ color: '#d946ef' }}>{marca}</h3>
+                <div key={marca} className="compare-card">
+                  <h2>{marca}</h2>
                   
-                  {/* Resumen Marca */}
-                  <div style={{ 
-                    background: 'rgba(6, 182, 212, 0.08)',
-                    border: '1px solid rgba(6, 182, 212, 0.2)',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    marginBottom: '15px',
-                    fontSize: '0.85em'
-                  }}>
-                    <p><strong style={{ color: '#06b6d4' }}>Total:</strong> <span style={{ color: '#06b6d4', fontWeight: 700 }}>{(data.total_unidades || 0).toLocaleString()} u</span></p>
-                    <p><strong style={{ color: '#fbbf24' }}>Inversión:</strong> <span style={{ color: '#fbbf24', fontWeight: 700 }}>${(data.costo_total || 0).toLocaleString()}</span></p>
-                  </div>
-
-                  {/* Almacenes */}
-                  <div style={{ fontSize: '0.8em', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {Object.entries(data.almacenes || {}).map(([almacen_key, almacen]) => (
-                      <div key={almacen_key} style={{ 
-                        background: 'rgba(217, 70, 239, 0.05)',
-                        border: '1px solid rgba(217, 70, 239, 0.15)',
-                        padding: '10px',
-                        borderRadius: '6px'
-                      }}>
-                        <p style={{ color: '#fbbf24', fontWeight: 600, marginBottom: '6px' }}>📦 {almacen.nombre}</p>
-                        <div style={{ paddingLeft: '10px', borderLeft: '2px solid rgba(217, 70, 239, 0.2)' }}>
-                          {almacen.productos && almacen.productos.slice(0, 3).map((prod, idx) => (
-                            <p key={idx} style={{ color: '#b0b0c0', marginBottom: '2px', fontSize: '0.75em' }}>
-                              {prod.nombre.substring(0, 20)}... <span style={{ color: '#06b6d4', fontWeight: 700 }}>x{prod.cantidad}</span>
-                            </p>
-                          ))}
-                          {almacen.productos && almacen.productos.length > 3 && (
-                            <p style={{ color: '#7f8c8d', marginTop: '4px', fontSize: '0.75em', fontStyle: 'italic' }}>
-                              +{almacen.productos.length - 3} más
-                            </p>
+                  {/* Almacenes como cuadrados */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {Object.entries(data.almacenes || {}).map(([almacen_key, almacen]) => {
+                      const almacenUnidades = (almacen.productos || []).reduce((s, p) => s + (p.cantidad || 0), 0)
+                      const almacenCosto = (almacen.productos || []).reduce((s, p) => s + ((p.cantidad || 0) * (p.costo_unitario || 0)), 0)
+                      
+                      return (
+                        <div key={almacen_key} style={{
+                          background: 'rgba(6, 182, 212, 0.1)',
+                          border: '1px solid rgba(6, 182, 212, 0.3)',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          fontSize: '0.85em'
+                        }}>
+                          <p style={{ color: '#fbbf24', fontWeight: 700, marginBottom: '8px' }}>📦 {almacen.nombre}</p>
+                          
+                          <div style={{ marginBottom: '8px' }}>
+                            <p style={{ color: '#b0b0c0', marginBottom: '4px', fontSize: '0.8em' }}>Unidades</p>
+                            <p style={{ color: '#06b6d4', fontWeight: 700, fontSize: '1.3em' }}>{almacenUnidades.toLocaleString()}</p>
+                          </div>
+                          
+                          <div>
+                            <p style={{ color: '#b0b0c0', marginBottom: '4px', fontSize: '0.8em' }}>Inversión</p>
+                            <p style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.1em' }}>${almacenCosto.toLocaleString()}</p>
+                          </div>
+                          
+                          {almacen.productos && almacen.productos.length > 0 && (
+                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(217, 70, 239, 0.2)', fontSize: '0.75em' }}>
+                              <p style={{ color: '#7f8c8d', marginBottom: '6px', fontWeight: 600 }}>Productos ({almacen.productos.length})</p>
+                              {almacen.productos.slice(0, 3).map((prod, idx) => (
+                                <p key={idx} style={{ color: '#b0b0c0', marginBottom: '2px' }}>
+                                  {prod.nombre.substring(0, 25)}... <span style={{ color: '#06b6d4', fontWeight: 700 }}>x{prod.cantidad}</span>
+                                </p>
+                              ))}
+                              {almacen.productos.length > 3 && (
+                                <p style={{ color: '#7f8c8d', marginTop: '4px', fontStyle: 'italic', fontSize: '0.85em' }}>
+                                  +{almacen.productos.length - 3} más
+                                </p>
+                              )}
+                            </div>
                           )}
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               ))}

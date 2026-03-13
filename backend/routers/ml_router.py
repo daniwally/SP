@@ -147,18 +147,18 @@ TEST_DATA_7DIAS = {
         "total": 287540,
         "ordenes": 8,
         "productos": [
-            {"nombre": "Timberland Outlet", "cantidad": 5},
-            {"nombre": "Shaq Outlet", "cantidad": 3}
+            {"nombre": "Timberland Remate", "cantidad": 5},
+            {"nombre": "Shaq Remate", "cantidad": 3}
         ],
         "alertas": [
-            "Cuenta outlet: stock variado multiproducto",
-            "Nivel 3 Amarillo: métricas regulares",
-            "Volumen bajo comparado con marcas principales"
+            "Cuenta de agote/remate: stock limitado",
+            "Nivel 3 Amarillo: métricas regulares para remate",
+            "Rotación rápida requerida (talles/colores descontinuados)"
         ],
         "recomendaciones": [
-            "Aumentar frecuencia de uploads (3-4 por semana)",
-            "Crear colecciones por marca principal (Timberland, Shaq)",
-            "Implementar descripción estándar para outlet (talles, lotes, etc.)"
+            "Acelerar liquidación: aumentar promociones y descuentos",
+            "Bundlear productos por talle/color (cerrar stock rápido)",
+            "Crear alertas para stock bajo (reabastecer o cerrar SKU)"
         ]
     },
 }

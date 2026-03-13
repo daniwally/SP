@@ -264,7 +264,7 @@ function App() {
                   {data.alertas && data.alertas.map((alerta, idx) => (
                     <p key={idx} style={{
                       fontSize: '0.75em',
-                      color: '#ef4444',
+                      color: '#f5f5f5',
                       marginBottom: '4px',
                       lineHeight: '1.3'
                     }}>
@@ -279,7 +279,7 @@ function App() {
                   {data.recomendaciones && data.recomendaciones.map((rec, idx) => (
                     <p key={idx} style={{
                       fontSize: '0.75em',
-                      color: '#86efac',
+                      color: '#b0e0e6',
                       marginBottom: '4px',
                       lineHeight: '1.3'
                     }}>

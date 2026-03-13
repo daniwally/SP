@@ -207,15 +207,20 @@ def get_token(cuenta_num):
     # Intentar desde env var primero
     env_key = f"MELI_TOKEN_{cuenta_num}"
     if env_key in os.environ:
+        print(f"✅ Token {cuenta_num} encontrado en env var {env_key}")
         return os.environ[env_key]
+    else:
+        print(f"❌ Token {cuenta_num}: env var {env_key} NO encontrada")
     
     # Si no, intentar desde archivo local
     token_path = f"/home/ubuntu/.config/meli/token_cuenta{cuenta_num}.json"
     try:
         with open(token_path) as f:
             data = json.load(f)
+            print(f"✅ Token {cuenta_num} encontrado en archivo local")
             return data.get("access_token")
-    except Exception:
+    except Exception as e:
+        print(f"❌ Token {cuenta_num}: archivo local NO encontrado ({e})")
         return None
 
 

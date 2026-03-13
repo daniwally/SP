@@ -13,6 +13,12 @@ const formatDateSpanish = (date) => {
   return `${day} ${dayNum} de ${month}`
 }
 
+// Función para obtener solo el nombre del mes actual
+const getCurrentMonthName = () => {
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+  return months[new Date().getMonth()].charAt(0).toUpperCase() + months[new Date().getMonth()].slice(1)
+}
+
 // Función para obtener el sábado de esta semana
 const getSaturdayOfWeek = (date) => {
   const d = new Date(date)
@@ -165,7 +171,7 @@ function App() {
           <div className="section-2col">
             <div className="compare-card">
               <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
-              <p className="subtitle">Acumulado del mes</p>
+              <p className="subtitle">Acumulado de {getCurrentMonthName()}</p>
             </div>
 
             <div className="compare-card">

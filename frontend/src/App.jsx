@@ -105,7 +105,7 @@ function App() {
               className={`tab-btn ${activeTab === 'mercadolibre' ? 'active' : ''}`}
               onClick={() => setActiveTab('mercadolibre')}
             >
-              💰 Ventas
+              💰 Ventas e-commerce
             </button>
             <button 
               className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}

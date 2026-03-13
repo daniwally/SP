@@ -204,13 +204,23 @@ CUENTAS = {
 
 def get_token(cuenta_num):
     """Lee token del archivo local o variables de entorno"""
-    # Intentar desde env var primero
-    env_key = f"MELI_TOKEN_{cuenta_num}"
-    if env_key in os.environ:
-        print(f"✅ Token {cuenta_num} encontrado en env var {env_key}")
-        return os.environ[env_key]
-    else:
-        print(f"❌ Token {cuenta_num}: env var {env_key} NO encontrada")
+    # Intentar múltiples nombres de env vars
+    env_keys = [
+        f"MELI_TOKEN_{cuenta_num}",
+        f"MELI_TOKEN_CUENTA_{cuenta_num}",
+        f"ML_TOKEN_{cuenta_num}",
+        f"TOKEN_CUENTA_{cuenta_num}",
+    ]
+    
+    for env_key in env_keys:
+        if env_key in os.environ:
+            token = os.environ[env_key]
+            if token:
+                print(f"✅ Token {cuenta_num} encontrado en {env_key}")
+                return token
+    
+    print(f"❌ Token {cuenta_num}: NO encontrado en variables de entorno")
+    print(f"   Intenté: {', '.join(env_keys)}")
     
     # Si no, intentar desde archivo local
     token_path = f"/home/ubuntu/.config/meli/token_cuenta{cuenta_num}.json"
@@ -220,7 +230,7 @@ def get_token(cuenta_num):
             print(f"✅ Token {cuenta_num} encontrado en archivo local")
             return data.get("access_token")
     except Exception as e:
-        print(f"❌ Token {cuenta_num}: archivo local NO encontrado ({e})")
+        print(f"❌ Token {cuenta_num}: archivo local NO encontrado")
         return None
 
 

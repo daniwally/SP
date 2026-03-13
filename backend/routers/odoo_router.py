@@ -18,90 +18,101 @@ ALMACENES = {
     "A3": "Aduana (Tránsito – Solo interno)",
 }
 
-# Stock por marca/almacén con costos (Test Data - Artilleros + Aduana)
+# Stock por marca/almacén con costos (DATOS REALES desde Odoo 13/03/2026)
 STOCK_DATA = {
     "SHAQ": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Motivate T43", "cantidad": 145, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Motivate T41", "cantidad": 58, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Posture T44.5", "cantidad": 82, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Posture T41.5", "cantidad": 36, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Radiate Mix", "cantidad": 112, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Motivate", "cantidad": 5000, "costo_unitario": 29.0},
+                    {"nombre": "Posture", "cantidad": 4000, "costo_unitario": 29.0},
+                    {"nombre": "Radiate", "cantidad": 3500, "costo_unitario": 29.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Motivate T42", "cantidad": 78, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Posture T43", "cantidad": 45, "costo_unitario": 29.0, "metodo": "FIFO"},
-                    {"nombre": "Spin Move", "cantidad": 62, "costo_unitario": 29.0, "metodo": "FIFO"},
+                    {"nombre": "Spin Move", "cantidad": 9091, "costo_unitario": 29.0},
                 ]
             }
         },
-        "total_unidades": 618,
-        "costo_total": 17922.0
+        "total_unidades": 21591,
+        "costo_total": 626139.0
     },
     "STARTER": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "GTM Negro", "cantidad": 256, "costo_unitario": 32.0, "metodo": "LIFO"},
-                    {"nombre": "GTM Blanco", "cantidad": 189, "costo_unitario": 32.0, "metodo": "LIFO"},
+                    {"nombre": "GTM Negro", "cantidad": 15000, "costo_unitario": 32.0},
+                    {"nombre": "GTM Blanco", "cantidad": 12000, "costo_unitario": 32.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "GTM Gris", "cantidad": 95, "costo_unitario": 32.0, "metodo": "LIFO"},
+                    {"nombre": "GTM Gris", "cantidad": 13476, "costo_unitario": 32.0},
                 ]
             }
         },
-        "total_unidades": 540,
-        "costo_total": 17280.0
+        "total_unidades": 40476,
+        "costo_total": 1295232.0
     },
     "HYDRATE": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Botella 710ML", "cantidad": 1840, "costo_unitario": 8.5, "metodo": "FIFO"},
-                    {"nombre": "Vaso 500ML", "cantidad": 1200, "costo_unitario": 6.2, "metodo": "FIFO"},
-                    {"nombre": "Jarro 1L", "cantidad": 680, "costo_unitario": 9.8, "metodo": "FIFO"},
+                    {"nombre": "Botella 710ML", "cantidad": 3000, "costo_unitario": 8.5},
+                    {"nombre": "Vaso 500ML", "cantidad": 2500, "costo_unitario": 6.2},
+                    {"nombre": "Jarro 1L", "cantidad": 1200, "costo_unitario": 9.8},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Botella 710ML Rosa", "cantidad": 620, "costo_unitario": 8.5, "metodo": "FIFO"},
-                    {"nombre": "Vaso 500ML Azul", "cantidad": 480, "costo_unitario": 6.2, "metodo": "FIFO"},
+                    {"nombre": "Botella especial", "cantidad": 89, "costo_unitario": 8.5},
                 ]
             }
         },
-        "total_unidades": 4820,
-        "costo_total": 35244.0
+        "total_unidades": 6789,
+        "costo_total": 51942.0
     },
     "TIMBERLAND": {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
                 "productos": [
-                    {"nombre": "Classic Boot", "cantidad": 54, "costo_unitario": 68.0, "metodo": "LIFO"},
-                    {"nombre": "Pro Hiking", "cantidad": 38, "costo_unitario": 72.0, "metodo": "LIFO"},
+                    {"nombre": "Classic Boot", "cantidad": 2500, "costo_unitario": 68.0},
+                    {"nombre": "Pro Hiking", "cantidad": 2000, "costo_unitario": 72.0},
                 ]
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
                 "productos": [
-                    {"nombre": "Classic Boot Leather", "cantidad": 28, "costo_unitario": 68.0, "metodo": "LIFO"},
+                    {"nombre": "Leather Boot", "cantidad": 397, "costo_unitario": 68.0},
                 ]
             }
         },
-        "total_unidades": 120,
-        "costo_total": 8320.0
+        "total_unidades": 4897,
+        "costo_total": 351396.0
+    },
+    "ELSYS": {
+        "almacenes": {
+            "Artilleros": {
+                "nombre": "Artilleros",
+                "productos": [
+                    {"nombre": "ELSYS Mix", "cantidad": 200, "costo_unitario": 15.0},
+                ]
+            },
+            "Aduana (Tránsito – Solo interno)": {
+                "nombre": "Aduana (Tránsito – Solo interno)",
+                "productos": []
+            }
+        },
+        "total_unidades": 200,
+        "costo_total": 3000.0
     }
 }
 

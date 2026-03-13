@@ -11,10 +11,11 @@
 html, body, #root {
   height: 100%;
   width: 100%;
+  background: transparent;
 }
 
 body {
-  background: #000000;
+  background: transparent;
   color: #b0b0c0;
 }
 
@@ -23,7 +24,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.6);
   position: relative;
   z-index: 1;
 }

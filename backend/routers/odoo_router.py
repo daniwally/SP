@@ -164,18 +164,17 @@ def get_stock_real():
     try:
         uid = get_uid()
         if not uid:
-            print("No se pudo autenticar con Odoo - usando test data")
+            print("❌ No auth - usando test data")
             return {}
         
-        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=10)
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=15)
         
         # Obtener mapeo de marcas
         marca_map = get_marca_map()
         
-        # Ubicaciones de stock por almacén (IDs reales de Odoo)
+        # Ubicaciones de stock por almacén (IDs reales de Odoo) - solo Artilleros y Aduana
         warehouse_locations = {
             'Artilleros': 5,
-            'JOTSA': 18,
             'Aduana (Tránsito – Solo interno)': 24
         }
         
@@ -183,21 +182,30 @@ def get_stock_real():
         
         for wh_name, loc_id in warehouse_locations.items():
             try:
-                # Buscar quants en esa ubicación
+                print(f"🔍 Buscando stock en {wh_name}...")
+                
+                # Buscar quants en esa ubicación con límite
                 domain = [('location_id', '=', loc_id), ('quantity', '>', 0)]
-                quant_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'search', [domain])
+                quant_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'search', [domain], {'limit': 500})
+                
+                print(f"  Total quants encontrados: {len(quant_ids)}")
                 
                 if quant_ids:
-                    quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids])
+                    quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids], ['product_id', 'quantity'])
                     
-                    for q in quants:
-                        product_id = q['product_id']
-                        if product_id:
-                            # Obtener datos del producto (incluyendo categoría)
-                            product = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', 
-                                                       [product_id[0]], ['name', 'standard_price', 'categ_id'])
-                            if product:
-                                prod_data = product[0]
+                    # Traer datos de productos en batch (más eficiente)
+                    product_ids = [q['product_id'][0] for q in quants if q['product_id']]
+                    
+                    if product_ids:
+                        products = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', 
+                                                    product_ids, ['name', 'standard_price', 'categ_id'])
+                        
+                        prod_map = {p['id']: p for p in products}
+                        
+                        for q in quants:
+                            product_id = q['product_id'][0] if q['product_id'] else None
+                            if product_id and product_id in prod_map:
+                                prod_data = prod_map[product_id]
                                 
                                 # Extraer marca de la categoría
                                 categ_id = prod_data.get('categ_id')
@@ -220,18 +228,21 @@ def get_stock_real():
                                         'productos': []
                                     }
                                 
-                                # Agregar producto
+                                # Agregar producto (limitar a 50 por almacén/marca para no saturar)
+                                if len(result[marca]['almacenes'][wh_name]['productos']) < 50:
+                                    costo_unitario = float(prod_data.get('standard_price', 0)) or 0.0
+                                    cantidad = int(q['quantity'])
+                                    
+                                    result[marca]['almacenes'][wh_name]['productos'].append({
+                                        'nombre': prod_data['name'],
+                                        'cantidad': cantidad,
+                                        'costo_unitario': costo_unitario,
+                                        'metodo': 'FIFO'
+                                    })
+                                
+                                # Actualizar totales (TODOS, no solo los 50 mostrados)
                                 costo_unitario = float(prod_data.get('standard_price', 0)) or 0.0
                                 cantidad = int(q['quantity'])
-                                
-                                result[marca]['almacenes'][wh_name]['productos'].append({
-                                    'nombre': prod_data['name'],
-                                    'cantidad': cantidad,
-                                    'costo_unitario': costo_unitario,
-                                    'metodo': 'FIFO'
-                                })
-                                
-                                # Actualizar totales
                                 result[marca]['total_unidades'] += cantidad
                                 result[marca]['costo_total'] += cantidad * costo_unitario
             

@@ -295,13 +295,16 @@ def extract_productos(ordenes):
     productos_dict = defaultdict(int)
     
     for orden in ordenes:
-        # La API de órdenes puede traer order_items directamente o necesitar otra llamada
-        if "order_items" in orden:
-            for item in orden["order_items"]:
-                nombre_raw = item.get("item", {}).get("title", "Producto desconocido")
-                nombre = clean_product_name(nombre_raw)
-                cantidad = item.get("quantity", 1)
-                productos_dict[nombre] += cantidad
+        # Intentar extraer order_items (si disponible)
+        try:
+            if "order_items" in orden:
+                for item in orden["order_items"]:
+                    nombre_raw = item.get("item", {}).get("title", "Producto desconocido")
+                    nombre = clean_product_name(nombre_raw)
+                    cantidad = item.get("quantity", 1)
+                    productos_dict[nombre] += cantidad
+        except Exception as e:
+            print(f"Error extrayendo productos: {e}")
     
     # Ordenar por cantidad descendente
     productos_ordenados = sorted(

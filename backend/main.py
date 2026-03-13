@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -40,9 +41,27 @@ async def health():
 async def api_info():
     return {"status": "ok"}
 
-# Servir archivos estáticos si existen
+# Servir archivos estáticos en /static
 static_dir = Path("/app/static")
 if static_dir.exists():
-    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+# SPA fallback - servir index.html para rutas no encontradas
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    # Si empieza con /api, no intervenir
+    if full_path.startswith("api"):
+        return {"error": "not found"}
+    
+    # Si pide un archivo con extensión, no intervenir
+    if "." in full_path.split("/")[-1]:
+        return {"error": "not found"}
+    
+    # Para todo lo demás, servir index.html
+    index_file = static_dir / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    
+    return {"error": "not found"}
 
 

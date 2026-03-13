@@ -310,8 +310,9 @@ function App() {
 
         {activeTab === 'stock' && (
         <>
-          {/* KPI CARDS - TOTAL INVENTARIO (Artilleros + Aduana) */}
+          {/* KPI CARDS - TOTAL INVENTARIO + POR MARCA */}
           <section className="section">
+            {/* Totales */}
             <div className="section-2col">
               {/* Total Unidades */}
               <div className="compare-card">
@@ -337,6 +338,30 @@ function App() {
                   }, 0) / 1000000).toFixed(1)}M
                 </p>
                 <p className="subtitle">Artilleros + Aduana</p>
+              </div>
+            </div>
+
+            {/* Inventario por Marca */}
+            <div style={{ marginTop: '30px' }}>
+              <h3 style={{ color: '#d946ef', fontSize: '0.95em', fontWeight: 700, marginBottom: '15px' }}>📦 Inventario por Marca</h3>
+              <div className="cards-grid">
+                {Object.entries(stockData).map(([marca, data]) => {
+                  const totalMarca = data.total_unidades || 0
+                  const costMarca = data.costo_total || 0
+                  
+                  return (
+                    <div key={marca} className="card">
+                      <h3>{marca}</h3>
+                      <p className="value">{totalMarca.toLocaleString()}</p>
+                      <p className="subtitle">unidades</p>
+                      <div className="productos-list">
+                        <p style={{ color: '#fbbf24', fontSize: '0.85em', fontWeight: 600 }}>
+                          ${costMarca.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </section>

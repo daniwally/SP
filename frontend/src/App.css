@@ -11,11 +11,11 @@
 html, body, #root {
   height: 100%;
   width: 100%;
-  background: transparent;
+  background: #000000;
 }
 
 body {
-  background: transparent;
+  background: #000000;
   color: #b0b0c0;
 }
 

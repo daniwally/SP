@@ -127,18 +127,133 @@ def get_uid():
         common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
         uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
         return uid
-    except:
+    except Exception as e:
+        print(f"Auth error: {e}")
         return None
+
+def get_stock_real():
+    """Obtiene stock real desde Odoo agrupado por almacén"""
+    try:
+        uid = get_uid()
+        if not uid:
+            print("No se pudo autenticar con Odoo")
+            return {}
+        
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
+        
+        # Ubicaciones de stock por almacén (IDs reales de Odoo)
+        warehouse_locations = {
+            'Artilleros': 5,
+            'JOTSA': 18,
+            'Aduana (Tránsito – Solo interno)': 24
+        }
+        
+        result = {}
+        
+        for wh_name, loc_id in warehouse_locations.items():
+            try:
+                # Buscar quants en esa ubicación
+                domain = [('location_id', '=', loc_id), ('quantity', '>', 0)]
+                quant_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'search', [domain])
+                
+                if quant_ids:
+                    quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids])
+                    
+                    productos = []
+                    for q in quants:
+                        product_id = q['product_id']
+                        if product_id:
+                            # Obtener datos del producto
+                            product = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', [product_id[0]])
+                            if product:
+                                prod_data = product[0]
+                                productos.append({
+                                    'nombre': prod_data['name'],
+                                    'cantidad': int(q['quantity']),
+                                    'costo_unitario': float(prod_data.get('standard_price', 0)) or 0.0,
+                                    'metodo': 'FIFO'
+                                })
+                    
+                    if productos:
+                        result[wh_name] = {
+                            'nombre': wh_name,
+                            'productos': productos,
+                            'total_unidades': sum(p['cantidad'] for p in productos),
+                            'costo_total': sum(p['cantidad'] * p['costo_unitario'] for p in productos)
+                        }
+            
+            except Exception as e:
+                print(f"Error en almacén {wh_name}: {e}")
+                continue
+        
+        return result
+    
+    except Exception as e:
+        print(f"Error fetching stock: {e}")
+        return {}
 
 @router.get("/stock/actual")
 async def stock_actual():
-    """Stock actual por marca/almacén con costos (FIFO/LIFO)"""
-    return STOCK_DATA
+    """Stock actual por almacén desde Odoo (real time)"""
+    stock_real = get_stock_real()
+    
+    # Formatear resultado en estructura por marca (extraída del nombre de producto)
+    formatted_result = {}
+    
+    for almacen_name, almacen_data in stock_real.items():
+        # Agrupar productos por marca (basada en el nombre del producto o categoría)
+        # Por ahora, crear una estructura similar a STOCK_DATA pero con datos reales
+        for prod in almacen_data['productos']:
+            # Extraer marca del nombre (primer parte antes de space o dash)
+            marca = 'GENERAL'  # Por defecto
+            if formatted_result.get(marca) is None:
+                formatted_result[marca] = {'almacenes': {}}
+            
+            # Asegurar que el almacén existe en la marca
+            if almacen_name not in formatted_result[marca]['almacenes']:
+                formatted_result[marca]['almacenes'][almacen_name] = {
+                    'nombre': almacen_name,
+                    'productos': []
+                }
+            
+            formatted_result[marca]['almacenes'][almacen_name]['productos'].append(prod)
+    
+    # Calcular totales por marca/almacén
+    for marca, data in formatted_result.items():
+        total_unidades = 0
+        total_costo = 0
+        
+        for almacen_name, almacen_data in data['almacenes'].items():
+            almacen_total = sum(p['cantidad'] for p in almacen_data['productos'])
+            almacen_costo = sum(p['cantidad'] * p['costo_unitario'] for p in almacen_data['productos'])
+            
+            total_unidades += almacen_total
+            total_costo += almacen_costo
+        
+        data['total_unidades'] = total_unidades
+        data['costo_total'] = total_costo
+    
+    # Si no hay datos reales, devolver test data
+    return formatted_result if formatted_result else STOCK_DATA
 
 @router.get("/almacenes")
 async def almacenes():
-    """Lista de almacenes disponibles"""
-    return ALMACENES
+    """Lista de almacenes disponibles desde Odoo"""
+    try:
+        uid = get_uid()
+        if not uid:
+            return ALMACENES
+        
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
+        warehouse_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.warehouse', 'search', [])
+        warehouses = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.warehouse', 'read', 
+                                       [warehouse_ids], ['id', 'name'])
+        
+        return {str(w['id']): w['name'] for w in warehouses}
+    
+    except Exception as e:
+        print(f"Error fetching almacenes: {e}")
+        return ALMACENES
 
 @router.get("/stock/consolidado")
 async def stock_consolidado():

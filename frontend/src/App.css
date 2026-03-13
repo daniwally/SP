@@ -40,8 +40,9 @@ body {
 .header h1 {
   font-size: 1.8em;
   color: #fff;
-  font-weight: 700;
+  font-weight: 300;
   letter-spacing: -0.5px;
+  font-family: 'Inter', sans-serif;
 }
 
 .btn-refresh {
@@ -86,8 +87,9 @@ body {
 .section h2 {
   font-size: 1.3em;
   color: #fff;
-  font-weight: 700;
+  font-weight: 300;
   letter-spacing: -0.3px;
+  font-family: 'Inter', sans-serif;
 }
 
 .section-2col {
@@ -129,10 +131,11 @@ body {
 .card h3 {
   color: #d946ef;
   font-size: 0.9em;
-  font-weight: 700;
+  font-weight: 300;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-family: 'Inter', sans-serif;
 }
 
 .card .value {
@@ -192,8 +195,9 @@ body {
 .compare-card h2 {
   font-size: 1.05em;
   color: #95a5a6;
-  font-weight: 600;
+  font-weight: 300;
   margin-bottom: 14px;
+  font-family: 'Inter', sans-serif;
 }
 
 .big-number {
@@ -257,10 +261,11 @@ body {
 .top3-card h3 {
   color: #d946ef;
   font-size: 1.05em;
-  font-weight: 700;
+  font-weight: 300;
   margin-bottom: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-family: 'Inter', sans-serif;
 }
 
 .top3-value {

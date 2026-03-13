@@ -124,7 +124,7 @@ def get_uid():
     try:
         if not ODOO_KEY:
             return None
-        common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
+        common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common', timeout=5)
         uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
         return uid
     except Exception as e:
@@ -178,10 +178,10 @@ def get_stock_real():
     try:
         uid = get_uid()
         if not uid:
-            print("No se pudo autenticar con Odoo")
+            print("No se pudo autenticar con Odoo - usando test data")
             return {}
         
-        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=10)
         
         # Obtener mapeo de marcas
         marca_map = get_marca_map()
@@ -261,11 +261,18 @@ def get_stock_real():
 
 @router.get("/stock/actual")
 async def stock_actual():
-    """Stock actual por marca y almacén desde Odoo (real time)"""
-    stock_real = get_stock_real()
-    
-    # Si no hay datos reales, devolver test data
-    return stock_real if stock_real else STOCK_DATA
+    """Stock actual por marca y almacén desde Odoo (real time con fallback)"""
+    try:
+        stock_real = get_stock_real()
+        if stock_real:
+            print(f"✅ Stock real obtenido: {len(stock_real)} marcas")
+            return stock_real
+        else:
+            print("⚠️ No hay stock real - usando test data")
+            return STOCK_DATA
+    except Exception as e:
+        print(f"❌ Error en stock_actual: {e}")
+        return STOCK_DATA
 
 @router.get("/almacenes")
 async def almacenes():

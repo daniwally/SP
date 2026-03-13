@@ -299,36 +299,89 @@ function App() {
 
         {activeTab === 'stock' && (
         <>
-          {/* STOCK POR MARCA/ALMACÉN */}
+          {/* KPI CARDS - TOTAL INVENTARIO */}
           <section className="section">
-            <h2>Stock por Marca & Almacén</h2>
-            <div className="stock-container">
+            <div className="section-2col">
+              {/* Total Unidades */}
+              <div className="compare-card">
+                <h2>Inventario Total</h2>
+                <p className="big-number">{Object.values(stockData).reduce((sum, d) => sum + (d.total_unidades || 0), 0).toLocaleString()}</p>
+                <p className="subtitle">unidades en stock</p>
+              </div>
+              
+              {/* Costo Total Inventario */}
+              <div className="compare-card">
+                <h2>Valor Inventario</h2>
+                <p className="big-number">${(Object.values(stockData).reduce((sum, d) => sum + (d.costo_total || 0), 0) / 1000000).toFixed(1)}M</p>
+                <p className="subtitle">costo total</p>
+              </div>
+            </div>
+          </section>
+
+          {/* TOP 3 MARCAS - MÁS INVENTARIO */}
+          <section className="section">
+            <h2>Top 3 Marcas - Más Inventario</h2>
+            <div className="top3-container">
+              {Object.entries(stockData)
+                .sort(([, a], [, b]) => (b.total_unidades || 0) - (a.total_unidades || 0))
+                .slice(0, 3)
+                .map(([marca, data], idx) => (
+                  <div key={marca} className={`top3-card rank-${idx + 1}`}>
+                    <div className="rank-badge">{idx + 1}</div>
+                    <h3>{marca}</h3>
+                    <p className="top3-value">{(data.total_unidades || 0).toLocaleString()} unidades</p>
+                    <p className="top3-orders">${(data.costo_total || 0).toLocaleString()}</p>
+                    <p className="top3-percent">
+                      Costo promedio: ${((data.costo_total || 0) / (data.total_unidades || 1)).toFixed(2)}/u
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </section>
+
+          {/* STOCK POR MARCA Y ALMACÉN */}
+          <section className="section">
+            <h2>Desglose por Marca & Almacén</h2>
+            <div className="top3-container">
               {Object.entries(stockData).map(([marca, data]) => (
-                <div key={marca} className="stock-brand-card">
-                  <h3 style={{ color: '#d946ef', marginBottom: '12px' }}>{marca}</h3>
+                <div key={marca} className="top3-card">
+                  <h3 style={{ color: '#d946ef' }}>{marca}</h3>
                   
-                  {/* Resumen */}
+                  {/* Resumen Marca */}
                   <div style={{ 
-                    backgroundColor: 'rgba(6, 182, 212, 0.1)', 
-                    padding: '10px', 
-                    borderRadius: '8px', 
+                    background: 'rgba(6, 182, 212, 0.08)',
+                    border: '1px solid rgba(6, 182, 212, 0.2)',
+                    padding: '12px',
+                    borderRadius: '8px',
                     marginBottom: '15px',
                     fontSize: '0.85em'
                   }}>
-                    <p><strong>Total:</strong> <span style={{ color: '#06b6d4' }}>{data.total_unidades} unidades</span></p>
-                    <p><strong>Costo Inventario:</strong> <span style={{ color: '#86efac' }}>${data.costo_total.toLocaleString()}</span></p>
+                    <p><strong style={{ color: '#06b6d4' }}>Total:</strong> <span style={{ color: '#06b6d4', fontWeight: 700 }}>{(data.total_unidades || 0).toLocaleString()} u</span></p>
+                    <p><strong style={{ color: '#fbbf24' }}>Inversión:</strong> <span style={{ color: '#fbbf24', fontWeight: 700 }}>${(data.costo_total || 0).toLocaleString()}</span></p>
                   </div>
 
                   {/* Almacenes */}
-                  <div style={{ fontSize: '0.8em' }}>
-                    {Object.entries(data.almacenes).map(([almID, almacen]) => (
-                      <div key={almID} style={{ marginBottom: '12px', paddingBottom: '10px', borderBottom: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                        <p style={{ color: '#fbbf24', fontWeight: 600, marginBottom: '6px' }}>{almacen.nombre}</p>
-                        {almacen.productos.map((prod, idx) => (
-                          <p key={idx} style={{ color: '#b0b0c0', marginBottom: '3px' }}>
-                            {prod.nombre}: <span style={{ color: '#06b6d4' }}>{prod.cantidad}u</span> @ ${prod.costo_unitario.toFixed(2)} ({prod.metodo})
-                          </p>
-                        ))}
+                  <div style={{ fontSize: '0.8em', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {Object.entries(data.almacenes || {}).map(([almacen_key, almacen]) => (
+                      <div key={almacen_key} style={{ 
+                        background: 'rgba(217, 70, 239, 0.05)',
+                        border: '1px solid rgba(217, 70, 239, 0.15)',
+                        padding: '10px',
+                        borderRadius: '6px'
+                      }}>
+                        <p style={{ color: '#fbbf24', fontWeight: 600, marginBottom: '6px' }}>📦 {almacen.nombre}</p>
+                        <div style={{ paddingLeft: '10px', borderLeft: '2px solid rgba(217, 70, 239, 0.2)' }}>
+                          {almacen.productos && almacen.productos.slice(0, 3).map((prod, idx) => (
+                            <p key={idx} style={{ color: '#b0b0c0', marginBottom: '2px', fontSize: '0.75em' }}>
+                              {prod.nombre.substring(0, 20)}... <span style={{ color: '#06b6d4', fontWeight: 700 }}>x{prod.cantidad}</span>
+                            </p>
+                          ))}
+                          {almacen.productos && almacen.productos.length > 3 && (
+                            <p style={{ color: '#7f8c8d', marginTop: '4px', fontSize: '0.75em', fontStyle: 'italic' }}>
+                              +{almacen.productos.length - 3} más
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -339,16 +392,44 @@ function App() {
 
           {/* RESUMEN DE COSTOS */}
           <section className="section">
-            <h2>Resumen de Costos de Inventario</h2>
-            <div className="costs-grid">
+            <h2>💰 Análisis de Costos por Marca</h2>
+            <div className="top3-container">
               {Object.entries(stockData).map(([marca, data]) => {
-                const costoPorUnidad = (data.costo_total / data.total_unidades).toFixed(2)
+                const costoPorUnidad = (data.total_unidades || 0) > 0 ? ((data.costo_total || 0) / (data.total_unidades || 1)).toFixed(2) : 0
+                const totalMarcas = Object.values(stockData).reduce((sum, d) => sum + (d.total_unidades || 0), 0)
+                const porcentaje = totalMarcas > 0 ? ((data.total_unidades || 0) / totalMarcas * 100).toFixed(1) : 0
+                
                 return (
-                  <div key={marca} className="cost-card">
-                    <h3 style={{ color: '#06b6d4', marginBottom: '10px' }}>{marca}</h3>
-                    <p><strong>Unidades:</strong> <span style={{ color: '#86efac' }}>{data.total_unidades}</span></p>
-                    <p><strong>Costo Total:</strong> <span style={{ color: '#d946ef' }}>${data.costo_total.toLocaleString()}</span></p>
-                    <p><strong>Costo x Unidad:</strong> <span style={{ color: '#fbbf24' }}>${costoPorUnidad}</span></p>
+                  <div key={marca} className="compare-card">
+                    <h2>{marca}</h2>
+                    <div style={{ marginBottom: '12px', fontSize: '0.9em' }}>
+                      <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, marginBottom: '4px' }}>
+                        {(data.total_unidades || 0).toLocaleString()}u
+                      </p>
+                      <p style={{ color: '#7f8c8d' }}>({porcentaje}% del total)</p>
+                    </div>
+                    
+                    <div style={{ 
+                      background: 'rgba(6, 182, 212, 0.1)',
+                      padding: '10px',
+                      borderRadius: '6px',
+                      marginBottom: '10px',
+                      fontSize: '0.85em'
+                    }}>
+                      <p style={{ color: '#b0b0c0', marginBottom: '4px' }}>
+                        <strong>Inversión:</strong>
+                      </p>
+                      <p style={{ color: '#fbbf24', fontWeight: 700, fontSize: '1.3em' }}>
+                        ${(data.costo_total || 0).toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div style={{ fontSize: '0.8em', borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px' }}>
+                      <p style={{ color: '#b0b0c0', marginBottom: '4px' }}>Costo/Unidad</p>
+                      <p style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.2em' }}>
+                        ${costoPorUnidad}
+                      </p>
+                    </div>
                   </div>
                 )
               })}

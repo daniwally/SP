@@ -13,6 +13,7 @@ ODOO_KEY = '0115ec6a78f7a7329a152fe95f41b8152a22f4b9'
 PRECIO_TEMPORAL = {
     'SHAQ': 52000,
     'STARTER': 39000,
+    'TIMBERLAND': 125000,
     # HYDRATE usa pricelist real
 }
 

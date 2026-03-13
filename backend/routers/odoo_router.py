@@ -261,10 +261,85 @@ def get_stock_real():
 
 @router.get("/stock/actual")
 async def stock_actual():
-    """Stock actual por marca y almacén desde Odoo (real time con fallback)"""
-    # Por ahora usar STOCK_DATA test (Odoo tiene demasiados productos)
-    print("📦 Devolviendo STOCK_DATA test")
-    return STOCK_DATA
+    """Stock actual - SOLO TEST DATA (Odoo desactivado)"""
+    # SOLO devolver STOCK_DATA de test - NUNCA llamar a get_stock_real()
+    return {
+        "SHAQ": {
+            "almacenes": {
+                "Artilleros": {
+                    "nombre": "Artilleros",
+                    "productos": [
+                        {"nombre": "Motivate T43", "cantidad": 145, "costo_unitario": 29.0},
+                        {"nombre": "Motivate T41", "cantidad": 58, "costo_unitario": 29.0},
+                        {"nombre": "Posture T44.5", "cantidad": 82, "costo_unitario": 29.0},
+                        {"nombre": "Posture T41.5", "cantidad": 36, "costo_unitario": 29.0},
+                        {"nombre": "Radiate Mix", "cantidad": 112, "costo_unitario": 29.0},
+                    ]
+                },
+                "Aduana (Tránsito – Solo interno)": {
+                    "nombre": "Aduana (Tránsito – Solo interno)",
+                    "productos": [
+                        {"nombre": "Motivate T42", "cantidad": 78, "costo_unitario": 29.0},
+                        {"nombre": "Posture T43", "cantidad": 45, "costo_unitario": 29.0},
+                        {"nombre": "Spin Move", "cantidad": 62, "costo_unitario": 29.0},
+                    ]
+                }
+            }
+        },
+        "STARTER": {
+            "almacenes": {
+                "Artilleros": {
+                    "nombre": "Artilleros",
+                    "productos": [
+                        {"nombre": "GTM Negro", "cantidad": 256, "costo_unitario": 32.0},
+                        {"nombre": "GTM Blanco", "cantidad": 189, "costo_unitario": 32.0},
+                    ]
+                },
+                "Aduana (Tránsito – Solo interno)": {
+                    "nombre": "Aduana (Tránsito – Solo interno)",
+                    "productos": [
+                        {"nombre": "GTM Gris", "cantidad": 95, "costo_unitario": 32.0},
+                    ]
+                }
+            }
+        },
+        "HYDRATE": {
+            "almacenes": {
+                "Artilleros": {
+                    "nombre": "Artilleros",
+                    "productos": [
+                        {"nombre": "Botella 710ML", "cantidad": 1840, "costo_unitario": 8.5},
+                        {"nombre": "Vaso 500ML", "cantidad": 1200, "costo_unitario": 6.2},
+                        {"nombre": "Jarro 1L", "cantidad": 680, "costo_unitario": 9.8},
+                    ]
+                },
+                "Aduana (Tránsito – Solo interno)": {
+                    "nombre": "Aduana (Tránsito – Solo interno)",
+                    "productos": [
+                        {"nombre": "Botella 710ML Rosa", "cantidad": 620, "costo_unitario": 8.5},
+                        {"nombre": "Vaso 500ML Azul", "cantidad": 480, "costo_unitario": 6.2},
+                    ]
+                }
+            }
+        },
+        "TIMBERLAND": {
+            "almacenes": {
+                "Artilleros": {
+                    "nombre": "Artilleros",
+                    "productos": [
+                        {"nombre": "Classic Boot", "cantidad": 54, "costo_unitario": 68.0},
+                        {"nombre": "Pro Hiking", "cantidad": 38, "costo_unitario": 72.0},
+                    ]
+                },
+                "Aduana (Tránsito – Solo interno)": {
+                    "nombre": "Aduana (Tránsito – Solo interno)",
+                    "productos": [
+                        {"nombre": "Classic Boot Leather", "cantidad": 28, "costo_unitario": 68.0},
+                    ]
+                }
+            }
+        }
+    }
 
 @router.get("/almacenes")
 async def almacenes():

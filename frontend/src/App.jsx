@@ -596,7 +596,7 @@ function App() {
                         {marca}
                       </h4>
                       <p style={{ margin: '4px 0', color: '#999', fontSize: '0.9em' }}>
-                        {data.status}
+                        {data.status} Token ML
                       </p>
                       <p style={{ margin: '4px 0', color: '#fbbf24', fontWeight: 'bold' }}>
                         {todayData.ordenes !== undefined ? todayData.ordenes : 0} órdenes hoy

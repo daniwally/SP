@@ -628,7 +628,7 @@ function App() {
                   {/* HOY */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Hoy</h3>
+                      <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Hoy</h3>
                       <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(today)}</p>
                       <p style={{ color: '#fbbf24', margin: '4px 0 0 0', fontSize: '0.85em', fontWeight: 700 }}>{testData.totales?.hoy?.ordenes || 0} órdenes</p>
                     </div>
@@ -651,7 +651,7 @@ function App() {
                   {/* SEMANA */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Últimos 7 Días</h3>
+                      <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Últimos 7 Días</h3>
                       <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace7)} - {formatDateShort(today)}</p>
                       <p style={{ color: '#fbbf24', margin: '4px 0 0 0', fontSize: '0.85em', fontWeight: 700 }}>{testData.totales?.semana?.ordenes || 0} órdenes</p>
                     </div>
@@ -674,7 +674,7 @@ function App() {
                   {/* MES */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Últimos 30 Días</h3>
+                      <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Últimos 30 Días</h3>
                       <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace30)} - {formatDateShort(today)}</p>
                       <p style={{ color: '#fbbf24', margin: '4px 0 0 0', fontSize: '0.85em', fontWeight: 700 }}>{testData.totales?.mes?.ordenes || 0} órdenes</p>
                     </div>
@@ -697,7 +697,7 @@ function App() {
                   {/* AÑO */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Año en Curso</h3>
+                      <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Año en Curso</h3>
                       <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(eneroActual)} - {formatDateShort(today)}</p>
                       <p style={{ color: '#fbbf24', margin: '4px 0 0 0', fontSize: '0.85em', fontWeight: 700 }}>{testData.totales?.año?.ordenes || 0} órdenes</p>
                     </div>

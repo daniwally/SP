@@ -571,119 +571,134 @@ function App() {
         {activeTab === 'status' && (
         <>
           <section className="section">
-            <h2>📊 Panel de Status - Token Status & Ventas</h2>
+            <h2>📊 Status ML - Conexiones & Ventas</h2>
             
-            {/* TOKEN STATUS - SIMPLE */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-              gap: '15px', 
-              marginBottom: '30px',
-              marginTop: '20px' 
-            }}>
+            {/* TOKEN STATUS CARDS - DASHBOARD STYLE */}
+            <div className="cards-grid" style={{ marginTop: '20px' }}>
               {Object.entries(tokenStatus).length > 0 ? (
                 Object.entries(tokenStatus).map(([marca, data]) => {
                   const todayData = testData.hoy?.[marca] || {}
+                  const isOK = data.status?.includes('✅')
                   return (
-                    <div key={marca} style={{ 
-                      background: data.status?.includes('✅') ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                      padding: '12px', 
-                      borderRadius: '6px', 
-                      border: data.status?.includes('✅') ? '2px solid #22c55e' : '2px solid #ef4444',
-                      textAlign: 'center'
-                    }}>
-                      <h4 style={{ color: data.status?.includes('✅') ? '#22c55e' : '#ef4444', margin: '0 0 8px 0' }}>
-                        {marca}
-                      </h4>
-                      <p style={{ margin: '4px 0', color: '#999', fontSize: '0.9em' }}>
-                        {data.status} Token ML
+                    <div key={marca} className="card">
+                      <h3>{marca}</h3>
+                      <p className="value" style={{ color: isOK ? '#22c55e' : '#ef4444', marginBottom: '6px' }}>
+                        {data.status}
                       </p>
-                      <p style={{ margin: '4px 0', color: '#fbbf24', fontWeight: 'bold' }}>
-                        {todayData.ordenes !== undefined ? todayData.ordenes : 0} órdenes hoy
-                      </p>
+                      <p className="subtitle">Token ML</p>
+                      <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.1)', marginTop: '10px', paddingTop: '10px' }}>
+                        <p style={{ color: '#fbbf24', fontWeight: 700, marginBottom: '4px' }}>
+                          {todayData.ordenes !== undefined ? todayData.ordenes : 0} órdenes
+                        </p>
+                        <p style={{ color: '#06b6d4', fontSize: '0.85em' }}>
+                          Hoy: ${(todayData.total || 0).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                   )
                 })
               ) : (
-                <p style={{ color: '#999' }}>Cargando estado de tokens...</p>
+                <p style={{ color: '#b0b0c0' }}>Cargando estado de tokens...</p>
               )}
             </div>
+          </section>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
+          {/* VENTAS POR PERÍODO */}
+          <section className="section">
+            <h2>Ventas por Período</h2>
+            <div className="section-2col">
               {/* HOY */}
-              <div style={{ background: 'rgba(217, 70, 239, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #d946ef' }}>
-                <h3 style={{ color: '#d946ef', marginTop: 0 }}>Hoy</h3>
-                {Object.entries(testData.hoy || {}).map(([marca, data]) => (
-                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(217, 70, 239, 0.2)', paddingBottom: '8px' }}>
-                    <strong style={{ color: '#06b6d4' }}>{marca}</strong>
-                    <p style={{ margin: '4px 0', color: '#fbbf24' }}>
-                      ${(data.total || 0).toLocaleString()}
-                    </p>
-                    <p style={{ margin: '2px 0', color: '#999' }}>
-                      {data.ordenes || 0} órdenes
-                    </p>
-                  </div>
-                ))}
-                <p style={{ background: 'rgba(217, 70, 239, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#d946ef' }}>
-                  Total: ${(testData.totales?.hoy?.total || 0).toLocaleString()}
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <h3 style={{ color: '#d946ef', fontSize: '1.05em', fontWeight: 900 }}>Hoy</h3>
+                <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
+                  {Object.entries(testData.hoy || {}).map(([marca, data]) => (
+                    <div key={marca} className="card" style={{ textAlign: 'left' }}>
+                      <h3 style={{ marginBottom: '8px' }}>{marca}</h3>
+                      <p className="value" style={{ marginBottom: '4px' }}>
+                        ${(data.total || 0).toLocaleString()}
+                      </p>
+                      <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="total-bar" style={{ marginTop: 'auto' }}>
+                  <span>Total Hoy:</span>
+                  <span className="total-value">${(testData.totales?.hoy?.total || 0).toLocaleString()}</span>
+                </div>
               </div>
 
               {/* SEMANA */}
-              <div style={{ background: 'rgba(6, 182, 212, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #06b6d4' }}>
-                <h3 style={{ color: '#06b6d4', marginTop: 0 }}>Últimos 7 Días</h3>
-                {Object.entries(testData.semana || {}).map(([marca, data]) => (
-                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(6, 182, 212, 0.2)', paddingBottom: '8px' }}>
-                    <strong style={{ color: '#fbbf24' }}>{marca}</strong>
-                    <p style={{ margin: '4px 0', color: '#06b6d4' }}>
-                      ${(data.total || 0).toLocaleString()}
-                    </p>
-                    <p style={{ margin: '2px 0', color: '#999' }}>
-                      {data.ordenes || 0} órdenes | Promedio: ${(data.promedio || 0).toLocaleString()}
-                    </p>
-                  </div>
-                ))}
-                <p style={{ background: 'rgba(6, 182, 212, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#06b6d4' }}>
-                  Total: ${(testData.totales?.semana?.total || 0).toLocaleString()}
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <h3 style={{ color: '#06b6d4', fontSize: '1.05em', fontWeight: 900 }}>Últimos 7 Días</h3>
+                <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
+                  {Object.entries(testData.semana || {}).map(([marca, data]) => (
+                    <div key={marca} className="card" style={{ textAlign: 'left' }}>
+                      <h3 style={{ marginBottom: '8px' }}>{marca}</h3>
+                      <p className="value" style={{ marginBottom: '4px' }}>
+                        ${(data.total || 0).toLocaleString()}
+                      </p>
+                      <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                      <p style={{ fontSize: '0.8em', color: '#7f8c8d', marginTop: '6px' }}>
+                        Prom: ${(data.promedio || 0).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="total-bar" style={{ marginTop: 'auto' }}>
+                  <span>Total 7d:</span>
+                  <span className="total-value">${(testData.totales?.semana?.total || 0).toLocaleString()}</span>
+                </div>
               </div>
+            </div>
+          </section>
 
+          {/* ÚLTIMOS 30 Y 365 DÍAS */}
+          <section className="section">
+            <div className="section-2col">
               {/* MES */}
-              <div style={{ background: 'rgba(251, 191, 36, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #fbbf24' }}>
-                <h3 style={{ color: '#fbbf24', marginTop: 0 }}>Últimos 30 Días</h3>
-                {Object.entries(testData.mes || {}).map(([marca, data]) => (
-                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(251, 191, 36, 0.2)', paddingBottom: '8px' }}>
-                    <strong style={{ color: '#d946ef' }}>{marca}</strong>
-                    <p style={{ margin: '4px 0', color: '#fbbf24' }}>
-                      ${(data.total || 0).toLocaleString()}
-                    </p>
-                    <p style={{ margin: '2px 0', color: '#999' }}>
-                      {data.ordenes || 0} órdenes | Promedio: ${(data.promedio || 0).toLocaleString()}
-                    </p>
-                  </div>
-                ))}
-                <p style={{ background: 'rgba(251, 191, 36, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#fbbf24' }}>
-                  Total: ${(testData.totales?.mes?.total || 0).toLocaleString()}
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <h3 style={{ color: '#fbbf24', fontSize: '1.05em', fontWeight: 900 }}>Últimos 30 Días</h3>
+                <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
+                  {Object.entries(testData.mes || {}).map(([marca, data]) => (
+                    <div key={marca} className="card" style={{ textAlign: 'left' }}>
+                      <h3 style={{ marginBottom: '8px' }}>{marca}</h3>
+                      <p className="value" style={{ marginBottom: '4px' }}>
+                        ${(data.total || 0).toLocaleString()}
+                      </p>
+                      <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                      <p style={{ fontSize: '0.8em', color: '#7f8c8d', marginTop: '6px' }}>
+                        Prom: ${(data.promedio || 0).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="total-bar" style={{ marginTop: 'auto' }}>
+                  <span>Total 30d:</span>
+                  <span className="total-value">${(testData.totales?.mes?.total || 0).toLocaleString()}</span>
+                </div>
               </div>
 
               {/* AÑO */}
-              <div style={{ background: 'rgba(34, 197, 94, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #22c55e' }}>
-                <h3 style={{ color: '#22c55e', marginTop: 0 }}>Últimos 365 Días</h3>
-                {Object.entries(testData.año || {}).map(([marca, data]) => (
-                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(34, 197, 94, 0.2)', paddingBottom: '8px' }}>
-                    <strong style={{ color: '#06b6d4' }}>{marca}</strong>
-                    <p style={{ margin: '4px 0', color: '#22c55e' }}>
-                      ${(data.total || 0).toLocaleString()}
-                    </p>
-                    <p style={{ margin: '2px 0', color: '#999' }}>
-                      {data.ordenes || 0} órdenes | Promedio: ${(data.promedio || 0).toLocaleString()}
-                    </p>
-                  </div>
-                ))}
-                <p style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#22c55e' }}>
-                  Total: ${(testData.totales?.año?.total || 0).toLocaleString()}
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <h3 style={{ color: '#22c55e', fontSize: '1.05em', fontWeight: 900 }}>Últimos 365 Días</h3>
+                <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
+                  {Object.entries(testData.año || {}).map(([marca, data]) => (
+                    <div key={marca} className="card" style={{ textAlign: 'left' }}>
+                      <h3 style={{ marginBottom: '8px' }}>{marca}</h3>
+                      <p className="value" style={{ marginBottom: '4px' }}>
+                        ${(data.total || 0).toLocaleString()}
+                      </p>
+                      <p className="subtitle">{data.ordenes || 0} órdenes</p>
+                      <p style={{ fontSize: '0.8em', color: '#7f8c8d', marginTop: '6px' }}>
+                        Prom: ${(data.promedio || 0).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="total-bar" style={{ marginTop: 'auto' }}>
+                  <span>Total Año:</span>
+                  <span className="total-value">${(testData.totales?.año?.total || 0).toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </section>

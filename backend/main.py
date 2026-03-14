@@ -65,15 +65,14 @@ async def debug_all_accounts():
     resultado = {}
     for cuenta_num, (uid, marca) in CUENTAS_DEBUG.items():
         token = TOKENS_DEBUG[cuenta_num]
-        url = f"https://api.mercadolibre.com/orders/search?seller={uid}&limit=5"
+        url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc"
         try:
             req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
             with urllib.request.urlopen(req, timeout=5) as response:
                 data = json.loads(response.read().decode())
                 resultado[marca] = {
                     "status": "✅ OK",
-                    "ordenes": len(data.get("results", [])),
-                    "total_disponible": data.get("paging", {}).get("total", "?")
+                    "total_ordenes": data.get("paging", {}).get("total", 0)
                 }
         except Exception as e:
             resultado[marca] = {

@@ -582,25 +582,28 @@ function App() {
               marginTop: '20px' 
             }}>
               {Object.entries(tokenStatus).length > 0 ? (
-                Object.entries(tokenStatus).map(([marca, data]) => (
-                  <div key={marca} style={{ 
-                    background: data.status?.includes('✅') ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                    padding: '12px', 
-                    borderRadius: '6px', 
-                    border: data.status?.includes('✅') ? '2px solid #22c55e' : '2px solid #ef4444',
-                    textAlign: 'center'
-                  }}>
-                    <h4 style={{ color: data.status?.includes('✅') ? '#22c55e' : '#ef4444', margin: '0 0 8px 0' }}>
-                      {marca}
-                    </h4>
-                    <p style={{ margin: '4px 0', color: '#999', fontSize: '0.9em' }}>
-                      {data.status}
-                    </p>
-                    <p style={{ margin: '4px 0', color: '#fbbf24', fontWeight: 'bold' }}>
-                      {data.ordenes || 0} órdenes
-                    </p>
-                  </div>
-                ))
+                Object.entries(tokenStatus).map(([marca, data]) => {
+                  const todayData = testData.hoy?.[marca] || {}
+                  return (
+                    <div key={marca} style={{ 
+                      background: data.status?.includes('✅') ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                      padding: '12px', 
+                      borderRadius: '6px', 
+                      border: data.status?.includes('✅') ? '2px solid #22c55e' : '2px solid #ef4444',
+                      textAlign: 'center'
+                    }}>
+                      <h4 style={{ color: data.status?.includes('✅') ? '#22c55e' : '#ef4444', margin: '0 0 8px 0' }}>
+                        {marca}
+                      </h4>
+                      <p style={{ margin: '4px 0', color: '#999', fontSize: '0.9em' }}>
+                        {data.status}
+                      </p>
+                      <p style={{ margin: '4px 0', color: '#fbbf24', fontWeight: 'bold' }}>
+                        {todayData.ordenes !== undefined ? todayData.ordenes : 0} órdenes hoy
+                      </p>
+                    </div>
+                  )
+                })
               ) : (
                 <p style={{ color: '#999' }}>Cargando estado de tokens...</p>
               )}

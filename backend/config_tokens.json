@@ -13,7 +13,5 @@
         "4": "TIMBERLAND",
         "5": "URBAN_FLOW"
     },
-    "auto_refresh": "cada 6 horas via cron (fix_auto_refresh.py)",
-    "updated": "2026-03-14T14:02:49.770890",
-    "cron_status": "ACTIVO"
+    "updated": "2026-03-14T14:35:00Z"
 }

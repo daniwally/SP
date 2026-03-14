@@ -19,13 +19,10 @@ const getCurrentMonthName = () => {
   return months[new Date().getMonth()].charAt(0).toUpperCase() + months[new Date().getMonth()].slice(1)
 }
 
-// Función para obtener el sábado de esta semana
+// Función para obtener hace 7 días (últimos 7 días)
 const getSaturdayOfWeek = (date) => {
   const d = new Date(date)
-  const day = d.getDay()
-  // Si hoy es sábado (6), devolver hoy. Si es domingo (0), devolver hace 1 día. etc.
-  const diff = day === 6 ? 0 : day === 0 ? 1 : day + 1
-  d.setDate(d.getDate() - diff)
+  d.setDate(d.getDate() - 7)  // ✅ Simplemente restar 7 días
   return d
 }
 

@@ -85,11 +85,17 @@ async def ventas_detallado():
             
             ordenes = data.get("results", [])
             
+            # DEBUG: Ver estructura de primera orden
+            if ordenes:
+                print(f"🔍 {marca} - Primera orden: {json.dumps(ordenes[0], indent=2)[:500]}")
+            
             # FILTRAR por períodos
             ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
             ordenes_7d = [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
             ordenes_30d = [o for o in ordenes if HACE_30 <= o.get("date_created", "")[:10] <= HOY]
             ordenes_365d = [o for o in ordenes if HACE_365 <= o.get("date_created", "")[:10] <= HOY]
+            
+            print(f"📊 {marca}: {len(ordenes)} órdenes totales | 7d: {len(ordenes_7d)} | 30d: {len(ordenes_30d)}")
             
             # CALCULAR totales
             resultado["hoy"][marca] = {

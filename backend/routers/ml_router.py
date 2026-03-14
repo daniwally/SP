@@ -376,19 +376,20 @@ async def ventas_hoy():
         try:
             NOW = datetime.now(ART)
             HOY = NOW.strftime("%Y-%m-%d")
-            fecha_from = f"{HOY}T00:00:00.000-03:00"
-            fecha_to = f"{HOY}T23:59:59.000-03:00"
             
-            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&limit=50"
+            # ✅ Usar sort=date_desc para traer órdenes de 2026
+            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc"
             data = api_call(url, token)
             
             if data and "results" in data:
                 ordenes = data.get("results", [])
-                total = sum(o.get("total_amount", 0) for o in ordenes)
-                productos = extract_productos(ordenes)
+                # Filtrar por HOY en Python
+                ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
+                total = sum(o.get("total_amount", 0) for o in ordenes_hoy)
+                productos = extract_productos(ordenes_hoy)
                 resultado[marca] = {
                     "total": total, 
-                    "ordenes": len(ordenes),
+                    "ordenes": len(ordenes_hoy),
                     "productos": productos[:5]  # Top 5 productos
                 }
             else:
@@ -504,8 +505,9 @@ async def ventas_7dias():
         
         # Si hay token, intentar obtener datos en vivo
         try:
-            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&limit=50"
-            print(f"7DIAS - {marca}: Llamando API: {url[:80]}...")
+            # ✅ AGREGAR sort=date_desc para traer órdenes de 2026
+            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc"
+            print(f"7DIAS - {marca}: Llamando API (con sort)...")
             data = api_call(url, token)
             print(f"7DIAS - {marca}: Respuesta: {data is not None}, tiene 'results': {data and 'results' in data if data else False}")
             

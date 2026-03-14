@@ -30,6 +30,7 @@ function App() {
   const [salesData, setSalesData] = useState({})
   const [stockData, setStockData] = useState({})
   const [valuationData, setValuationData] = useState({})
+  const [testData, setTestData] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
@@ -60,7 +61,8 @@ function App() {
         axios.get(API + '/ml/ventas/7dias', axiosConfig),
         axios.get(API + '/ml/ventas/mes', axiosConfig),
         axios.get(API + '/odoo/stock/actual', axiosConfig),
-        axios.get(API + '/odoo/valuacion', axiosConfig)
+        axios.get(API + '/odoo/valuacion', axiosConfig),
+        axios.get(API + '/test/ventas-detallado', axiosConfig)
       ])
       
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
@@ -68,6 +70,7 @@ function App() {
       const ventasMes = results[2].status === 'fulfilled' ? results[2].value.data : {}
       const stock = results[3].status === 'fulfilled' ? results[3].value.data : {}
       const valuacion = results[4].status === 'fulfilled' ? results[4].value.data : {}
+      const test = results[5].status === 'fulfilled' ? results[5].value.data : {}
       
       console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
@@ -78,6 +81,7 @@ function App() {
       })
       setStockData(stock)
       setValuationData(valuacion)
+      setTestData(test)
       
       // Debug: verificar valuacion
       console.log('📊 Valuacion data loaded:', {
@@ -134,6 +138,12 @@ function App() {
               onClick={() => setActiveTab('stock')}
             >
               📦 Stock
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'test' ? 'active' : ''}`}
+              onClick={() => setActiveTab('test')}
+            >
+              🧪 Test
             </button>
           </div>
           <button onClick={fetchAllData} className="btn-refresh">↻</button>
@@ -551,6 +561,91 @@ function App() {
             </div>
           </section>
 
+        </>
+        )}
+
+        {activeTab === 'test' && (
+        <>
+          <section className="section">
+            <h2>🧪 Panel de Test - Análisis Detallado de Ventas</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
+              {/* HOY */}
+              <div style={{ background: 'rgba(217, 70, 239, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #d946ef' }}>
+                <h3 style={{ color: '#d946ef', marginTop: 0 }}>Hoy</h3>
+                {Object.entries(testData.hoy || {}).map(([marca, data]) => (
+                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(217, 70, 239, 0.2)', paddingBottom: '8px' }}>
+                    <strong style={{ color: '#06b6d4' }}>{marca}</strong>
+                    <p style={{ margin: '4px 0', color: '#fbbf24' }}>
+                      ${(data.total || 0).toLocaleString()}
+                    </p>
+                    <p style={{ margin: '2px 0', color: '#999' }}>
+                      {data.ordenes || 0} órdenes
+                    </p>
+                  </div>
+                ))}
+                <p style={{ background: 'rgba(217, 70, 239, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#d946ef' }}>
+                  Total: ${(testData.totales?.hoy?.total || 0).toLocaleString()}
+                </p>
+              </div>
+
+              {/* SEMANA */}
+              <div style={{ background: 'rgba(6, 182, 212, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #06b6d4' }}>
+                <h3 style={{ color: '#06b6d4', marginTop: 0 }}>Últimos 7 Días</h3>
+                {Object.entries(testData.semana || {}).map(([marca, data]) => (
+                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(6, 182, 212, 0.2)', paddingBottom: '8px' }}>
+                    <strong style={{ color: '#fbbf24' }}>{marca}</strong>
+                    <p style={{ margin: '4px 0', color: '#06b6d4' }}>
+                      ${(data.total || 0).toLocaleString()}
+                    </p>
+                    <p style={{ margin: '2px 0', color: '#999' }}>
+                      {data.ordenes || 0} órdenes | Promedio: ${(data.promedio || 0).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+                <p style={{ background: 'rgba(6, 182, 212, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#06b6d4' }}>
+                  Total: ${(testData.totales?.semana?.total || 0).toLocaleString()}
+                </p>
+              </div>
+
+              {/* MES */}
+              <div style={{ background: 'rgba(251, 191, 36, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #fbbf24' }}>
+                <h3 style={{ color: '#fbbf24', marginTop: 0 }}>Últimos 30 Días</h3>
+                {Object.entries(testData.mes || {}).map(([marca, data]) => (
+                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(251, 191, 36, 0.2)', paddingBottom: '8px' }}>
+                    <strong style={{ color: '#d946ef' }}>{marca}</strong>
+                    <p style={{ margin: '4px 0', color: '#fbbf24' }}>
+                      ${(data.total || 0).toLocaleString()}
+                    </p>
+                    <p style={{ margin: '2px 0', color: '#999' }}>
+                      {data.ordenes || 0} órdenes | Promedio: ${(data.promedio || 0).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+                <p style={{ background: 'rgba(251, 191, 36, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#fbbf24' }}>
+                  Total: ${(testData.totales?.mes?.total || 0).toLocaleString()}
+                </p>
+              </div>
+
+              {/* AÑO */}
+              <div style={{ background: 'rgba(34, 197, 94, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #22c55e' }}>
+                <h3 style={{ color: '#22c55e', marginTop: 0 }}>Últimos 365 Días</h3>
+                {Object.entries(testData.año || {}).map(([marca, data]) => (
+                  <div key={marca} style={{ marginBottom: '10px', fontSize: '0.9em', borderBottom: '1px solid rgba(34, 197, 94, 0.2)', paddingBottom: '8px' }}>
+                    <strong style={{ color: '#06b6d4' }}>{marca}</strong>
+                    <p style={{ margin: '4px 0', color: '#22c55e' }}>
+                      ${(data.total || 0).toLocaleString()}
+                    </p>
+                    <p style={{ margin: '2px 0', color: '#999' }}>
+                      {data.ordenes || 0} órdenes | Promedio: ${(data.promedio || 0).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+                <p style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '8px', borderRadius: '4px', marginTop: '10px', fontWeight: 700, color: '#22c55e' }}>
+                  Total: ${(testData.totales?.año?.total || 0).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </section>
         </>
         )}
       </main>

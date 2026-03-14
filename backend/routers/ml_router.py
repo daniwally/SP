@@ -480,17 +480,8 @@ async def ventas_7dias():
     NOW = datetime.now(ART)
     HOY = NOW.strftime("%Y-%m-%d")
     
-    # Calcular el sábado de esta semana
-    # 6 = sábado, 0 = domingo, etc.
-    day_of_week = NOW.weekday()  # 0=lunes, 5=sábado, 6=domingo
-    if day_of_week == 5:  # sábado
-        dias_atras = 0
-    elif day_of_week == 6:  # domingo
-        dias_atras = 1
-    else:  # lunes a viernes
-        dias_atras = (day_of_week + 2) % 7
-    
-    SABADO = (NOW - timedelta(days=dias_atras)).strftime("%Y-%m-%d")
+    # ✅ SIMPLIFICAR: Últimos 7 días (no "sábado a hoy")
+    SABADO = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
     fecha_from = f"{SABADO}T00:00:00.000-03:00"
     fecha_to = f"{HOY}T23:59:59.000-03:00"
     

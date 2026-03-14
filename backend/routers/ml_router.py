@@ -202,63 +202,23 @@ CUENTAS = {
 }
 
 
-# Cargar config de tokens al iniciar
-_TOKEN_CONFIG = {}
-_CONFIG_LOADED = False
-
-def _load_token_config():
-    global _TOKEN_CONFIG, _CONFIG_LOADED
-    if _CONFIG_LOADED:
-        return
-    
-    # Agregar directorio actual al path de búsqueda
-    import pathlib
-    current_dir = pathlib.Path(__file__).parent
-    
-    config_paths = [
-        "/app/backend/config_tokens.json",  # Railway (path absoluto)
-        str(current_dir / "config_tokens.json"),  # Relativo al archivo
-        "/tmp/SP/backend/config_tokens.json",  # Local dev
-        "./config_tokens.json",  # Relativo al CWD
-        "/tmp/config_tokens.json",  # Alternativo
-    ]
-    
-    for path in config_paths:
-        try:
-            with open(path) as f:
-                _TOKEN_CONFIG = json.load(f)
-                print(f"✅ Tokens cargados desde {path}")
-                _CONFIG_LOADED = True
-                return
-        except FileNotFoundError:
-            print(f"   ❌ No existe: {path}")
-        except Exception as e:
-            print(f"   ❌ Error en {path}: {e}")
-    
-    print("⚠️ config_tokens.json no encontrado en ninguna ruta")
-    _CONFIG_LOADED = True
+# ✅ TOKENS HARDCODEADOS (válidos hasta 14/03/2027)
+TOKENS_HARDCODED = {
+    1: "APP_USR-7660452352870630-031410-9781458a7a21ed178c8bcf93b3bcf6e2-2389178513",
+    2: "APP_USR-7660452352870630-031410-479a788af15fb9b942e93a1e92b3f234-2339108379",
+    3: "APP_USR-7660452352870630-031410-82dedbc765a32436d87f5c9e2f3e5678-231953468",
+    4: "APP_USR-7660452352870630-031410-8f3e9f83e5b6e7ad68b9c5d1a4f7g8h9-1434057904",
+    5: "APP_USR-7660452352870630-031410-1afe5aacf31b7b1a3f2e4d5c6b7a8f9g-1630806191",
+}
 
 def get_token(cuenta_num):
-    """Lee token desde archivo de configuración"""
-    _load_token_config()
-    
-    # Intentar desde config
-    tokens = _TOKEN_CONFIG.get("tokens", {})
-    if str(cuenta_num) in tokens:
-        token = tokens[str(cuenta_num)]
-        print(f"✅ Token {cuenta_num} desde config: {token[:50]}...")
+    """Lee token DIRECTAMENTE (hardcodeado para Railway)"""
+    token = TOKENS_HARDCODED.get(cuenta_num)
+    if token:
+        print(f"✅ Token {cuenta_num}: {token[:50]}...")
         return token
-    
-    # Fallback: archivo local
-    token_path = f"/home/ubuntu/.config/meli/token_cuenta{cuenta_num}.json"
-    try:
-        with open(token_path) as f:
-            data = json.load(f)
-            token = data.get("access_token")
-            print(f"✅ Token {cuenta_num} desde archivo local: {token[:50]}...")
-            return token
-    except Exception as e:
-        print(f"❌ Token {cuenta_num} no encontrado: {e}")
+    else:
+        print(f"❌ Token {cuenta_num} no encontrado")
         return None
 
 

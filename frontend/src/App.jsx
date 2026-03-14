@@ -571,28 +571,39 @@ function App() {
         {activeTab === 'test' && (
         <>
           <section className="section">
-            <h2>🧪 Panel de Test - Análisis Detallado de Ventas</h2>
+            <h2>🧪 Panel de Test - Token Status & Ventas</h2>
             
-            {/* TOKEN STATUS */}
-            <div style={{ background: 'rgba(34, 197, 94, 0.15)', padding: '15px', borderRadius: '8px', border: '2px solid #22c55e', marginBottom: '20px', marginTop: '10px' }}>
-              <h3 style={{ color: '#22c55e', marginTop: 0 }}>✅ Estado de Tokens API</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
-                {Object.entries(tokenStatus).map(([marca, data]) => (
+            {/* TOKEN STATUS - SIMPLE */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+              gap: '15px', 
+              marginBottom: '30px',
+              marginTop: '20px' 
+            }}>
+              {Object.entries(tokenStatus).length > 0 ? (
+                Object.entries(tokenStatus).map(([marca, data]) => (
                   <div key={marca} style={{ 
-                    background: data.status?.includes('✅') ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)',
-                    padding: '10px', 
-                    borderRadius: '4px', 
-                    textAlign: 'center',
-                    border: data.status?.includes('✅') ? '1px solid #22c55e' : '1px solid #ef4444'
+                    background: data.status?.includes('✅') ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    padding: '12px', 
+                    borderRadius: '6px', 
+                    border: data.status?.includes('✅') ? '2px solid #22c55e' : '2px solid #ef4444',
+                    textAlign: 'center'
                   }}>
-                    <strong style={{ color: data.status?.includes('✅') ? '#22c55e' : '#ef4444' }}>{marca}</strong>
-                    <p style={{ margin: '4px 0', color: '#999', fontSize: '0.85em' }}>{data.status}</p>
-                    <p style={{ margin: '2px 0', color: '#fbbf24', fontSize: '0.9em' }}>
+                    <h4 style={{ color: data.status?.includes('✅') ? '#22c55e' : '#ef4444', margin: '0 0 8px 0' }}>
+                      {marca}
+                    </h4>
+                    <p style={{ margin: '4px 0', color: '#999', fontSize: '0.9em' }}>
+                      {data.status}
+                    </p>
+                    <p style={{ margin: '4px 0', color: '#fbbf24', fontWeight: 'bold' }}>
                       {data.ordenes || 0} órdenes
                     </p>
                   </div>
-                ))}
-              </div>
+                ))
+              ) : (
+                <p style={{ color: '#999' }}>Cargando estado de tokens...</p>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>

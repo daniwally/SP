@@ -31,6 +31,7 @@ function App() {
   const [stockData, setStockData] = useState({})
   const [valuationData, setValuationData] = useState({})
   const [testData, setTestData] = useState({})
+  const [tokenStatus, setTokenStatus] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
@@ -62,7 +63,8 @@ function App() {
         axios.get(API + '/ml/ventas/mes', axiosConfig),
         axios.get(API + '/odoo/stock/actual', axiosConfig),
         axios.get(API + '/odoo/valuacion', axiosConfig),
-        axios.get(API + '/test/ventas-detallado', axiosConfig)
+        axios.get(API + '/test/ventas-detallado', axiosConfig),
+        axios.get(API + '/debug/all-accounts', axiosConfig)
       ])
       
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
@@ -71,6 +73,7 @@ function App() {
       const stock = results[3].status === 'fulfilled' ? results[3].value.data : {}
       const valuacion = results[4].status === 'fulfilled' ? results[4].value.data : {}
       const test = results[5].status === 'fulfilled' ? results[5].value.data : {}
+      const tokens = results[6].status === 'fulfilled' ? results[6].value.data : {}
       
       console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
@@ -82,6 +85,7 @@ function App() {
       setStockData(stock)
       setValuationData(valuacion)
       setTestData(test)
+      setTokenStatus(tokens)
       
       // Debug: verificar valuacion
       console.log('📊 Valuacion data loaded:', {
@@ -568,6 +572,29 @@ function App() {
         <>
           <section className="section">
             <h2>🧪 Panel de Test - Análisis Detallado de Ventas</h2>
+            
+            {/* TOKEN STATUS */}
+            <div style={{ background: 'rgba(34, 197, 94, 0.15)', padding: '15px', borderRadius: '8px', border: '2px solid #22c55e', marginBottom: '20px', marginTop: '10px' }}>
+              <h3 style={{ color: '#22c55e', marginTop: 0 }}>✅ Estado de Tokens API</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+                {Object.entries(tokenStatus).map(([marca, data]) => (
+                  <div key={marca} style={{ 
+                    background: data.status?.includes('✅') ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)',
+                    padding: '10px', 
+                    borderRadius: '4px', 
+                    textAlign: 'center',
+                    border: data.status?.includes('✅') ? '1px solid #22c55e' : '1px solid #ef4444'
+                  }}>
+                    <strong style={{ color: data.status?.includes('✅') ? '#22c55e' : '#ef4444' }}>{marca}</strong>
+                    <p style={{ margin: '4px 0', color: '#999', fontSize: '0.85em' }}>{data.status}</p>
+                    <p style={{ margin: '2px 0', color: '#fbbf24', fontSize: '0.9em' }}>
+                      {data.ordenes || 0} órdenes
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
               {/* HOY */}
               <div style={{ background: 'rgba(217, 70, 239, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid #d946ef' }}>

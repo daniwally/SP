@@ -44,7 +44,7 @@ def api_call(url, token):
         return None
 
 
-@router.get("/test/ventas-detallado")
+@router.get("/ventas-detallado")
 async def ventas_detallado():
     """Panel de TEST: Análisis detallado de ventas por período"""
     

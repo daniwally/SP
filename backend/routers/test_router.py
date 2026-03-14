@@ -52,7 +52,7 @@ async def ventas_detallado():
     HOY = NOW.strftime("%Y-%m-%d")
     HACE_7 = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
     HACE_30 = (NOW - timedelta(days=30)).strftime("%Y-%m-%d")
-    HACE_365 = (NOW - timedelta(days=365)).strftime("%Y-%m-%d")
+    ENERO_ACTUAL = datetime(NOW.year, 1, 1).strftime("%Y-%m-%d")
     
     resultado = {
         "hoy": {},
@@ -63,7 +63,7 @@ async def ventas_detallado():
             "fecha_hoy": HOY,
             "rango_7d": f"{HACE_7} a {HOY}",
             "rango_30d": f"{HACE_30} a {HOY}",
-            "rango_365d": f"{HACE_365} a {HOY}",
+            "rango_año": f"{ENERO_ACTUAL} a {HOY}"
         }
     }
     
@@ -93,7 +93,7 @@ async def ventas_detallado():
             ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
             ordenes_7d = [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
             ordenes_30d = [o for o in ordenes if HACE_30 <= o.get("date_created", "")[:10] <= HOY]
-            ordenes_365d = [o for o in ordenes if HACE_365 <= o.get("date_created", "")[:10] <= HOY]
+            ordenes_año = [o for o in ordenes if ENERO_ACTUAL <= o.get("date_created", "")[:10] <= HOY]
             
             print(f"📊 {marca}: {len(ordenes)} órdenes totales | 7d: {len(ordenes_7d)} | 30d: {len(ordenes_30d)}")
             
@@ -117,9 +117,9 @@ async def ventas_detallado():
             }
             
             resultado["año"][marca] = {
-                "total": sum(o.get("total_amount", 0) for o in ordenes_365d),
-                "ordenes": len(ordenes_365d),
-                "promedio": sum(o.get("total_amount", 0) for o in ordenes_365d) / len(ordenes_365d) if ordenes_365d else 0
+                "total": sum(o.get("total_amount", 0) for o in ordenes_año),
+                "ordenes": len(ordenes_año),
+                "promedio": sum(o.get("total_amount", 0) for o in ordenes_año) / len(ordenes_año) if ordenes_año else 0
             }
             
         except Exception as e:

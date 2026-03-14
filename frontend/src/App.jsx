@@ -620,8 +620,7 @@ function App() {
               hace7.setDate(hace7.getDate() - 7)
               const hace30 = new Date(today)
               hace30.setDate(hace30.getDate() - 30)
-              const hace365 = new Date(today)
-              hace365.setDate(hace365.getDate() - 365)
+              const eneroActual = new Date(today.getFullYear(), 0, 1)
               
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '20px' }}>
@@ -698,8 +697,8 @@ function App() {
                   {/* AÑO */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Últimos 365 Días</h3>
-                      <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace365)} - {formatDateShort(today)}</p>
+                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Año en Curso</h3>
+                      <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(eneroActual)} - {formatDateShort(today)}</p>
                       <p style={{ color: '#fbbf24', margin: '4px 0 0 0', fontSize: '0.85em', fontWeight: 700 }}>{testData.totales?.año?.ordenes || 0} órdenes</p>
                     </div>
                     {Object.entries(testData.año || {}).map(([marca, data]) => (

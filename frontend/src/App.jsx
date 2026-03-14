@@ -144,10 +144,10 @@ function App() {
               📦 Stock
             </button>
             <button 
-              className={`tab-btn ${activeTab === 'test' ? 'active' : ''}`}
-              onClick={() => setActiveTab('test')}
+              className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}
+              onClick={() => setActiveTab('status')}
             >
-              🧪 Test
+              📊 Status
             </button>
           </div>
           <button onClick={fetchAllData} className="btn-refresh">↻</button>
@@ -568,10 +568,10 @@ function App() {
         </>
         )}
 
-        {activeTab === 'test' && (
+        {activeTab === 'status' && (
         <>
           <section className="section">
-            <h2>🧪 Panel de Test - Token Status & Ventas</h2>
+            <h2>📊 Panel de Status - Token Status & Ventas</h2>
             
             {/* TOKEN STATUS - SIMPLE */}
             <div style={{ 

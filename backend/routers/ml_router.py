@@ -513,12 +513,14 @@ async def ventas_7dias():
             
             if data and "results" in data:
                 ordenes = data.get("results", [])
-                total = sum(o.get("total_amount", 0) for o in ordenes)
-                productos = extract_productos(ordenes)
-                print(f"7DIAS - {marca}: OK {len(ordenes)} órdenes, ${total}")
+                # ✅ FILTRAR por rango de fechas (SABADO a HOY)
+                ordenes_filtradas = [o for o in ordenes if SABADO <= o.get("date_created", "")[:10] <= HOY]
+                total = sum(o.get("total_amount", 0) for o in ordenes_filtradas)
+                productos = extract_productos(ordenes_filtradas)
+                print(f"7DIAS - {marca}: OK {len(ordenes_filtradas)} órdenes (de {len(ordenes)} total), ${total}")
                 resultado[marca] = {
                     "total": int(total), 
-                    "ordenes": len(ordenes),
+                    "ordenes": len(ordenes_filtradas),
                     "productos": productos[:5]  # Top 5 productos
                 }
             else:

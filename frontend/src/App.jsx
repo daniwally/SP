@@ -634,7 +634,7 @@ function App() {
                     </div>
                     {Object.entries(testData.hoy || {}).map(([marca, data]) => (
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
-                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 600, fontSize: '1.02em' }}>{marca}</p>
+                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
                           ${(data.total || 0).toLocaleString()}
                         </p>
@@ -657,7 +657,7 @@ function App() {
                     </div>
                     {Object.entries(testData.semana || {}).map(([marca, data]) => (
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
-                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 600, fontSize: '1.02em' }}>{marca}</p>
+                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
                           ${(data.total || 0).toLocaleString()}
                         </p>
@@ -680,7 +680,7 @@ function App() {
                     </div>
                     {Object.entries(testData.mes || {}).map(([marca, data]) => (
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
-                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 600, fontSize: '1.02em' }}>{marca}</p>
+                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
                           ${(data.total || 0).toLocaleString()}
                         </p>
@@ -703,7 +703,7 @@ function App() {
                     </div>
                     {Object.entries(testData.año || {}).map(([marca, data]) => (
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
-                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 600, fontSize: '1.02em' }}>{marca}</p>
+                        <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
                           ${(data.total || 0).toLocaleString()}
                         </p>

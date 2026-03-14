@@ -629,7 +629,7 @@ function App() {
                   {/* HOY */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '0.95em', fontWeight: 900 }}>Hoy</h3>
+                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.2em', fontWeight: 900 }}>Hoy</h3>
                       <p style={{ color: '#7f8c8d', margin: 0, fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(today)}</p>
                     </div>
                     {Object.entries(testData.hoy || {}).map(([marca, data]) => (
@@ -651,7 +651,7 @@ function App() {
                   {/* SEMANA */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '0.95em', fontWeight: 900 }}>Últimos 7 Días</h3>
+                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.2em', fontWeight: 900 }}>Últimos 7 Días</h3>
                       <p style={{ color: '#7f8c8d', margin: 0, fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace7)} - {formatDateShort(today)}</p>
                     </div>
                     {Object.entries(testData.semana || {}).map(([marca, data]) => (
@@ -673,7 +673,7 @@ function App() {
                   {/* MES */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '0.95em', fontWeight: 900 }}>Últimos 30 Días</h3>
+                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.2em', fontWeight: 900 }}>Últimos 30 Días</h3>
                       <p style={{ color: '#7f8c8d', margin: 0, fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace30)} - {formatDateShort(today)}</p>
                     </div>
                     {Object.entries(testData.mes || {}).map(([marca, data]) => (
@@ -695,7 +695,7 @@ function App() {
                   {/* AÑO */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '0.95em', fontWeight: 900 }}>Últimos 365 Días</h3>
+                      <h3 style={{ color: '#d946ef', margin: '0 0 4px 0', fontSize: '1.2em', fontWeight: 900 }}>Últimos 365 Días</h3>
                       <p style={{ color: '#7f8c8d', margin: 0, fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace365)} - {formatDateShort(today)}</p>
                     </div>
                     {Object.entries(testData.año || {}).map(([marca, data]) => (

@@ -209,11 +209,17 @@ async def ventas_detallado():
                 
                 url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc&scroll_id={scroll_id}"
             
+            # Filtrar órdenes por periodo
+            ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
+            ordenes_7d = [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
+            ordenes_30d = [o for o in ordenes if HACE_30 <= o.get("date_created", "")[:10] <= HOY]
+            ordenes_año = [o for o in ordenes if ENERO_ACTUAL <= o.get("date_created", "")[:10] <= HOY]
+            
             # DEBUG: Ver estructura de primera orden
             if ordenes:
                 print(f"🔍 {marca} - Primera orden: {json.dumps(ordenes[0], indent=2)[:500]}")
             else:
-                print(f"⚠️ {marca}: 0 órdenes traídas, usando TEST_DATA fallback")
+                print(f"⚠️ {marca}: 0 órdenes traídas - retornando $0")
             
             resultado["hoy"][marca] = {
                 "total": sum(o.get("total_amount", 0) for o in ordenes_hoy),

@@ -116,9 +116,10 @@ function App() {
     )
   }
 
-  const ventasHoy = salesData.hoy || {}
-  const ventas7d = salesData.dias7 || {}
-  const ventasMes = salesData.mes || {}
+  // 💾 Usar testData (/test/ventas-detallado) en lugar de ml/ventas/* endpoints
+  const ventasHoy = testData.hoy || {}
+  const ventas7d = testData.semana || {}
+  const ventasMes = testData.mes || {}
   
   // Calcular totales
   const totalHoy = Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)

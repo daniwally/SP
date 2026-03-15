@@ -79,11 +79,12 @@ async def ventas_detallado():
             url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc"
             data = api_call(url, token)
             
-            if not data or "results" not in data:
-                resultado["hoy"][marca] = {"error": "API returned no results"}
-                continue
-            
-            ordenes = data.get("results", [])
+            ordenes = []
+            if data and "results" in data:
+                ordenes = data.get("results", [])
+                print(f"✅ {marca}: API OK - {len(ordenes)} órdenes")
+            else:
+                print(f"⚠️ {marca}: API error, usando TEST_DATA fallback")
             
             # DEBUG: Ver estructura de primera orden
             if ordenes:

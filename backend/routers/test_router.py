@@ -34,13 +34,26 @@ REFRESH_TOKENS = {
     5: "TG-69b69f43c3ae1b00019ffc91-1630806191",  # URBAN_FLOW
 }
 
+# ✅ TOKENS HARDCODEADOS FRESHCOS (15/03/2026 ~ vencen 14/03/2027)
+TOKENS_HARDCODED = {
+    1: "APP_USR-7660452352870630-031400-50a338ae07bd2731123c716b20fa2269-2389178513",
+    2: "APP_USR-7660452352870630-031400-8e3e08784d7d3c2a8ede4d6fed821db5-2339108379",
+    3: "APP_USR-7660452352870630-031323-ad0383c9d33588f095546dff4059d22e-231953468",
+    4: "APP_USR-7660452352870630-031400-f5bdd3f7cffbef04777fd2e48891fda0-1434057904",
+    5: "APP_USR-7660452352870630-031400-a00b56f29940c93ae2d3c0d164761155-1630806191",
+}
+
+def get_token_hardcoded(cuenta_num):
+    """Retorna token hardcodeado como fallback inicial"""
+    return TOKENS_HARDCODED.get(cuenta_num)
+
 # Cache de access_tokens con timestamp
 TOKEN_CACHE = {}
 APP_ID = "7660452352870630"
 APP_SECRET = "QEXEvr8roSZSrK0ujdccsADSqjjrgOpq"
 
 def get_token(cuenta_num, force_refresh=False):
-    """Obtiene access_token: desde cache (si es fresco) o regenera con refresh_token"""
+    """Obtiene access_token: desde cache → refresh_token → hardcoded fallback"""
     
     # Check cache
     if cuenta_num in TOKEN_CACHE and not force_refresh:
@@ -50,44 +63,45 @@ def get_token(cuenta_num, force_refresh=False):
             print(f"✅ Token {cuenta_num}: FROM CACHE (valid until {cached['expires_str']})")
             return cached["token"]
     
-    # Regenerar con refresh_token
+    # Try regenerar con refresh_token
     refresh_token = REFRESH_TOKENS.get(cuenta_num)
-    if not refresh_token:
-        print(f"❌ Token {cuenta_num}: No refresh_token available")
-        return None
+    if refresh_token:
     
-    try:
-        url = "https://api.mercadolibre.com/oauth/token"
-        data = f"grant_type=refresh_token&client_id={APP_ID}&client_secret={APP_SECRET}&refresh_token={refresh_token}"
-        
-        req = urllib.request.Request(
-            url,
-            data=data.encode('utf-8'),
-            headers={"Content-Type": "application/x-www-form-urlencoded"}
-        )
-        
-        with urllib.request.urlopen(req, timeout=10) as response:
-            token_data = json.loads(response.read().decode())
-        
-        access_token = token_data.get("access_token")
-        expires_in = token_data.get("expires_in", 21600)  # 6 horas = 21600 seg
-        
-        # Cache con expiration
-        expires_at = datetime.now(ART).timestamp() + expires_in - 300  # Refresh 5 min antes
-        expires_str = datetime.fromtimestamp(expires_at, ART).strftime("%H:%M ART")
-        
-        TOKEN_CACHE[cuenta_num] = {
-            "token": access_token,
-            "expires_at": expires_at,
-            "expires_str": expires_str
-        }
-        
-        print(f"✅ Token {cuenta_num}: REGENERATED (valid until {expires_str})")
-        return access_token
-        
-    except Exception as e:
-        print(f"❌ Token {cuenta_num}: Refresh failed - {e}")
-        return None
+        try:
+            url = "https://api.mercadolibre.com/oauth/token"
+            data = f"grant_type=refresh_token&client_id={APP_ID}&client_secret={APP_SECRET}&refresh_token={refresh_token}"
+            
+            req = urllib.request.Request(
+                url,
+                data=data.encode('utf-8'),
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                token_data = json.loads(response.read().decode())
+            
+            access_token = token_data.get("access_token")
+            expires_in = token_data.get("expires_in", 21600)
+            
+            expires_at = datetime.now(ART).timestamp() + expires_in - 300
+            expires_str = datetime.fromtimestamp(expires_at, ART).strftime("%H:%M ART")
+            
+            TOKEN_CACHE[cuenta_num] = {
+                "token": access_token,
+                "expires_at": expires_at,
+                "expires_str": expires_str
+            }
+            
+            print(f"✅ Token {cuenta_num}: REGENERATED (valid until {expires_str})")
+            return access_token
+            
+        except Exception as e:
+            print(f"⚠️ Token {cuenta_num}: Refresh failed - {e}, usando hardcoded")
+            # Fallback a hardcoded token
+            return get_token_hardcoded(cuenta_num)
+    
+    # Sin refresh_token, usa hardcoded
+    return get_token_hardcoded(cuenta_num)
 
 def api_call(url, token):
     try:

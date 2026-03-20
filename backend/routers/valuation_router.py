@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 import xmlrpc.client
 from collections import defaultdict
+import asyncio
 
 router = APIRouter(prefix="/api/odoo", tags=["odoo"])
 
@@ -17,12 +18,8 @@ PRECIO_TEMPORAL = {
     # HYDRATE usa pricelist real
 }
 
-@router.get("/valuacion")
-async def get_valuacion():
-    """
-    Valuación de stock cruzado (Artilleros + Zona Franca)
-    con precios reales de pricelist y temporales donde aplique.
-    """
+def _get_valuacion_sync():
+    """Valuación de stock (blocking, runs in thread pool)"""
     try:
         common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
         uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
@@ -150,3 +147,8 @@ async def get_valuacion():
         
     except Exception as e:
         return {'error': str(e)}
+
+@router.get("/valuacion")
+async def get_valuacion():
+    """Valuación de stock cruzado (non-blocking via thread pool)"""
+    return await asyncio.to_thread(_get_valuacion_sync)

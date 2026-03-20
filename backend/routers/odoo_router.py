@@ -2,6 +2,8 @@ from fastapi import APIRouter
 import xmlrpc.client
 from datetime import datetime
 import os
+import asyncio
+from functools import partial
 
 router = APIRouter()
 
@@ -260,94 +262,82 @@ def get_stock_real():
         print(f"Error fetching stock: {e}")
         return {}
 
-@router.get("/stock/actual")
-async def stock_actual():
-    """Stock actual REAL desde Odoo"""
+def _stock_actual_sync():
+    """Stock actual desde Odoo (blocking, runs in thread pool)"""
     try:
         uid = get_uid()
         if not uid:
             print("❌ No auth - retornando test data")
             return STOCK_DATA
-        
+
         models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=20)
         marca_map = get_marca_map()
-        
+
         result = {}
-        
-        # Solo procesar Artilleros y Aduana
         warehouse_locs = {'Artilleros': 5, 'Aduana (Tránsito – Solo interno)': 24}
-        
+
         for wh_name, loc_id in warehouse_locs.items():
             try:
-                # Buscar quants
                 domain = [('location_id', '=', loc_id), ('quantity', '>', 0)]
                 quant_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'search', [domain], {'limit': 1000})
-                
+
                 if not quant_ids:
                     continue
-                
-                # Leer quants
+
                 quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids], ['product_id', 'quantity'])
-                
-                # Extraer IDs de productos
                 prod_ids = [q['product_id'][0] for q in quants if q['product_id']]
-                
-                # Leer productos en batch
                 products = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', prod_ids, ['id', 'name', 'categ_id', 'standard_price'])
-                
                 prod_map = {p['id']: p for p in products}
-                
-                # Procesar quants
+
                 for q in quants:
                     prod_id = q['product_id'][0] if q['product_id'] else None
                     if not prod_id or prod_id not in prod_map:
                         continue
-                    
+
                     prod_data = prod_map[prod_id]
                     categ_id = prod_data.get('categ_id')
                     marca = marca_map.get(categ_id[0] if categ_id else None, 'OTROS')
-                    
-                    # Skip if not in main brands
+
                     if marca not in ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS']:
                         continue
-                    
-                    # Init marca
+
                     if marca not in result:
                         result[marca] = {'almacenes': {}, 'total_unidades': 0, 'costo_total': 0.0}
-                    
-                    # Init almacén
                     if wh_name not in result[marca]['almacenes']:
                         result[marca]['almacenes'][wh_name] = {'nombre': wh_name, 'productos': []}
-                    
+
                     cantidad = int(q['quantity'])
                     costo_u = float(prod_data.get('standard_price', 0)) or 0.0
-                    
-                    # Agregar producto (solo primeros 3 para display)
+
                     if len(result[marca]['almacenes'][wh_name]['productos']) < 3:
                         result[marca]['almacenes'][wh_name]['productos'].append({
                             'nombre': prod_data['name'],
                             'cantidad': cantidad,
                             'costo_unitario': costo_u
                         })
-                    
-                    # Actualizar totales
+
                     result[marca]['total_unidades'] += cantidad
                     result[marca]['costo_total'] += cantidad * costo_u
-            
+
             except Exception as e:
                 print(f"❌ Error almacén {wh_name}: {e}")
                 continue
-        
+
         if result:
             print(f"✅ Stock real: {list(result.keys())}")
             return result
         else:
             print("⚠️ No hay datos - retornando test")
             return STOCK_DATA
-    
+
     except Exception as e:
         print(f"❌ Error: {e}")
         return STOCK_DATA
+
+@router.get("/stock/actual")
+async def stock_actual():
+    """Stock actual REAL desde Odoo (non-blocking via thread pool)"""
+    return await asyncio.to_thread(_stock_actual_sync)
 
 @router.get("/almacenes")
 async def almacenes():

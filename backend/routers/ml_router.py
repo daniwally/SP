@@ -79,27 +79,38 @@ def clean_product_name(title):
     """Extrae modelo + color del título del producto.
 
     Ejemplo: 'Zapatillas Basquet Shaq Posture Hombre Negro' -> 'Posture Negro'
-             'Botella Termica Hydrate 750ML Azul' -> 'Hydrate 750ML Azul'
+             'Termo Hydrate Acero Inoxidable Botella Frio Calor 620 Ml Violeta' -> '620 Ml Violeta'
     """
     if not title:
         return "Producto desconocido"
 
-    # Palabras genéricas a remover (categoría, género, tipo, marca madre)
+    # Palabras genéricas a remover
     noise_words = {
+        # Tipo de producto
         'zapatillas', 'zapatilla', 'botella', 'botellas', 'termo', 'termos',
         'vaso', 'vasos', 'taza', 'tazas', 'jarro', 'jarros', 'matero',
         'lata', 'tupper', 'contenedor', 'mate', 'pava', 'tetera',
-        'basquet', 'basketball', 'running', 'training', 'casual', 'urbana', 'urbano',
+        'bota', 'botas', 'borcego', 'borcegos', 'protector',
+        # Deporte / categoría
+        'basquet', 'basketball', 'running', 'training', 'casual',
+        'urbana', 'urbano', 'urbanas', 'urbanos',
         'deportiva', 'deportivo', 'deportivas', 'deportivos',
+        'importada', 'importado', 'importadas', 'importados',
+        # Material / característica genérica
         'termica', 'termico', 'térmico', 'térmica',
-        'hombre', 'mujer', 'niño', 'niña', 'unisex', 'kids', 'adulto',
-        'shaq', 'starter', 'timberland',  # marcas madre (el modelo es lo que importa)
-        'de', 'para', 'con', 'el', 'la', 'los', 'las', 'en',
+        'acero', 'inoxidable', 'base',
+        'frio', 'frío', 'calor', 'fría', 'fria',
+        # Género / edad
+        'hombre', 'mujer', 'niño', 'niña', 'niños', 'niñas',
+        'unisex', 'kids', 'adulto', 'chico', 'chica',
+        # Marcas madre (el modelo es lo que importa)
+        'shaq', 'starter', 'timberland', 'hydrate', 'river',
+        # Conectores
+        'de', 'para', 'con', 'el', 'la', 'los', 'las', 'en', 'y', 'e',
     }
 
     words = title.split()
-    # Filtrar palabras genéricas, mantener modelo + color + talle/calibre
-    kept = [w for w in words if w.lower().strip('()[],-') not in noise_words]
+    kept = [w for w in words if w.lower().strip('()[],-') not in noise_words and w.strip() not in ('-', '–', '—')]
 
     if kept:
         return ' '.join(kept)[:50]

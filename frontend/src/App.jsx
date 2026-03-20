@@ -273,47 +273,7 @@ function App() {
           </div>
         </section>
 
-        {/* ALERTAS Y RECOMENDACIONES POR MARCA */}
-        <section className="section">
-          <h2>📋 Alertas & Recomendaciones</h2>
-          <div className="alerts-grid">
-            {Object.entries(ventasMesMl).map(([marca, data]) => (
-              <div key={marca} className="alert-card">
-                <h3 style={{ color: '#d946ef', marginBottom: '12px' }}>{marca}</h3>
-                
-                {/* ALERTAS */}
-                <div style={{ marginBottom: '15px' }}>
-                  <p style={{ fontSize: '0.8em', color: '#fbbf24', fontWeight: 700, marginBottom: '6px' }}>⚠️ ALERTAS:</p>
-                  {data.alertas && data.alertas.map((alerta, idx) => (
-                    <p key={idx} style={{
-                      fontSize: '0.75em',
-                      color: '#f5f5f5',
-                      marginBottom: '4px',
-                      lineHeight: '1.3'
-                    }}>
-                      • {alerta}
-                    </p>
-                  ))}
-                </div>
 
-                {/* RECOMENDACIONES */}
-                <div>
-                  <p style={{ fontSize: '0.8em', color: '#06b6d4', fontWeight: 700, marginBottom: '6px' }}>💡 RECOMENDACIONES:</p>
-                  {data.recomendaciones && data.recomendaciones.map((rec, idx) => (
-                    <p key={idx} style={{
-                      fontSize: '0.75em',
-                      color: '#b0e0e6',
-                      marginBottom: '4px',
-                      lineHeight: '1.3'
-                    }}>
-                      • {rec}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
         </>
         )}
 

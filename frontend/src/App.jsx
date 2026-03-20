@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import RotatingBackground from './components/RotatingBackground'
+import PublicacionesTab from './components/PublicacionesTab'
 import './App.css'
 
 // Función para formatear fecha en español
@@ -156,6 +157,12 @@ function App() {
               onClick={() => setActiveTab('status')}
             >
               📊 Status
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'publicaciones' ? 'active' : ''}`}
+              onClick={() => setActiveTab('publicaciones')}
+            >
+              📋 Publicaciones
             </button>
           </div>
           <button onClick={fetchAllData} className="btn-refresh">↻</button>
@@ -722,6 +729,10 @@ function App() {
             })()}
           </section>
         </>
+        )}
+
+        {activeTab === 'publicaciones' && (
+          <PublicacionesTab />
         )}
       </main>
 

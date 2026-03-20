@@ -7,25 +7,25 @@ from collections import defaultdict
 import os
 import re
 from routers.token_manager import get_token, CUENTAS
+from routers.ml_router import clean_product_name
 
 
 def extract_sku_productos(ordenes):
     """Extrae productos con SKU y nombre de las órdenes, agrupados por cantidad"""
-    productos_dict = {}  # key: (sku, nombre) -> cantidad
+    productos_dict = {}  # key: nombre_limpio -> cantidad
     for orden in ordenes:
         try:
             for item in orden.get("order_items", []):
                 item_data = item.get("item", {})
-                sku = item_data.get("seller_sku") or item_data.get("id", "")
-                nombre = item_data.get("title", "Producto desconocido")
+                nombre_raw = item_data.get("title", "Producto desconocido")
+                nombre = clean_product_name(nombre_raw)
                 cantidad = item.get("quantity", 1)
-                key = (str(sku), nombre)
-                productos_dict[key] = productos_dict.get(key, 0) + cantidad
+                productos_dict[nombre] = productos_dict.get(nombre, 0) + cantidad
         except Exception:
             pass
 
     return sorted(
-        [{"sku": k[0], "nombre": k[1], "cantidad": v} for k, v in productos_dict.items()],
+        [{"nombre": k, "cantidad": v} for k, v in productos_dict.items()],
         key=lambda x: x["cantidad"], reverse=True
     )
 

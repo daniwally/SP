@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 from pathlib import Path
 from contextlib import asynccontextmanager
-import urllib.request
+import httpx
 import json
 
 from routers import ml_router, odoo_router, valuation_router, test_router, publicaciones_router
@@ -87,25 +87,25 @@ async def debug_api_test(cuenta_num: int):
         "token": f"{token[:40]}...",
         "steps": []
     }
-    
+
     url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc&limit=10"
     resultado["steps"].append({"paso": "1. Token cargado", "status": "OK", "token_length": len(token)})
     resultado["steps"].append({"paso": "2. URL construida", "status": "OK", "url": url})
-    
+
     try:
-        req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-        resultado["steps"].append({"paso": "3. Request creado con headers", "status": "OK"})
-        
-        with urllib.request.urlopen(req, timeout=10) as response:
-            data = json.loads(response.read().decode())
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+            resultado["steps"].append({"paso": "3. Request creado con headers", "status": "OK"})
+
+            data = resp.json()
             resultado["steps"].append({
                 "paso": "4. API respondió",
                 "status": "OK",
-                "http_code": response.status,
+                "http_code": resp.status_code,
                 "results_count": len(data.get("results", [])),
                 "paging": data.get("paging", {})
             })
-            
+
             ordenes = data.get("results", [])[:3]
             resultado["steps"].append({
                 "paso": "5. Primeras 3 órdenes",
@@ -119,19 +119,18 @@ async def debug_api_test(cuenta_num: int):
                     for o in ordenes
                 ]
             })
-            
+
             return resultado
-    
-    except urllib.error.HTTPError as e:
+
+    except httpx.HTTPStatusError as e:
         resultado["steps"].append({
             "paso": "ERROR: HTTP Error",
             "status": "FAIL",
-            "http_code": e.code,
-            "reason": e.reason,
-            "url": e.url
+            "http_code": e.response.status_code,
+            "reason": str(e),
         })
         return resultado
-    
+
     except Exception as e:
         resultado["steps"].append({
             "paso": "ERROR: Exception",
@@ -144,7 +143,7 @@ async def debug_api_test(cuenta_num: int):
 # Rutas base
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "version": "1.3.2", "updated": "2026-03-13 12:05"}
+    return {"status": "healthy", "version": "2.0.0-async", "updated": "2026-03-20 14:00"}
 
 @app.get("/api")
 async def api_info():

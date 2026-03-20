@@ -1,11 +1,13 @@
 """
 Router para obtener reporte completo de publicaciones desde ML API
 Estado, Tipo, Precio, Marca, Stock, Vendidas, Envío, Condición, Health, etc.
+ASYNC con httpx + asyncio.gather para fetch paralelo por marca
 """
 
 from fastapi import APIRouter, HTTPException, Query
-import urllib.request
+import httpx
 import json
+import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
@@ -22,7 +24,7 @@ MARCAS = {
     "URBAN_FLOW": 1630806191,
 }
 
-# Tokens hardcodeados (misma fuente que ml_router)
+# Tokens hardcodeados
 TOKENS_HARDCODED = {
     "SHAQ": "APP_USR-7660452352870630-031410-9781458a7a21ed178cdfe22c5288ba92-2389178513",
     "STARTER": "APP_USR-7660452352870630-031410-479a788af15fb9b942eb83c046a4b5b6-2339108379",
@@ -53,7 +55,6 @@ LISTING_TYPE_LABELS = {
     "free": "Gratuita",
 }
 
-# Mapeo legible de status
 STATUS_LABELS = {
     "active": "Activa",
     "paused": "Pausada",
@@ -69,54 +70,70 @@ CONDITION_LABELS = {
 }
 
 
-def api_call(url, token):
-    """Llamada a API de ML con timeout"""
+async def api_call(url, token, client=None):
+    """Llamada async a API de ML"""
     try:
-        req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-        with urllib.request.urlopen(req, timeout=15) as response:
-            return json.loads(response.read().decode())
+        if client:
+            resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+            resp.raise_for_status()
+            return resp.json()
+        async with httpx.AsyncClient() as c:
+            resp = await c.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+            resp.raise_for_status()
+            return resp.json()
     except Exception as e:
         print(f"ML API Error [{url[:80]}]: {e}")
         return None
 
 
-def get_seller_items(uid: int, token: str, status: str = "active") -> List[str]:
-    """Obtener IDs de items de un seller con paginación"""
+async def get_seller_items(uid: int, token: str, status: str = "active") -> List[str]:
+    """Obtener IDs de items de un seller con paginación (ASYNC)"""
     all_ids = []
     offset = 0
     limit = 50
 
-    while True:
-        url = f"https://api.mercadolibre.com/users/{uid}/items/search?status={status}&offset={offset}&limit={limit}"
-        data = api_call(url, token)
-        if not data:
-            break
+    async with httpx.AsyncClient() as client:
+        while True:
+            url = f"https://api.mercadolibre.com/users/{uid}/items/search?status={status}&offset={offset}&limit={limit}"
+            data = await api_call(url, token, client)
+            if not data:
+                break
 
-        ids = data.get("results", [])
-        all_ids.extend(ids)
+            ids = data.get("results", [])
+            all_ids.extend(ids)
 
-        total = data.get("paging", {}).get("total", 0)
-        offset += limit
-        if offset >= total:
-            break
+            total = data.get("paging", {}).get("total", 0)
+            offset += limit
+            if offset >= total:
+                break
 
     return all_ids
 
 
-def get_items_batch(item_ids: List[str], token: str) -> List[Dict]:
-    """Obtener detalles de múltiples items usando multi-get (hasta 20 por request)"""
-    all_items = []
+async def get_items_batch(item_ids: List[str], token: str) -> List[Dict]:
+    """Obtener detalles de múltiples items usando multi-get (ASYNC PARALELO)"""
+    if not item_ids:
+        return []
 
-    for i in range(0, len(item_ids), 20):
-        batch = item_ids[i:i + 20]
-        ids_str = ",".join(batch)
+    async def fetch_batch(ids_batch, client):
+        ids_str = ",".join(ids_batch)
         url = f"https://api.mercadolibre.com/items?ids={ids_str}"
-        data = api_call(url, token)
+        data = await api_call(url, token, client)
+        items = []
         if data and isinstance(data, list):
             for entry in data:
                 if entry.get("code") == 200 and entry.get("body"):
-                    all_items.append(entry["body"])
+                    items.append(entry["body"])
+        return items
 
+    # Fetch all batches in parallel
+    async with httpx.AsyncClient() as client:
+        batches = [item_ids[i:i + 20] for i in range(0, len(item_ids), 20)]
+        results = await asyncio.gather(*[fetch_batch(batch, client) for batch in batches])
+
+    all_items = []
+    for items in results:
+        all_items.extend(items)
     return all_items
 
 
@@ -132,24 +149,17 @@ def format_item(item: Dict, marca: str) -> Dict:
     sold_qty = item.get("sold_quantity", 0) or 0
     initial_qty = item.get("initial_quantity", 0) or 0
 
-    # Calcular descuento
     descuento = 0
     if original_price and original_price > price:
         descuento = round((1 - price / original_price) * 100, 1)
 
-    # Health / calidad
     health = item.get("health")
     tags = item.get("tags", [])
-
-    # Determinar si tiene catálogo
     catalog_listing = item.get("catalog_listing", False)
     catalog_product_id = item.get("catalog_product_id")
-
-    # Fecha de creación
     date_created = item.get("date_created", "")
     last_updated = item.get("last_updated", "")
 
-    # Calcular días publicado
     dias_publicado = None
     if date_created:
         try:
@@ -196,19 +206,10 @@ def compute_kpis(publicaciones: List[Dict]) -> Dict:
     total = len(publicaciones)
     if total == 0:
         return {
-            "total_publicaciones": 0,
-            "activas": 0,
-            "pausadas": 0,
-            "cerradas": 0,
-            "stock_total": 0,
-            "vendidas_total": 0,
-            "precio_promedio": 0,
-            "con_envio_gratis": 0,
-            "con_full": 0,
-            "con_descuento": 0,
-            "con_catalogo": 0,
-            "fotos_promedio": 0,
-            "valor_stock_estimado": 0,
+            "total_publicaciones": 0, "activas": 0, "pausadas": 0, "cerradas": 0,
+            "stock_total": 0, "vendidas_total": 0, "precio_promedio": 0,
+            "con_envio_gratis": 0, "con_full": 0, "con_descuento": 0, "con_catalogo": 0,
+            "fotos_promedio": 0, "valor_stock_estimado": 0,
         }
 
     activas = sum(1 for p in publicaciones if p["status"] == "active")
@@ -227,22 +228,31 @@ def compute_kpis(publicaciones: List[Dict]) -> Dict:
     valor_stock = sum(p["precio"] * p["stock"] for p in publicaciones)
 
     return {
-        "total_publicaciones": total,
-        "activas": activas,
-        "pausadas": pausadas,
-        "cerradas": cerradas,
-        "stock_total": stock_total,
-        "vendidas_total": vendidas_total,
-        "precio_promedio": precio_promedio,
+        "total_publicaciones": total, "activas": activas, "pausadas": pausadas, "cerradas": cerradas,
+        "stock_total": stock_total, "vendidas_total": vendidas_total, "precio_promedio": precio_promedio,
         "con_envio_gratis": con_envio_gratis,
         "pct_envio_gratis": round(con_envio_gratis / total * 100, 1) if total else 0,
         "con_full": con_full,
         "pct_full": round(con_full / total * 100, 1) if total else 0,
-        "con_descuento": con_descuento,
-        "con_catalogo": con_catalogo,
-        "fotos_promedio": fotos_promedio,
-        "valor_stock_estimado": valor_stock,
+        "con_descuento": con_descuento, "con_catalogo": con_catalogo,
+        "fotos_promedio": fotos_promedio, "valor_stock_estimado": valor_stock,
     }
+
+
+async def _fetch_marca_reporte(marca: str, status: str):
+    """Fetch reporte completo de una marca (para uso paralelo)"""
+    token = TOKENS_HARDCODED.get(marca)
+    if not token:
+        return marca, {"error": "Sin autenticación", "publicaciones": [], "kpis": {}}
+
+    uid = MARCAS[marca]
+    item_ids = await get_seller_items(uid, token, status)
+    items = await get_items_batch(item_ids, token)
+    publicaciones = [format_item(item, marca) for item in items]
+    publicaciones.sort(key=lambda x: x["vendidas"], reverse=True)
+    kpis = compute_kpis(publicaciones)
+
+    return marca, {"kpis": kpis, "publicaciones": publicaciones}
 
 
 @router.get("/reporte/{marca}")
@@ -255,32 +265,17 @@ async def reporte_publicaciones_marca(
     if marca not in MARCAS:
         raise HTTPException(status_code=400, detail=f"Marca no válida: {marca}")
 
-    token = TOKENS_HARDCODED.get(marca)
-    if not token:
-        return {"error": f"No se pudo autenticar para {marca}", "publicaciones": [], "kpis": {}}
+    _, data = await _fetch_marca_reporte(marca, status)
 
-    uid = MARCAS[marca]
-
-    # Obtener IDs de items
-    item_ids = get_seller_items(uid, token, status)
-
-    # Obtener detalles en batch
-    items = get_items_batch(item_ids, token)
-
-    # Formatear
-    publicaciones = [format_item(item, marca) for item in items]
-
-    # Ordenar por vendidas desc
-    publicaciones.sort(key=lambda x: x["vendidas"], reverse=True)
-
-    kpis = compute_kpis(publicaciones)
+    if "error" in data:
+        return {"error": data["error"], "publicaciones": [], "kpis": {}}
 
     return {
         "marca": marca,
         "status_filtro": status,
         "timestamp": datetime.now(ART).isoformat(),
-        "kpis": kpis,
-        "publicaciones": publicaciones,
+        "kpis": data["kpis"],
+        "publicaciones": data["publicaciones"],
     }
 
 
@@ -288,32 +283,19 @@ async def reporte_publicaciones_marca(
 async def reporte_todas_marcas(
     status: str = Query("active", description="Estado: active, paused, closed"),
 ):
-    """Reporte consolidado de TODAS las marcas"""
+    """Reporte consolidado de TODAS las marcas - ASYNC PARALELO"""
+    # Fetch todas las marcas en paralelo
+    results = await asyncio.gather(*[_fetch_marca_reporte(marca, status) for marca in MARCAS.keys()])
+
     resultado = {}
-    todas_publicaciones = []
     kpis_por_marca = {}
+    todas_publicaciones = []
 
-    for marca in MARCAS.keys():
-        token = TOKENS_HARDCODED.get(marca)
-        if not token:
-            resultado[marca] = {"error": "Sin autenticación", "publicaciones": [], "kpis": {}}
-            continue
+    for marca, data in results:
+        resultado[marca] = data
+        kpis_por_marca[marca] = data.get("kpis", {})
+        todas_publicaciones.extend(data.get("publicaciones", []))
 
-        uid = MARCAS[marca]
-        item_ids = get_seller_items(uid, token, status)
-        items = get_items_batch(item_ids, token)
-        publicaciones = [format_item(item, marca) for item in items]
-        publicaciones.sort(key=lambda x: x["vendidas"], reverse=True)
-        kpis = compute_kpis(publicaciones)
-
-        resultado[marca] = {
-            "kpis": kpis,
-            "publicaciones": publicaciones,
-        }
-        kpis_por_marca[marca] = kpis
-        todas_publicaciones.extend(publicaciones)
-
-    # KPIs globales
     kpis_global = compute_kpis(todas_publicaciones)
 
     return {
@@ -325,11 +307,11 @@ async def reporte_todas_marcas(
     }
 
 
-# --- Mantener endpoints legacy para compatibilidad ---
+# --- Endpoints legacy ---
 
 @router.get("/por-marca/{marca}")
 async def publicaciones_por_marca(marca: str):
-    """Obtener publicaciones de una marca (legacy, redirige a reporte)"""
+    """Obtener publicaciones de una marca (legacy)"""
     marca = marca.upper()
     if marca not in MARCAS:
         raise HTTPException(status_code=400, detail=f"Marca no válida: {marca}")
@@ -339,8 +321,8 @@ async def publicaciones_por_marca(marca: str):
         return {"error": f"No se pudo autenticar para {marca}", "publicaciones": []}
 
     uid = MARCAS[marca]
-    item_ids = get_seller_items(uid, token, "active")
-    items = get_items_batch(item_ids, token)
+    item_ids = await get_seller_items(uid, token, "active")
+    items = await get_items_batch(item_ids, token)
 
     publicaciones = []
     for item in items:
@@ -371,18 +353,16 @@ async def publicaciones_por_marca(marca: str):
 
 @router.get("/todas")
 async def publicaciones_todas():
-    """Obtener publicaciones de TODAS las marcas (legacy)"""
-    resultado = {}
+    """Obtener publicaciones de TODAS las marcas (legacy) - ASYNC PARALELO"""
 
-    for marca in MARCAS.keys():
+    async def fetch_marca(marca):
         token = TOKENS_HARDCODED.get(marca)
         if not token:
-            resultado[marca] = {"error": "Sin autenticación", "publicaciones": []}
-            continue
+            return marca, {"error": "Sin autenticación", "publicaciones": []}
 
         uid = MARCAS[marca]
-        item_ids = get_seller_items(uid, token, "active")
-        items = get_items_batch(item_ids[:20], token)
+        item_ids = await get_seller_items(uid, token, "active")
+        items = await get_items_batch(item_ids[:20], token)
 
         publicaciones = []
         for item in items:
@@ -395,43 +375,43 @@ async def publicaciones_todas():
                 "vendidas": formatted["vendidas"],
             })
 
-        resultado[marca] = {
-            "total": len(publicaciones),
-            "publicaciones": publicaciones,
-        }
+        return marca, {"total": len(publicaciones), "publicaciones": publicaciones}
+
+    results = await asyncio.gather(*[fetch_marca(m) for m in MARCAS.keys()])
 
     return {
         "timestamp": datetime.now(ART).isoformat(),
-        "datos": resultado,
+        "datos": {marca: data for marca, data in results},
     }
 
 
 @router.get("/consolidado")
 async def publicaciones_consolidado():
-    """Resumen consolidado: stock + vendidas por marca"""
-    resultado = {}
+    """Resumen consolidado: stock + vendidas por marca - ASYNC PARALELO"""
 
-    for marca in MARCAS.keys():
+    async def fetch_consolidado(marca):
         token = TOKENS_HARDCODED.get(marca)
         if not token:
-            continue
+            return marca, None
 
         uid = MARCAS[marca]
-        item_ids = get_seller_items(uid, token, "active")
-        items = get_items_batch(item_ids, token)
+        item_ids = await get_seller_items(uid, token, "active")
+        items = await get_items_batch(item_ids, token)
 
         total_stock = sum(item.get("available_quantity", 0) or 0 for item in items)
         total_vendidas = sum(item.get("sold_quantity", 0) or 0 for item in items)
         valor_stock = sum((item.get("price", 0) or 0) * (item.get("available_quantity", 0) or 0) for item in items)
 
-        resultado[marca] = {
+        return marca, {
             "stock_total": total_stock,
             "vendidas_total": total_vendidas,
             "publicaciones_activas": len(items),
             "valor_stock_estimado": valor_stock,
         }
 
+    results = await asyncio.gather(*[fetch_consolidado(m) for m in MARCAS.keys()])
+
     return {
         "timestamp": datetime.now(ART).isoformat(),
-        "consolidado": resultado,
+        "consolidado": {marca: data for marca, data in results if data},
     }

@@ -137,18 +137,23 @@ body {
   margin-bottom: 20px;
 }
 
-/* TWO SECTIONS SIDE BY SIDE */
-.two-sections {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* STACKED SECTIONS (día arriba, semana abajo) */
+.stacked-sections {
+  display: flex;
+  flex-direction: column;
   gap: 35px;
 }
 
-/* CARDS GRID */
+/* CARDS GRID - horizontal row */
 .cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  display: flex;
   gap: 15px;
+  overflow-x: auto;
+}
+
+.cards-grid .card {
+  flex: 1 1 0;
+  min-width: 150px;
 }
 
 .card {
@@ -178,7 +183,7 @@ body {
 }
 
 .card .value {
-  font-size: 1.6em;
+  font-size: 1.36em;
   font-weight: 700;
   color: #06b6d4;
   margin-bottom: 6px;
@@ -590,10 +595,6 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 1200px) {
-  .two-sections {
-    grid-template-columns: 1fr;
-  }
-
   .section-2col {
     grid-template-columns: 1fr;
   }
@@ -624,7 +625,11 @@ body {
   }
 
   .cards-grid {
-    grid-template-columns: 1fr 1fr;
+    flex-wrap: wrap;
+  }
+
+  .cards-grid .card {
+    flex: 1 1 45%;
   }
 
   .section h2 {
@@ -634,15 +639,11 @@ body {
   .big-number {
     font-size: 2em;
   }
-
-  .two-sections {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
+  .cards-grid .card {
+    flex: 1 1 100%;
   }
 
   .top3-container {

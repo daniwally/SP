@@ -172,9 +172,8 @@ function App() {
       <main className="dashboard">
         {activeTab === 'mercadolibre' && (
         <>
-        {/* VENTAS DEL DÍA Y SEMANAL EN PARALELO */}
-        <div className="two-sections">
-          {/* VENTAS DEL DÍA */}
+        {/* VENTAS DEL DÍA */}
+        <div className="stacked-sections">
           <section className="section">
             <h2>Ventas del Día</h2>
             <p className="section-date">{dateInfo.today}</p>

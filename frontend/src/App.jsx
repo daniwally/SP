@@ -127,10 +127,10 @@ function App() {
   // salesData.mes tiene preguntas, alertas, recomendaciones (de /ml/ventas/mes)
   const ventasMesMl = salesData.mes || {}
   
-  // Calcular totales
-  const totalHoy = Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)
-  const total7d = Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
-  const totalMensual = Object.values(ventasMes).reduce((sum, v) => sum + (v.total || 0), 0)
+  // Calcular totales - usar totales pre-calculados del backend, con fallback a suma manual
+  const totalHoy = testData.totales?.hoy?.total ?? Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)
+  const total7d = testData.totales?.semana?.total ?? Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
+  const totalMensual = testData.totales?.mes?.total ?? Object.values(ventasMes).reduce((sum, v) => sum + (v.total || 0), 0)
   
   // Top 3 marcas del mes
   const marcasOrdenadas = Object.entries(ventasMes)

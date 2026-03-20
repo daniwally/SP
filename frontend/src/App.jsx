@@ -186,10 +186,12 @@ function App() {
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (
                     <div className="productos-list">
-                      {data.productos.map((prod, idx) => (
-                        <p key={idx} className="producto-item">
-                          {prod.nombre} <span className="cantidad">x{prod.cantidad}</span>
-                        </p>
+                      {data.productos.slice(0, 10).map((prod, idx) => (
+                        <div key={idx} className="producto-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.7em', color: '#7f8c8d', fontFamily: 'monospace', minWidth: '90px' }}>{prod.sku || '-'}</span>
+                          <span style={{ flex: 1, fontSize: '0.75em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prod.nombre}</span>
+                          <span className="cantidad">x{prod.cantidad}</span>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -210,10 +212,12 @@ function App() {
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (
                     <div className="productos-list">
-                      {data.productos.map((prod, idx) => (
-                        <p key={idx} className="producto-item">
-                          {prod.nombre} <span className="cantidad">x{prod.cantidad}</span>
-                        </p>
+                      {data.productos.slice(0, 10).map((prod, idx) => (
+                        <div key={idx} className="producto-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.7em', color: '#7f8c8d', fontFamily: 'monospace', minWidth: '90px' }}>{prod.sku || '-'}</span>
+                          <span style={{ flex: 1, fontSize: '0.75em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prod.nombre}</span>
+                          <span className="cantidad">x{prod.cantidad}</span>
+                        </div>
                       ))}
                     </div>
                   )}

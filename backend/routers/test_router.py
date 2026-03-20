@@ -5,7 +5,29 @@ import json
 import asyncio
 from collections import defaultdict
 import os
+import re
 from routers.token_manager import get_token, CUENTAS
+
+
+def extract_sku_productos(ordenes):
+    """Extrae productos con SKU y nombre de las órdenes, agrupados por cantidad"""
+    productos_dict = {}  # key: (sku, nombre) -> cantidad
+    for orden in ordenes:
+        try:
+            for item in orden.get("order_items", []):
+                item_data = item.get("item", {})
+                sku = item_data.get("seller_sku") or item_data.get("id", "")
+                nombre = item_data.get("title", "Producto desconocido")
+                cantidad = item.get("quantity", 1)
+                key = (str(sku), nombre)
+                productos_dict[key] = productos_dict.get(key, 0) + cantidad
+        except Exception:
+            pass
+
+    return sorted(
+        [{"sku": k[0], "nombre": k[1], "cantidad": v} for k, v in productos_dict.items()],
+        key=lambda x: x["cantidad"], reverse=True
+    )
 
 router = APIRouter()
 
@@ -113,22 +135,26 @@ async def ventas_detallado():
                 "hoy": {
                     "total": sum(o.get("total_amount", 0) for o in ordenes_hoy),
                     "ordenes": len(ordenes_hoy),
-                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_hoy) / len(ordenes_hoy) if ordenes_hoy else 0
+                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_hoy) / len(ordenes_hoy) if ordenes_hoy else 0,
+                    "productos": extract_sku_productos(ordenes_hoy)[:10]
                 },
                 "semana": {
                     "total": sum(o.get("total_amount", 0) for o in ordenes_7d),
                     "ordenes": len(ordenes_7d),
-                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_7d) / len(ordenes_7d) if ordenes_7d else 0
+                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_7d) / len(ordenes_7d) if ordenes_7d else 0,
+                    "productos": extract_sku_productos(ordenes_7d)[:10]
                 },
                 "mes": {
                     "total": sum(o.get("total_amount", 0) for o in ordenes_30d),
                     "ordenes": len(ordenes_30d),
-                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_30d) / len(ordenes_30d) if ordenes_30d else 0
+                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_30d) / len(ordenes_30d) if ordenes_30d else 0,
+                    "productos": extract_sku_productos(ordenes_30d)[:10]
                 },
                 "año": {
                     "total": sum(o.get("total_amount", 0) for o in ordenes_año),
                     "ordenes": len(ordenes_año),
-                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_año) / len(ordenes_año) if ordenes_año else 0
+                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_año) / len(ordenes_año) if ordenes_año else 0,
+                    "productos": extract_sku_productos(ordenes_año)[:10]
                 }
             }
 

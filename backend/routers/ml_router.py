@@ -29,7 +29,7 @@ async def api_call_ml(url, token, client=None):
 
 # Datos de prueba
 TEST_DATA_HOY = {
-    "SHAQ": {"total": 530618, "ordenes": 5, "productos": [{"nombre": "Shaq Motivate", "cantidad": 3}, {"nombre": "Shaq Posture", "cantidad": 2}]},
+    "SHAQ": {"total": 530618, "ordenes": 5, "productos": [{"nombre": "Motivate", "cantidad": 3}, {"nombre": "Posture", "cantidad": 2}]},
     "STARTER": {"total": 83400, "ordenes": 1, "productos": [{"nombre": "GTM Negro", "cantidad": 1}]},
     "HYDRATE": {"total": 0, "ordenes": 0, "productos": []},
     "TIMBERLAND": {"total": 0, "ordenes": 0, "productos": []},
@@ -39,7 +39,7 @@ TEST_DATA_HOY = {
 TEST_DATA_7DIAS = {
     "SHAQ": {
         "total": 1818388, "ordenes": 18,
-        "productos": [{"nombre": "Shaq Motivate", "cantidad": 12}, {"nombre": "Shaq Posture", "cantidad": 8}, {"nombre": "Shaq Radiate", "cantidad": 4}, {"nombre": "Shaq Spin Move", "cantidad": 2}],
+        "productos": [{"nombre": "Motivate", "cantidad": 12}, {"nombre": "Posture", "cantidad": 8}, {"nombre": "Radiate", "cantidad": 4}, {"nombre": "Spin Move", "cantidad": 2}],
         "alertas": ["Stock crítico en Motivate (solo T43)", "Posture agotado en tallas 41.5 y 44.5", "Tasa de envío demorado: 3.2%"],
         "recomendaciones": ["Reponer urgente: Motivate y Posture (stock < 50 unidades)", "Ampliar descripción de H.o.f Negro (600+ caracteres, 4.8K visitas)", "Consolidar duplicados: Radiate/Spin Move (reducir competencia interna)"],
         "preguntas": {"total": 287, "sin_responder": 12, "tiempo_promedio_horas": 1.8, "tasa_respuesta": 95.8}
@@ -53,14 +53,14 @@ TEST_DATA_7DIAS = {
     },
     "TIMBERLAND": {
         "total": 509598, "ordenes": 2,
-        "productos": [{"nombre": "Timberland Classic", "cantidad": 2}],
+        "productos": [{"nombre": "Classic", "cantidad": 2}],
         "alertas": ["🚨 CRÍTICO: Nivel 1 Rojo (riesgo suspensión)", "Claims: 5.75% (máx permitido: 2%)", "Cancelaciones: 6 últimas 30 días"],
         "recomendaciones": ["URGENTE: Resolver reclamos pendientes (1 semana máx)", "Mejorar calidad de envíos (auditar empaque)", "Contactar clientes insatisfechos para compensar"],
         "preguntas": {"total": 89, "sin_responder": 22, "tiempo_promedio_horas": 8.5, "tasa_respuesta": 75.3}
     },
     "URBAN_FLOW": {
         "total": 287540, "ordenes": 8,
-        "productos": [{"nombre": "Timberland", "cantidad": 5}, {"nombre": "Shaq", "cantidad": 3}],
+        "productos": [{"nombre": "Classic", "cantidad": 5}, {"nombre": "Posture", "cantidad": 3}],
         "alertas": ["Cuenta de agote/remate: stock limitado", "Nivel 3 Amarillo: métricas regulares para remate", "Rotación rápida requerida (talles/colores descontinuados)"],
         "recomendaciones": ["Acelerar liquidación: aumentar promociones y descuentos", "Bundlear productos por talle/color (cerrar stock rápido)", "Crear alertas para stock bajo (reabastecer o cerrar SKU)"],
         "preguntas": {"total": 62, "sin_responder": 7, "tiempo_promedio_horas": 2.9, "tasa_respuesta": 88.7}

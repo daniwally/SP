@@ -4,6 +4,9 @@ import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import './App.css'
 
+// Función para formatear montos sin centavos
+const fmtMoney = (n) => Math.round(n).toLocaleString()
+
 // Función para formatear fecha en español
 const formatDateSpanish = (date) => {
   const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
@@ -183,7 +186,7 @@ function App() {
               {Object.entries(ventasHoy).map(([marca, data]) => (
                 <div key={marca} className="card">
                   <h3>{marca}</h3>
-                  <p className="value">${(data.total || 0).toLocaleString()}</p>
+                  <p className="value">${fmtMoney(data.total || 0)}</p>
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (
                     <div className="productos-list">
@@ -203,11 +206,11 @@ function App() {
           <div className="totals-row totals-row-small">
             <div className="total-item">
               <span>Total Hoy:</span>
-              <span className="total-item-value">${totalHoy.toLocaleString()}</span>
+              <span className="total-item-value">${fmtMoney(totalHoy)}</span>
             </div>
             <div className="total-item">
               <span>Total Semana:</span>
-              <span className="total-item-value">${total7d.toLocaleString()}</span>
+              <span className="total-item-value">${fmtMoney(total7d)}</span>
             </div>
           </div>
 
@@ -219,7 +222,7 @@ function App() {
               {Object.entries(ventas7d).map(([marca, data]) => (
                 <div key={marca} className="card">
                   <h3>{marca}</h3>
-                  <p className="value">${(data.total || 0).toLocaleString()}</p>
+                  <p className="value">${fmtMoney(data.total || 0)}</p>
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (
                     <div className="productos-list">
@@ -576,7 +579,7 @@ function App() {
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
                         <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
-                          ${(data.total || 0).toLocaleString()}
+                          ${fmtMoney(data.total || 0)}
                         </p>
                         <p style={{ margin: '2px 0', color: '#7f8c8d', fontSize: '0.75em' }}>
                           {data.ordenes || 0} órdenes
@@ -584,7 +587,7 @@ function App() {
                       </div>
                     ))}
                     <p style={{ background: 'rgba(217, 70, 239, 0.15)', padding: '10px 8px', borderRadius: '6px', marginTop: '12px', marginBottom: 0, fontWeight: 700, color: '#d946ef', fontSize: '0.9em', textAlign: 'center' }}>
-                      ${(testData.totales?.hoy?.total || 0).toLocaleString()}
+                      ${fmtMoney(testData.totales?.hoy?.total || 0)}
                     </p>
                   </div>
 
@@ -599,15 +602,15 @@ function App() {
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
                         <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
-                          ${(data.total || 0).toLocaleString()}
+                          ${fmtMoney(data.total || 0)}
                         </p>
                         <p style={{ margin: '2px 0', color: '#7f8c8d', fontSize: '0.75em' }}>
-                          {data.ordenes || 0} ord. | Prom: ${(data.promedio || 0).toLocaleString()}
+                          {data.ordenes || 0} ord. | Prom: ${fmtMoney(data.promedio || 0)}
                         </p>
                       </div>
                     ))}
                     <p style={{ background: 'rgba(217, 70, 239, 0.15)', padding: '10px 8px', borderRadius: '6px', marginTop: '12px', marginBottom: 0, fontWeight: 700, color: '#d946ef', fontSize: '0.9em', textAlign: 'center' }}>
-                      ${(testData.totales?.semana?.total || 0).toLocaleString()}
+                      ${fmtMoney(testData.totales?.semana?.total || 0)}
                     </p>
                   </div>
 
@@ -622,15 +625,15 @@ function App() {
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
                         <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
-                          ${(data.total || 0).toLocaleString()}
+                          ${fmtMoney(data.total || 0)}
                         </p>
                         <p style={{ margin: '2px 0', color: '#7f8c8d', fontSize: '0.75em' }}>
-                          {data.ordenes || 0} ord. | Prom: ${(data.promedio || 0).toLocaleString()}
+                          {data.ordenes || 0} ord. | Prom: ${fmtMoney(data.promedio || 0)}
                         </p>
                       </div>
                     ))}
                     <p style={{ background: 'rgba(217, 70, 239, 0.15)', padding: '10px 8px', borderRadius: '6px', marginTop: '12px', marginBottom: 0, fontWeight: 700, color: '#d946ef', fontSize: '0.9em', textAlign: 'center' }}>
-                      ${(testData.totales?.mes?.total || 0).toLocaleString()}
+                      ${fmtMoney(testData.totales?.mes?.total || 0)}
                     </p>
                   </div>
 
@@ -645,15 +648,15 @@ function App() {
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>
                         <p style={{ margin: '0 0 4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '1.02em' }}>{marca}</p>
                         <p style={{ margin: '4px 0', color: '#d946ef', fontWeight: 700, fontSize: '0.95em' }}>
-                          ${(data.total || 0).toLocaleString()}
+                          ${fmtMoney(data.total || 0)}
                         </p>
                         <p style={{ margin: '2px 0', color: '#7f8c8d', fontSize: '0.75em' }}>
-                          {data.ordenes || 0} ord. | Prom: ${(data.promedio || 0).toLocaleString()}
+                          {data.ordenes || 0} ord. | Prom: ${fmtMoney(data.promedio || 0)}
                         </p>
                       </div>
                     ))}
                     <p style={{ background: 'rgba(217, 70, 239, 0.15)', padding: '10px 8px', borderRadius: '6px', marginTop: '12px', marginBottom: 0, fontWeight: 700, color: '#d946ef', fontSize: '0.9em', textAlign: 'center' }}>
-                      ${(testData.totales?.año?.total || 0).toLocaleString()}
+                      ${fmtMoney(testData.totales?.año?.total || 0)}
                     </p>
                   </div>
                 </div>

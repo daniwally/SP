@@ -1,24 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from starlette.responses import FileResponse
 from pathlib import Path
-from contextlib import asynccontextmanager
 import httpx
 import json
+import os
 
 from routers import ml_router, odoo_router, valuation_router, test_router, publicaciones_router
-from database import init_db
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await init_db()
-    yield
 
 app = FastAPI(
     title="Sobrepatas Dashboard API",
-    version="0.1.0",
-    lifespan=lifespan
+    version="2.0.0",
 )
 
 # CORS
@@ -148,10 +139,5 @@ async def health():
 @app.get("/api")
 async def api_info():
     return {"status": "ok"}
-
-# Servir archivos estáticos (SPA + assets)
-static_dir = Path("/app/static")
-if static_dir.exists():
-    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
 

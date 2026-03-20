@@ -316,12 +316,54 @@
   white-space: nowrap;
 }
 
+.descuento-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.precio-original {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 0.85em;
+  margin-right: 6px;
+}
+
 .descuento {
   display: inline-block;
-  margin-left: 4px;
   color: #ef4444;
-  font-size: 0.8em;
+  font-size: 0.85em;
   font-weight: 700;
+}
+
+.sin-descuento {
+  color: #555;
+}
+
+.health-cell {
+  text-align: center;
+}
+
+.health-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85em;
+}
+
+.health-good {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.health-mid {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.health-bad {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 .stock {

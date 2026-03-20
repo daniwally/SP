@@ -148,23 +148,23 @@ function App() {
             >
               💰 Ventas e-commerce
             </button>
-            <button 
-              className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stock')}
-            >
-              📦 Stock
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}
-              onClick={() => setActiveTab('status')}
-            >
-              📊 Status
-            </button>
             <button
               className={`tab-btn ${activeTab === 'publicaciones' ? 'active' : ''}`}
               onClick={() => setActiveTab('publicaciones')}
             >
               📋 Publicaciones
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stock')}
+            >
+              📦 Stock
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}
+              onClick={() => setActiveTab('status')}
+            >
+              📊 Status
             </button>
           </div>
           <button onClick={fetchAllData} className="btn-refresh">↻</button>

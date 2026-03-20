@@ -269,9 +269,6 @@ export default function PublicacionesTab() {
                 <th className="sortable" onClick={() => handleSort('precio')}>
                   Precio{sortIcon('precio')}
                 </th>
-                <th className="sortable" onClick={() => handleSort('descuento_pct')}>
-                  Descuento{sortIcon('descuento_pct')}
-                </th>
                 <th className="sortable" onClick={() => handleSort('health')}>
                   Salud{sortIcon('health')}
                 </th>
@@ -316,16 +313,6 @@ export default function PublicacionesTab() {
                   </td>
                   <td className="precio">
                     ${pub.precio?.toLocaleString()}
-                  </td>
-                  <td className="descuento-cell">
-                    {pub.descuento_pct > 0 ? (
-                      <>
-                        <span className="precio-original">${pub.precio_original?.toLocaleString()}</span>
-                        <span className="descuento">-{pub.descuento_pct}%</span>
-                      </>
-                    ) : (
-                      <span className="sin-descuento">-</span>
-                    )}
                   </td>
                   <td className="health-cell">
                     {pub.health != null ? (

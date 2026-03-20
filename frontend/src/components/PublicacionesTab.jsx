@@ -269,6 +269,12 @@ export default function PublicacionesTab() {
                 <th className="sortable" onClick={() => handleSort('precio')}>
                   Precio{sortIcon('precio')}
                 </th>
+                <th className="sortable" onClick={() => handleSort('descuento_pct')}>
+                  Descuento{sortIcon('descuento_pct')}
+                </th>
+                <th className="sortable" onClick={() => handleSort('health')}>
+                  Salud{sortIcon('health')}
+                </th>
                 <th className="sortable" onClick={() => handleSort('stock')}>
                   Stock{sortIcon('stock')}
                 </th>
@@ -310,8 +316,24 @@ export default function PublicacionesTab() {
                   </td>
                   <td className="precio">
                     ${pub.precio?.toLocaleString()}
-                    {pub.descuento_pct > 0 && (
-                      <span className="descuento">-{pub.descuento_pct}%</span>
+                  </td>
+                  <td className="descuento-cell">
+                    {pub.descuento_pct > 0 ? (
+                      <>
+                        <span className="precio-original">${pub.precio_original?.toLocaleString()}</span>
+                        <span className="descuento">-{pub.descuento_pct}%</span>
+                      </>
+                    ) : (
+                      <span className="sin-descuento">-</span>
+                    )}
+                  </td>
+                  <td className="health-cell">
+                    {pub.health != null ? (
+                      <span className={`health-badge ${pub.health >= 0.8 ? 'health-good' : pub.health >= 0.5 ? 'health-mid' : 'health-bad'}`}>
+                        {Math.round(pub.health * 100)}%
+                      </span>
+                    ) : (
+                      <span className="sin-descuento">-</span>
                     )}
                   </td>
                   <td className={`stock ${pub.stock === 0 ? 'stock-zero' : pub.stock < 5 ? 'stock-low' : ''}`}>

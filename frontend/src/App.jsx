@@ -129,7 +129,9 @@ function App() {
   
   // Calcular totales - usar totales pre-calculados del backend, con fallback a suma manual
   const totalHoy = testData.totales?.hoy?.total ?? Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)
+  const ordenesHoy = testData.totales?.hoy?.ordenes ?? Object.values(ventasHoy).reduce((sum, v) => sum + (v.ordenes || 0), 0)
   const total7d = testData.totales?.semana?.total ?? Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
+  const ordenes7d = testData.totales?.semana?.ordenes ?? Object.values(ventas7d).reduce((sum, v) => sum + (v.ordenes || 0), 0)
   const totalMensual = testData.totales?.mes?.total ?? Object.values(ventasMes).reduce((sum, v) => sum + (v.total || 0), 0)
   
   // Top 3 marcas del mes
@@ -206,10 +208,12 @@ function App() {
           <div className="totals-row totals-row-small">
             <div className="total-item">
               <span>Total Hoy:</span>
+              <span className="total-item-ordenes">{ordenesHoy} órdenes</span>
               <span className="total-item-value">${fmtMoney(totalHoy)}</span>
             </div>
             <div className="total-item">
               <span>Total Semana:</span>
+              <span className="total-item-ordenes">{ordenes7d} órdenes</span>
               <span className="total-item-value">${fmtMoney(total7d)}</span>
             </div>
           </div>

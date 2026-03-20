@@ -277,6 +277,14 @@ body {
   font-size: 0.95em;
 }
 
+.totals-row-small {
+  margin-top: 0;
+}
+
+.totals-row-small .total-item-value {
+  font-size: 1.53em;
+}
+
 .total-item-value {
   font-size: 1.8em;
   font-weight: 700;

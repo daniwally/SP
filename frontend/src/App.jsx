@@ -121,6 +121,8 @@ function App() {
   const ventasHoy = testData.hoy || {}
   const ventas7d = testData.semana || {}
   const ventasMes = testData.mes || {}
+  // salesData.mes tiene preguntas, alertas, recomendaciones (de /ml/ventas/mes)
+  const ventasMesMl = salesData.mes || {}
   
   // Calcular totales
   const totalHoy = Object.values(ventasHoy).reduce((sum, v) => sum + (v.total || 0), 0)
@@ -197,6 +199,18 @@ function App() {
             </div>
           </section>
 
+          {/* TOTALES EN LÍNEA - entre día y semana */}
+          <div className="totals-row totals-row-small">
+            <div className="total-item">
+              <span>Total Hoy:</span>
+              <span className="total-item-value">${totalHoy.toLocaleString()}</span>
+            </div>
+            <div className="total-item">
+              <span>Total Semana:</span>
+              <span className="total-item-value">${total7d.toLocaleString()}</span>
+            </div>
+          </div>
+
           {/* VENTAS DE LA SEMANA */}
           <section className="section">
             <h2>Ventas de la Semana</h2>
@@ -220,18 +234,6 @@ function App() {
               ))}
             </div>
           </section>
-        </div>
-
-        {/* TOTALES EN LÍNEA */}
-        <div className="totals-row">
-          <div className="total-item">
-            <span>Total Hoy:</span>
-            <span className="total-item-value">${totalHoy.toLocaleString()}</span>
-          </div>
-          <div className="total-item">
-            <span>Total Semana:</span>
-            <span className="total-item-value">${total7d.toLocaleString()}</span>
-          </div>
         </div>
 
         {/* COMPARATIVA */}
@@ -283,7 +285,7 @@ function App() {
         <section className="section">
           <h2>Preguntas & Respuestas</h2>
           <div className="questions-grid">
-            {Object.entries(ventasMes).map(([marca, data]) => {
+            {Object.entries(ventasMesMl).map(([marca, data]) => {
               const preg = data.preguntas || { total: 0, sin_responder: 0, tiempo_promedio_horas: 0, tasa_respuesta: 0 }
               return (
                 <div key={marca} className="question-card">
@@ -304,7 +306,7 @@ function App() {
         <section className="section">
           <h2>📋 Alertas & Recomendaciones</h2>
           <div className="alerts-grid">
-            {Object.entries(ventasMes).map(([marca, data]) => (
+            {Object.entries(ventasMesMl).map(([marca, data]) => (
               <div key={marca} className="alert-card">
                 <h3 style={{ color: '#d946ef', marginBottom: '12px' }}>{marca}</h3>
                 

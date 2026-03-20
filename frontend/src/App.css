@@ -286,9 +286,12 @@ body {
 }
 
 .total-item-ordenes {
-  color: #fbbf24;
-  font-size: 0.95em;
+  font-size: 1.1em;
   font-weight: 700;
+  background: linear-gradient(135deg, #d946ef, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Inter', sans-serif;
 }
 
 .total-item-value {

@@ -5,100 +5,11 @@ import json
 import asyncio
 from collections import defaultdict
 import os
+from routers.token_manager import get_token, CUENTAS
 
 router = APIRouter()
 
 ART = timezone(timedelta(hours=-3))
-
-CUENTAS = {
-    1: (2389178513, "SHAQ"),
-    2: (2339108379, "STARTER"),
-    3: (231953468, "HYDRATE"),
-    4: (1434057904, "TIMBERLAND"),
-    5: (1630806191, "URBAN_FLOW"),
-}
-
-CUENTA_NAMES = {
-    1: "cuenta1",
-    2: "cuenta2",
-    3: "cuenta3",
-    4: "cuenta4",
-    5: "cuenta5",
-}
-
-# ✅ REFRESH_TOKENS (válidos 6 meses) - 15/03/2026
-REFRESH_TOKENS = {
-    1: "TG-69b69f428dd1340001ad993d-2389178513",
-    2: "TG-69b69f4247245b00016c6f22-2339108379",
-    3: "TG-69b69f43f4cf8200013075bb-231953468",
-    4: "TG-69b69f4386049a000185b420-1434057904",
-    5: "TG-69b69f43c3ae1b00019ffc91-1630806191",
-}
-
-# ✅ TOKENS HARDCODEADOS FRESHCOS (15/03/2026 ~ vencen 14/03/2027)
-TOKENS_HARDCODED = {
-    1: "APP_USR-7660452352870630-031400-50a338ae07bd2731123c716b20fa2269-2389178513",
-    2: "APP_USR-7660452352870630-031400-8e3e08784d7d3c2a8ede4d6fed821db5-2339108379",
-    3: "APP_USR-7660452352870630-031323-ad0383c9d33588f095546dff4059d22e-231953468",
-    4: "APP_USR-7660452352870630-031400-f5bdd3f7cffbef04777fd2e48891fda0-1434057904",
-    5: "APP_USR-7660452352870630-031400-a00b56f29940c93ae2d3c0d164761155-1630806191",
-}
-
-def get_token_hardcoded(cuenta_num):
-    return TOKENS_HARDCODED.get(cuenta_num)
-
-# Cache de access_tokens con timestamp
-TOKEN_CACHE = {}
-APP_ID = "7660452352870630"
-APP_SECRET = "QEXEvr8roSZSrK0ujdccsADSqjjrgOpq"
-
-async def get_token(cuenta_num, force_refresh=False):
-    """Obtiene access_token: desde cache -> refresh_token -> hardcoded fallback (ASYNC)"""
-
-    # Check cache
-    if cuenta_num in TOKEN_CACHE and not force_refresh:
-        cached = TOKEN_CACHE[cuenta_num]
-        expires_at = cached.get("expires_at", 0)
-        if datetime.now(ART).timestamp() < expires_at:
-            print(f"✅ Token {cuenta_num}: FROM CACHE (valid until {cached['expires_str']})")
-            return cached["token"]
-
-    # Try regenerar con refresh_token
-    refresh_token = REFRESH_TOKENS.get(cuenta_num)
-    if refresh_token:
-        try:
-            url = "https://api.mercadolibre.com/oauth/token"
-            data = {
-                "grant_type": "refresh_token",
-                "client_id": APP_ID,
-                "client_secret": APP_SECRET,
-                "refresh_token": refresh_token,
-            }
-
-            async with httpx.AsyncClient() as client:
-                resp = await client.post(url, data=data, timeout=10)
-                resp.raise_for_status()
-                token_data = resp.json()
-
-            access_token = token_data.get("access_token")
-            expires_in = token_data.get("expires_in", 21600)
-            expires_at = datetime.now(ART).timestamp() + expires_in - 300
-            expires_str = datetime.fromtimestamp(expires_at, ART).strftime("%H:%M ART")
-
-            TOKEN_CACHE[cuenta_num] = {
-                "token": access_token,
-                "expires_at": expires_at,
-                "expires_str": expires_str
-            }
-
-            print(f"✅ Token {cuenta_num}: REGENERATED (valid until {expires_str})")
-            return access_token
-
-        except Exception as e:
-            print(f"⚠️ Token {cuenta_num}: Refresh failed - {e}, usando hardcoded")
-            return get_token_hardcoded(cuenta_num)
-
-    return get_token_hardcoded(cuenta_num)
 
 
 async def api_call(url, token):

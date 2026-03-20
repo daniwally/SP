@@ -6,31 +6,11 @@ import os
 import re
 import asyncio
 from collections import defaultdict
+from routers.token_manager import get_token, CUENTAS
 
 router = APIRouter()
 
 ART = timezone(timedelta(hours=-3))
-
-# ✅ TOKENS HARDCODEADOS (misma fuente que test_router)
-TOKENS_HARDCODED = {
-    1: "APP_USR-7660452352870630-031410-9781458a7a21ed178cdfe22c5288ba92-2389178513",
-    2: "APP_USR-7660452352870630-031410-479a788af15fb9b942eb83c046a4b5b6-2339108379",
-    3: "APP_USR-7660452352870630-031410-82dedbc765a32436d83630d1d4e5f327-231953468",
-    4: "APP_USR-7660452352870630-031410-8f3e9f83e5b6e7ad68e7b6d6e3c16e94-1434057904",
-    5: "APP_USR-7660452352870630-031410-1afe5aacf31b7b1a3f55e54c483d777e-1630806191",
-}
-
-CUENTAS = {
-    1: (2389178513, "SHAQ"),
-    2: (2339108379, "STARTER"),
-    3: (231953468, "HYDRATE"),
-    4: (1434057904, "TIMBERLAND"),
-    5: (1630806191, "URBAN_FLOW"),
-}
-
-def get_token_ml(cuenta_num):
-    """Obtener token desde dict hardcodeado"""
-    return TOKENS_HARDCODED.get(cuenta_num)
 
 async def api_call_ml(url, token, client=None):
     """Realizar llamada async a API de MercadoLibre"""
@@ -200,13 +180,12 @@ async def ventas_hoy():
     def filter_hoy(ordenes):
         return [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
 
-    # Fetch todas las marcas en paralelo
-    tasks = []
-    for cuenta_num, (uid, marca) in CUENTAS.items():
-        token = get_token_ml(cuenta_num)
-        tasks.append(_fetch_ventas_marca(cuenta_num, uid, marca, token, filter_hoy))
+    # Fetch tokens + data en paralelo
+    async def fetch_with_token(cuenta_num, uid, marca):
+        token = await get_token(cuenta_num)
+        return await _fetch_ventas_marca(cuenta_num, uid, marca, token, filter_hoy)
 
-    results = await asyncio.gather(*tasks)
+    results = await asyncio.gather(*[fetch_with_token(cn, uid, m) for cn, (uid, m) in CUENTAS.items()])
 
     resultado = {}
     for marca, data in results:
@@ -281,7 +260,11 @@ async def ventas_mes():
                 "preguntas": data_7d.get("preguntas", {})
             }
 
-    tasks = [fetch_mes(cn, uid, marca, get_token_ml(cn)) for cn, (uid, marca) in CUENTAS.items()]
+    async def fetch_mes_with_token(cn, uid, marca):
+        token = await get_token(cn)
+        return await fetch_mes(cn, uid, marca, token)
+
+    tasks = [fetch_mes_with_token(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()]
     results = await asyncio.gather(*tasks)
 
     return {marca: data for marca, data in results}
@@ -297,12 +280,11 @@ async def ventas_7dias():
     def filter_7d(ordenes):
         return [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
 
-    tasks = []
-    for cuenta_num, (uid, marca) in CUENTAS.items():
-        token = get_token_ml(cuenta_num)
-        tasks.append(_fetch_ventas_marca(cuenta_num, uid, marca, token, filter_7d))
+    async def fetch_with_token(cuenta_num, uid, marca):
+        token = await get_token(cuenta_num)
+        return await _fetch_ventas_marca(cuenta_num, uid, marca, token, filter_7d)
 
-    results = await asyncio.gather(*tasks)
+    results = await asyncio.gather(*[fetch_with_token(cn, uid, m) for cn, (uid, m) in CUENTAS.items()])
 
     resultado = {}
     for marca, data in results:

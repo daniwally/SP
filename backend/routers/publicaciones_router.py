@@ -10,6 +10,7 @@ import json
 import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
+from routers.token_manager import get_token_by_marca, CUENTAS
 
 router = APIRouter(prefix="/api/publicaciones", tags=["publicaciones"])
 
@@ -23,27 +24,6 @@ MARCAS = {
     "TIMBERLAND": 1434057904,
     "URBAN_FLOW": 1630806191,
 }
-
-# Tokens hardcodeados
-TOKENS_HARDCODED = {
-    "SHAQ": "APP_USR-7660452352870630-031410-9781458a7a21ed178cdfe22c5288ba92-2389178513",
-    "STARTER": "APP_USR-7660452352870630-031410-479a788af15fb9b942eb83c046a4b5b6-2339108379",
-    "HYDRATE": "APP_USR-7660452352870630-031410-82dedbc765a32436d83630d1d4e5f327-231953468",
-    "TIMBERLAND": "APP_USR-7660452352870630-031410-8f3e9f83e5b6e7ad68e7b6d6e3c16e94-1434057904",
-    "URBAN_FLOW": "APP_USR-7660452352870630-031410-1afe5aacf31b7b1a3f55e54c483d777e-1630806191",
-}
-
-# También intentar cargar desde config
-try:
-    with open("backend/config_tokens.json") as f:
-        _cfg = json.load(f)
-        _tokens_cfg = _cfg.get("tokens", {})
-        _cuentas_cfg = _cfg.get("cuentas", {})
-        for num_str, marca_name in _cuentas_cfg.items():
-            if num_str in _tokens_cfg:
-                TOKENS_HARDCODED[marca_name] = _tokens_cfg[num_str]
-except Exception:
-    pass
 
 # Mapeo legible de listing types
 LISTING_TYPE_LABELS = {
@@ -241,7 +221,7 @@ def compute_kpis(publicaciones: List[Dict]) -> Dict:
 
 async def _fetch_marca_reporte(marca: str, status: str):
     """Fetch reporte completo de una marca (para uso paralelo)"""
-    token = TOKENS_HARDCODED.get(marca)
+    token = await get_token_by_marca(marca)
     if not token:
         return marca, {"error": "Sin autenticación", "publicaciones": [], "kpis": {}}
 
@@ -316,7 +296,7 @@ async def publicaciones_por_marca(marca: str):
     if marca not in MARCAS:
         raise HTTPException(status_code=400, detail=f"Marca no válida: {marca}")
 
-    token = TOKENS_HARDCODED.get(marca)
+    token = await get_token_by_marca(marca)
     if not token:
         return {"error": f"No se pudo autenticar para {marca}", "publicaciones": []}
 
@@ -356,7 +336,7 @@ async def publicaciones_todas():
     """Obtener publicaciones de TODAS las marcas (legacy) - ASYNC PARALELO"""
 
     async def fetch_marca(marca):
-        token = TOKENS_HARDCODED.get(marca)
+        token = await get_token_by_marca(marca)
         if not token:
             return marca, {"error": "Sin autenticación", "publicaciones": []}
 
@@ -390,7 +370,7 @@ async def publicaciones_consolidado():
     """Resumen consolidado: stock + vendidas por marca - ASYNC PARALELO"""
 
     async def fetch_consolidado(marca):
-        token = TOKENS_HARDCODED.get(marca)
+        token = await get_token_by_marca(marca)
         if not token:
             return marca, None
 

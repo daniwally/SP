@@ -34,3 +34,4 @@ npm run dev
 - GET `/api/ml/ventas/7dias` - Últimos 7 días
 - GET `/api/odoo/stock/actual` - Stock actual
 - GET `/api/odoo/facturas/mes` - Facturas del mes
+# Updated Fri Mar 20 17:17:24 UTC 2026

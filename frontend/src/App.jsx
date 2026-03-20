@@ -252,35 +252,6 @@ function App() {
           </div>
         </section>
 
-        {/* TOP 3 MARCAS DEL MES */}
-        <section className="section">
-          <h2>Top 3 Marcas - Mes</h2>
-          <div className="top3-container">
-            {marcasOrdenadas.map(([marca, data], idx) => (
-              <div key={marca} className={`top3-card rank-${idx + 1}`}>
-                <div className="rank-badge">{idx + 1}</div>
-                <h3>{marca}</h3>
-                <p className="top3-value">${(data.total / 1000000).toFixed(2)}M</p>
-                <p className="top3-orders">{data.ordenes || 0} órdenes</p>
-                <p className="top3-percent">
-                  {((data.total / totalMensual) * 100).toFixed(1)}% del total
-                </p>
-                
-                {/* TOP 5 PRODUCTOS DE LA MARCA */}
-                {data.productos && data.productos.length > 0 && (
-                  <div className="top5-productos">
-                    {data.productos.slice(0, 5).map((prod, pidx) => (
-                      <p key={pidx} className="top5-item">
-                        {prod.nombre} <span className="top5-qty">x{prod.cantidad}</span>
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* PREGUNTAS Y RESPUESTAS POR MARCA */}
         <section className="section">
           <h2>Preguntas & Respuestas</h2>

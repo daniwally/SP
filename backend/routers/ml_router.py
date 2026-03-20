@@ -76,51 +76,36 @@ TEST_DATA_7DIAS = {
 
 
 def clean_product_name(title):
-    """Extrae tipo, calibre y color del producto"""
+    """Extrae modelo + color del título del producto.
+
+    Ejemplo: 'Zapatillas Basquet Shaq Posture Hombre Negro' -> 'Posture Negro'
+             'Botella Termica Hydrate 750ML Azul' -> 'Hydrate 750ML Azul'
+    """
     if not title:
         return "Producto desconocido"
 
-    tipo_pattern = r'\b(Botella|Vaso|Taza|Termo|Jarro|Matero|Lata|Tupper|Contenedor|Mate|Pava|Tetera)\b'
-    calibre_pattern = r'(\d+\s*(?:ML|Ml|ml|LT|L|Litros?|mililitros?))'
-    color_pattern = r'\b(Blue|Red|Green|Black|White|Yellow|Orange|Purple|Pink|Gray|Silver|Gold|Blanco|Negro|Azul|Rojo|Verde|Amarillo|Naranja|Morado|Gris|Plateado|Dorado)\b'
-
-    tipo_match = re.search(tipo_pattern, title, re.IGNORECASE)
-    calibre_match = re.search(calibre_pattern, title, re.IGNORECASE)
-    color_match = re.search(color_pattern, title, re.IGNORECASE)
-
-    color_map = {
-        'blue': 'Azul', 'red': 'Rojo', 'green': 'Verde', 'black': 'Negro',
-        'white': 'Blanco', 'yellow': 'Amarillo', 'orange': 'Naranja',
-        'purple': 'Morado', 'pink': 'Rosa', 'gray': 'Gris', 'grey': 'Gris',
-        'silver': 'Plateado', 'gold': 'Dorado',
-        'blanco': 'Blanco', 'negro': 'Negro', 'azul': 'Azul', 'rojo': 'Rojo',
-        'verde': 'Verde', 'amarillo': 'Amarillo', 'naranja': 'Naranja',
-        'morado': 'Morado', 'gris': 'Gris', 'plateado': 'Plateado', 'dorado': 'Dorado'
+    # Palabras genéricas a remover (categoría, género, tipo, marca madre)
+    noise_words = {
+        'zapatillas', 'zapatilla', 'botella', 'botellas', 'termo', 'termos',
+        'vaso', 'vasos', 'taza', 'tazas', 'jarro', 'jarros', 'matero',
+        'lata', 'tupper', 'contenedor', 'mate', 'pava', 'tetera',
+        'basquet', 'basketball', 'running', 'training', 'casual', 'urbana', 'urbano',
+        'deportiva', 'deportivo', 'deportivas', 'deportivos',
+        'termica', 'termico', 'térmico', 'térmica',
+        'hombre', 'mujer', 'niño', 'niña', 'unisex', 'kids', 'adulto',
+        'shaq', 'starter', 'timberland',  # marcas madre (el modelo es lo que importa)
+        'de', 'para', 'con', 'el', 'la', 'los', 'las', 'en',
     }
 
-    nombre = ""
-    if tipo_match:
-        nombre = tipo_match.group(1).capitalize()
-    if calibre_match:
-        calibre = calibre_match.group(1).upper().replace(' ', '')
-        nombre = f"{nombre} {calibre}".strip()
-    if color_match:
-        color_raw = color_match.group(1).lower()
-        color = color_map.get(color_raw, color_match.group(1).capitalize())
-        nombre = f"{nombre} {color}".strip()
+    words = title.split()
+    # Filtrar palabras genéricas, mantener modelo + color + talle/calibre
+    kept = [w for w in words if w.lower().strip('()[],-') not in noise_words]
 
-    if nombre:
-        return nombre[:50]
+    if kept:
+        return ' '.join(kept)[:50]
 
-    marcas = ['Hydrate', 'Shaq', 'Motivate', 'Posture', 'Starter', 'Timberland', 'Urban', 'GTM']
-    for marca in marcas:
-        if marca.lower() in title.lower():
-            idx = title.lower().find(marca.lower())
-            rest = title[idx:].split()[:2]
-            return ' '.join(rest)[:50]
-
-    words = title.split()[:2]
-    return ' '.join(words)[:50]
+    # Fallback: primeras 2 palabras
+    return ' '.join(words[:2])[:50]
 
 
 def extract_productos(ordenes):

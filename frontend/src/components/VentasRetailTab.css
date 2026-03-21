@@ -302,8 +302,7 @@
 }
 
 .pedido-marcas {
-  font-size: 0.75em;
   color: #d946ef;
-  margin-top: 2px;
-  opacity: 0.85;
+  font-size: 0.85em;
+  font-weight: 600;
 }

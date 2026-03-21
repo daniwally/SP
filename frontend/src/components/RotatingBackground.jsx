@@ -5,7 +5,8 @@ export default function RotatingBackground() {
     '/backgrounds/bg1.jpg',
     '/backgrounds/bg2.jpg',
     '/backgrounds/bg3.jpg',
-    '/backgrounds/bg4.jpg'
+    '/backgrounds/bg4.jpg',
+    '/backgrounds/bg5.jpg'
   ]
 
   return (
@@ -16,7 +17,7 @@ export default function RotatingBackground() {
           className="bg-layer"
           style={{
             backgroundImage: `url('${bg}')`,
-            animationDelay: `${idx * 15}s`
+            animationDelay: `${idx * 12}s`
           }}
         />
       ))}

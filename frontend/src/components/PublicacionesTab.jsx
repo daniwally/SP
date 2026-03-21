@@ -271,7 +271,7 @@ export default function PublicacionesTab() {
         <div className="publicaciones-grid">
           {viewMode === 'marca' && BRAND_LOGOS[marca] && (
             <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-              <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '48px', maxWidth: '200px', objectFit: 'contain' }} />
+              <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '58px', maxWidth: '240px', objectFit: 'contain' }} />
             </div>
           )}
           <div className="table-info">

@@ -3,6 +3,15 @@ import './PublicacionesTab.css';
 
 const MARCAS = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'URBAN_FLOW'];
 
+const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos';
+const BRAND_LOGOS = {
+  'SHAQ': `${LOGO_BASE}/shaq-logo.png`,
+  'STARTER': `${LOGO_BASE}/starter.png`,
+  'HYDRATE': `${LOGO_BASE}/hydrate-logo.png`,
+  'TIMBERLAND': `${LOGO_BASE}/TBL-logo.png`,
+  'URBAN_FLOW': `${LOGO_BASE}/urban-flow-logo.png`,
+};
+
 function cleanTitle(titulo) {
   return titulo
     .replace(/zapatillas?\s*(?:de\s+)?basquet/gi, '')
@@ -238,7 +247,11 @@ export default function PublicacionesTab() {
         <div className="marca-kpis-row">
           {Object.entries(data.kpis_por_marca).map(([m, mk]) => (
             <div key={m} className="marca-kpi-card">
-              <h4>{m}</h4>
+              {BRAND_LOGOS[m] ? (
+                <img src={BRAND_LOGOS[m]} alt={m} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+              ) : (
+                <h4>{m}</h4>
+              )}
               <div className="marca-kpi-stats">
                 <span>{mk.total_publicaciones} pub</span>
                 <span className="sep">|</span>

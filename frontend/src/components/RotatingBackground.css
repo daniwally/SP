@@ -32,20 +32,20 @@
   background-attachment: fixed;
   opacity: 0;
   z-index: 0;
-  animation: fadeBgInOut 60s ease-in-out infinite;
+  animation: fadeBgInOut ease-in-out infinite;
 }
 
 @keyframes fadeBgInOut {
   0% {
     opacity: 0;
   }
-  4% {
-    opacity: 0.55;
-  }
-  16% {
+  5% {
     opacity: 0.55;
   }
   20% {
+    opacity: 0.55;
+  }
+  25% {
     opacity: 0;
   }
   100% {

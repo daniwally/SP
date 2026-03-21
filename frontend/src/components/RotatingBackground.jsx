@@ -1,7 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './RotatingBackground.css'
 
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 export default function RotatingBackground() {
+  const [current, setCurrent] = useState(0)
+  const queue = useRef([])
   const [backgrounds, setBackgrounds] = useState([
     '/backgrounds/bg1.jpg',
     '/backgrounds/bg2.jpg',
@@ -20,23 +31,33 @@ export default function RotatingBackground() {
       .catch(() => {})
   }, [])
 
-  const count = backgrounds.length
-  const cycleDuration = 60
-  const delay = count > 0 ? cycleDuration / count : 15
+  useEffect(() => {
+    queue.current = shuffle(backgrounds)
+    setCurrent(0)
+
+    const interval = setInterval(() => {
+      setCurrent(prev => {
+        const next = prev + 1
+        if (next >= queue.current.length) {
+          queue.current = shuffle(backgrounds)
+          return 0
+        }
+        return next
+      })
+    }, 12000)
+
+    return () => clearInterval(interval)
+  }, [backgrounds])
+
+  const bg = queue.current[current] || backgrounds[0]
 
   return (
     <div className="rotating-background">
-      {backgrounds.map((bg, idx) => (
-        <div
-          key={bg}
-          className="bg-layer"
-          style={{
-            backgroundImage: `url('${bg}')`,
-            animationDelay: `${idx * delay}s`,
-            animationDuration: `${cycleDuration}s`
-          }}
-        />
-      ))}
+      <div
+        key={`${current}-${bg}`}
+        className="bg-layer bg-active"
+        style={{ backgroundImage: `url('${bg}')` }}
+      />
       <div className="gradient-overlay"></div>
     </div>
   )

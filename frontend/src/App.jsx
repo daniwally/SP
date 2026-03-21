@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
+import VentasRetailTab from './components/VentasRetailTab'
 import './App.css'
 
 // Función para formatear montos sin centavos
@@ -158,6 +159,12 @@ function App() {
               onClick={() => setActiveTab('publicaciones')}
             >
               📋 Publicaciones
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'retail' ? 'active' : ''}`}
+              onClick={() => setActiveTab('retail')}
+            >
+              🏪 Ventas Retail
             </button>
             <button
               className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
@@ -672,6 +679,10 @@ function App() {
 
         {activeTab === 'publicaciones' && (
           <PublicacionesTab />
+        )}
+
+        {activeTab === 'retail' && (
+          <VentasRetailTab />
         )}
       </main>
 

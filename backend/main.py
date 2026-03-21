@@ -5,7 +5,7 @@ import httpx
 import json
 import os
 
-from routers import ml_router, odoo_router, valuation_router, test_router, publicaciones_router
+from routers import ml_router, odoo_router, valuation_router, test_router, publicaciones_router, ventas_retail_router
 
 app = FastAPI(
     title="Sobrepatas Dashboard API",
@@ -27,6 +27,7 @@ app.include_router(odoo_router.router, prefix="/api/odoo", tags=["Odoo"])
 app.include_router(valuation_router.router, tags=["Valuation"])
 app.include_router(test_router.router, prefix="/api/test", tags=["Test"])
 app.include_router(publicaciones_router.router, tags=["Publicaciones"])
+app.include_router(ventas_retail_router.router, prefix="/api/retail", tags=["VentasRetail"])
 
 # DEBUG ENDPOINTS DIRECTAMENTE EN MAIN
 TOKENS_DEBUG = {

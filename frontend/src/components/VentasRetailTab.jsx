@@ -5,8 +5,9 @@ import './VentasRetailTab.css'
 const fmtMoney = (n) => '$' + Math.round(n).toLocaleString()
 const fmtDate = (d) => {
   if (!d) return '-'
-  const date = new Date(d)
-  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  const parts = String(d).slice(0, 10).split('-')
+  if (parts.length !== 3) return d
+  return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`
 }
 
 export default function VentasRetailTab() {
@@ -120,7 +121,7 @@ export default function VentasRetailTab() {
             </div>
             {dashboard.ventas_semana?.top_ordenes?.length > 0 && (
               <div className="period-orders">
-                <div className="period-orders-title">Top 5 órdenes</div>
+                <div className="period-orders-title">Top 10 órdenes</div>
                 {dashboard.ventas_semana.top_ordenes.map((o, i) => (
                   <div key={i} className="period-order-item">
                     <span className="order-rank">#{i + 1}</span>
@@ -145,7 +146,7 @@ export default function VentasRetailTab() {
             </div>
             {dashboard.ventas_mes?.top_ordenes?.length > 0 && (
               <div className="period-orders">
-                <div className="period-orders-title">Top 5 órdenes</div>
+                <div className="period-orders-title">Top 10 órdenes</div>
                 {dashboard.ventas_mes.top_ordenes.map((o, i) => (
                   <div key={i} className="period-order-item">
                     <span className="order-rank">#{i + 1}</span>

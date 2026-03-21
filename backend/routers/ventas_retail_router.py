@@ -90,6 +90,8 @@ def _pedidos_sync(desde: str, hasta: str):
                         'subtotal': ln.get('price_subtotal', 0),
                     })
 
+        KNOWN_BRANDS = ['SHAQ', 'Starter', 'Timberland', 'Hydrate']
+
         pedidos = []
         total_monto = 0
         total_items = 0
@@ -102,6 +104,14 @@ def _pedidos_sync(desde: str, hasta: str):
             total_monto += monto
             total_items += qty
 
+            # Detect brands from product names
+            order_brands = set()
+            for ln in lineas:
+                pname = (ln.get('producto') or '').lower()
+                for brand in KNOWN_BRANDS:
+                    if brand.lower() in pname:
+                        order_brands.add(brand)
+
             pedidos.append({
                 'id': oid,
                 'numero': o.get('name', ''),
@@ -112,6 +122,7 @@ def _pedidos_sync(desde: str, hasta: str):
                 'estado': o.get('state', ''),
                 'facturacion': o.get('invoice_status', ''),
                 'items': int(qty),
+                'marcas': sorted(order_brands),
                 'lineas': lineas,
             })
 

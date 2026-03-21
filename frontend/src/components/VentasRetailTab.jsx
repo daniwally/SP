@@ -164,34 +164,24 @@ export default function VentasRetailTab() {
                 <th>Pedido</th>
                 <th>Fecha</th>
                 <th>Cliente</th>
+                <th>Marcas</th>
                 <th>Items</th>
                 <th>Total</th>
                 <th>Estado</th>
               </tr>
             </thead>
             <tbody>
-              {list.map(p => {
-                const MARCAS = ['SHAQ', 'Starter', 'Timberland', 'Hydrate']
-                const marcas = [...new Set((p.lineas || []).map(l => {
-                  const name = (l.producto || '').toLowerCase()
-                  return MARCAS.find(m => name.includes(m.toLowerCase()))
-                }).filter(Boolean))]
-                return (
+              {list.map(p => (
                   <tr key={p.id}>
                     <td>{p.numero}</td>
                     <td>{fmtDate(p.fecha)}</td>
                     <td>{p.cliente}</td>
-                    <td>
-                      {p.items}
-                      {marcas.length > 0 && (
-                        <div className="pedido-marcas">{marcas.join(', ')}</div>
-                      )}
-                    </td>
+                    <td className="pedido-marcas">{(p.marcas || []).join(', ') || '-'}</td>
+                    <td>{p.items}</td>
                     <td className="monto">{fmtMoney(p.total)}</td>
                     <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
                   </tr>
-                )
-              })}
+              ))}
             </tbody>
           </table>
         </div>

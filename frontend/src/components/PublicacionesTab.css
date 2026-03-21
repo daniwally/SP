@@ -289,12 +289,38 @@
   gap: 8px;
 }
 
+.thumb-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .titulo .thumb {
   width: 32px;
   height: 32px;
   border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
+  cursor: pointer;
+}
+
+.thumb-preview {
+  display: none;
+  position: absolute;
+  top: -10px;
+  left: 40px;
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  background: #1a1a2e;
+  border: 2px solid #06b6d4;
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.thumb-wrapper:hover .thumb-preview {
+  display: block;
 }
 
 .titulo span {

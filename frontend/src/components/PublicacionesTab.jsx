@@ -310,7 +310,10 @@ export default function PublicacionesTab() {
                   )}
                   <td className="titulo" title={pub.titulo}>
                     {pub.thumbnail && (
-                      <img src={pub.thumbnail} alt="" className="thumb" />
+                      <span className="thumb-wrapper">
+                        <img src={pub.thumbnail} alt="" className="thumb" />
+                        <img src={pub.thumbnail.replace('-I.jpg', '-O.jpg')} alt="" className="thumb-preview" />
+                      </span>
                     )}
                     <span>{cleanTitle(pub.titulo)}</span>
                   </td>

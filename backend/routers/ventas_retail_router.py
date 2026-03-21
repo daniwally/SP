@@ -147,7 +147,7 @@ async def pedidos(
 ):
     today = datetime.now()
     if not desde:
-        desde = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+        desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
         hasta = today.strftime('%Y-%m-%d')
 
@@ -250,7 +250,7 @@ async def compras(
 ):
     today = datetime.now()
     if not desde:
-        desde = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+        desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
         hasta = today.strftime('%Y-%m-%d')
 
@@ -348,7 +348,7 @@ async def clientes(
 ):
     today = datetime.now()
     if not desde:
-        desde = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+        desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
         hasta = today.strftime('%Y-%m-%d')
 
@@ -385,7 +385,7 @@ async def dashboard(
 ):
     today = datetime.now()
     if not desde:
-        desde = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+        desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
         hasta = today.strftime('%Y-%m-%d')
 

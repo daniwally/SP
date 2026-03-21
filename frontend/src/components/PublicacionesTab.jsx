@@ -274,9 +274,10 @@ export default function PublicacionesTab() {
               <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '58px', maxWidth: '240px', objectFit: 'contain' }} />
             </div>
           )}
-          <div className="table-info" style={{ textAlign: 'center', color: '#f59e0b', fontWeight: 700 }}>
+          <div className="table-info" style={{ textAlign: 'center', color: '#f59e0b', fontWeight: 700, fontSize: '1.2em' }}>
             <span>{publicaciones.length} publicaciones</span>
           </div>
+          <br />
           <table className="publicaciones-table">
             <thead>
               <tr>

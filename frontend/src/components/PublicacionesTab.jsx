@@ -315,7 +315,8 @@ export default function PublicacionesTab() {
                         className="thumb-wrapper"
                         onMouseEnter={e => {
                           const rect = e.currentTarget.getBoundingClientRect()
-                          setPreview({ src: pub.thumbnail.replace('-I.jpg', '-O.jpg'), x: rect.right + 8, y: rect.top - 40 })
+                          const previewSrc = pub.fotos_urls?.length ? pub.fotos_urls[0] : pub.thumbnail.replace('-I.jpg', '-O.jpg')
+                          setPreview({ src: previewSrc, x: rect.right + 8, y: rect.top - 40 })
                         }}
                         onMouseLeave={() => setPreview(null)}
                       >

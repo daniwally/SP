@@ -404,7 +404,7 @@ def _resumen_periodo(pedidos_list, desde_str, hasta_str):
         'fecha': p.get('fecha', ''),
         'total': p.get('total', 0),
         'items': p.get('items', 0),
-    } for p in filtrados[:5]]
+    } for p in filtrados[:10]]
 
     return {
         'total_monto': round(total, 2),

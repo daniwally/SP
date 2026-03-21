@@ -3,6 +3,14 @@ import './PublicacionesTab.css';
 
 const MARCAS = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'URBAN_FLOW'];
 
+function cleanTitle(titulo) {
+  return titulo
+    .replace(/zapatillas?\s*(?:de\s+)?basquet/gi, '')
+    .replace(/zapatillas?\s*(?:de\s+)?hombre/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Activas' },
   { value: 'paused', label: 'Pausadas' },
@@ -304,7 +312,7 @@ export default function PublicacionesTab() {
                     {pub.thumbnail && (
                       <img src={pub.thumbnail} alt="" className="thumb" />
                     )}
-                    <span>{pub.titulo}</span>
+                    <span>{cleanTitle(pub.titulo)}</span>
                   </td>
                   <td>
                     <span className={`status-badge status-${pub.status}`}>

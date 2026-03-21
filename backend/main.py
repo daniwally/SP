@@ -142,3 +142,17 @@ async def api_info():
     return {"status": "ok"}
 
 
+@app.get("/api/backgrounds")
+async def list_backgrounds():
+    """Lista las imágenes de fondo disponibles"""
+    bg_dir = Path(__file__).parent.parent / "static" / "backgrounds"
+    if not bg_dir.exists():
+        bg_dir = Path(__file__).parent / "static" / "backgrounds"
+    images = []
+    if bg_dir.exists():
+        for f in sorted(bg_dir.iterdir()):
+            if f.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp'):
+                images.append(f"/backgrounds/{f.name}")
+    return {"backgrounds": images}
+
+

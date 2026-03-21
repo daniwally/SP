@@ -92,7 +92,7 @@
 }
 
 .retail-kpi {
-  background: #000;
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(217, 70, 239, 0.15);
   border-radius: 12px;
   padding: 18px;
@@ -194,7 +194,7 @@
 
 /* Top productos */
 .retail-top-productos {
-  background: #000;
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(217, 70, 239, 0.15);
   border-radius: 12px;
   padding: 18px;

@@ -29,7 +29,7 @@
 .toggle-btn {
   padding: 8px 18px;
   border: 1px solid #444;
-  background: #1a1f2e;
+  background: #000;
   color: #888;
   cursor: pointer;
   font-weight: 600;
@@ -61,7 +61,7 @@
 .marca-btn {
   padding: 7px 14px;
   border: 2px solid #333;
-  background: #1a1f2e;
+  background: #000;
   color: #06b6d4;
   cursor: pointer;
   border-radius: 6px;
@@ -89,7 +89,7 @@
 .status-btn {
   padding: 6px 14px;
   border: 1px solid #333;
-  background: #1a1f2e;
+  background: #000;
   color: #888;
   cursor: pointer;
   border-radius: 6px;
@@ -111,7 +111,7 @@
 /* Search */
 .search-box input {
   padding: 8px 14px;
-  background: #1a1f2e;
+  background: #000;
   border: 1px solid #333;
   border-radius: 6px;
   color: #e0e0e0;
@@ -139,7 +139,7 @@
 }
 
 .kpi-card {
-  background: rgba(0, 0, 0, 0.45);
+  background: #000;
   border: 1px solid rgba(217, 70, 239, 0.15);
   border-radius: 10px;
   padding: 12px 14px;
@@ -175,7 +175,7 @@
 }
 
 .marca-kpi-card {
-  background: rgba(0, 0, 0, 0.4);
+  background: #000;
   border: 1px solid rgba(6, 182, 212, 0.15);
   border-radius: 8px;
   padding: 10px 14px;
@@ -234,14 +234,14 @@
 .publicaciones-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(0, 0, 0, 0.9);
+  background: #000;
   border-radius: 8px;
   overflow: hidden;
   font-size: 0.85em;
 }
 
 .publicaciones-table thead {
-  background: rgba(0, 0, 0, 0.95);
+  background: #000;
   border-bottom: 2px solid rgba(255, 255, 255, 0.15);
 }
 
@@ -314,7 +314,7 @@
   width: 250px;
   height: 250px;
   object-fit: contain;
-  background: #1a1a2e;
+  background: #000;
   border: 2px solid #06b6d4;
   border-radius: 8px;
   padding: 6px;

@@ -171,23 +171,26 @@ export default function VentasRetailTab() {
             </thead>
             <tbody>
               {list.map(p => {
-                const productos = (p.lineas || []).map(l => l.producto).join(', ')
+                const marcas = [...new Set((p.lineas || []).map(l => {
+                  const name = l.producto || ''
+                  // Extract brand: skip [SKU] prefix, take first word
+                  const sinSku = name.replace(/^\[.*?\]\s*/, '')
+                  return sinSku.split(' ')[0]
+                }).filter(Boolean))]
                 return (
-                  <>
-                    <tr key={p.id}>
-                      <td>{p.numero}</td>
-                      <td>{fmtDate(p.fecha)}</td>
-                      <td>{p.cliente}</td>
-                      <td>{p.items}</td>
-                      <td className="monto">{fmtMoney(p.total)}</td>
-                      <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
-                    </tr>
-                    {productos && (
-                      <tr key={`${p.id}-det`} className="pedido-detalle-row">
-                        <td colSpan="6" className="pedido-detalle">{productos}</td>
-                      </tr>
-                    )}
-                  </>
+                  <tr key={p.id}>
+                    <td>{p.numero}</td>
+                    <td>{fmtDate(p.fecha)}</td>
+                    <td>{p.cliente}</td>
+                    <td>
+                      {p.items}
+                      {marcas.length > 0 && (
+                        <div className="pedido-marcas">{marcas.join(', ')}</div>
+                      )}
+                    </td>
+                    <td className="monto">{fmtMoney(p.total)}</td>
+                    <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
+                  </tr>
                 )
               })}
             </tbody>

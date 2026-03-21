@@ -301,15 +301,9 @@
   margin-bottom: 20px;
 }
 
-.pedido-detalle-row:hover {
-  background: none !important;
-}
-
-.pedido-detalle {
-  padding: 2px 12px 10px 12px !important;
-  color: #888;
-  font-size: 0.85em;
-  line-height: 1.4;
-  border-bottom: 1px solid rgba(217, 70, 239, 0.08) !important;
-  white-space: normal !important;
+.pedido-marcas {
+  font-size: 0.75em;
+  color: #d946ef;
+  margin-top: 2px;
+  opacity: 0.85;
 }

@@ -414,36 +414,46 @@ def _resumen_periodo(pedidos_list, desde_str, hasta_str):
 
 
 def _dashboard_sync(desde: str, hasta: str):
-    pedidos = _pedidos_sync(desde, hasta)
-    compras_data = _compras_sync(desde, hasta)
-    clientes_data = _clientes_sync(desde, hasta)
-
-    # Calculate week range (Monday to today)
     today = datetime.now()
     monday = today - timedelta(days=today.weekday())
     semana_desde = monday.strftime('%Y-%m-%d')
-    semana_hasta = today.strftime('%Y-%m-%d')
-
-    # Month range (1st to today)
     mes_desde = today.replace(day=1).strftime('%Y-%m-%d')
-    mes_hasta = today.strftime('%Y-%m-%d')
+    hoy = today.strftime('%Y-%m-%d')
+
+    # Always fetch from 1st of month (or earlier if week starts before)
+    fetch_desde = min(desde, mes_desde, semana_desde)
+
+    pedidos = _pedidos_sync(fetch_desde, hasta)
+    compras_data = _compras_sync(desde, hasta)
+    clientes_data = _clientes_sync(desde, hasta)
 
     all_pedidos = pedidos.get("pedidos", [])
 
+    # Filter pedidos for user-selected range for the KPI resumen
+    pedidos_rango = [p for p in all_pedidos if desde <= (p.get('fecha') or '')[:10] <= hasta]
+    total_monto_rango = sum(p.get('total', 0) for p in pedidos_rango)
+    total_items_rango = sum(p.get('items', 0) for p in pedidos_rango)
+    resumen_rango = {
+        'total_pedidos': len(pedidos_rango),
+        'total_monto': round(total_monto_rango, 2),
+        'total_items': int(total_items_rango),
+        'ticket_promedio': round(total_monto_rango / len(pedidos_rango), 2) if pedidos_rango else 0,
+    }
+
     result = {
         "periodo": {"desde": desde, "hasta": hasta},
-        "ventas": pedidos.get("resumen", {}),
+        "ventas": resumen_rango,
         "compras": compras_data.get("resumen", {}),
         "clientes": clientes_data.get("resumen", {}),
         "ventas_semana": {
-            **_resumen_periodo(all_pedidos, semana_desde, semana_hasta),
+            **_resumen_periodo(all_pedidos, semana_desde, hoy),
             "desde": semana_desde,
-            "hasta": semana_hasta,
+            "hasta": hoy,
         },
         "ventas_mes": {
-            **_resumen_periodo(all_pedidos, mes_desde, mes_hasta),
+            **_resumen_periodo(all_pedidos, mes_desde, hoy),
             "desde": mes_desde,
-            "hasta": mes_hasta,
+            "hasta": hoy,
         },
     }
 

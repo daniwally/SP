@@ -3,6 +3,15 @@ import axios from 'axios'
 import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
+
+const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
+const BRAND_LOGOS = {
+  'SHAQ': `${LOGO_BASE}/shaq.png`,
+  'STARTER': `${LOGO_BASE}/starter.png`,
+  'HYDRATE': `${LOGO_BASE}/hydrate.png`,
+  'TIMBERLAND': `${LOGO_BASE}/timberland.png`,
+  'URBAN_FLOW': `${LOGO_BASE}/urban_flow.png`,
+}
 import './App.css'
 
 // Función para formatear montos sin centavos
@@ -194,7 +203,11 @@ function App() {
             <div className="cards-grid">
               {Object.entries(ventasHoy).map(([marca, data]) => (
                 <div key={marca} className="card">
-                  <h3>{marca}</h3>
+                  {BRAND_LOGOS[marca] ? (
+                    <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                  ) : (
+                    <h3>{marca}</h3>
+                  )}
                   <p className="value">${fmtMoney(data.total || 0)}</p>
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (

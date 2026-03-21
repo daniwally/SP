@@ -239,9 +239,6 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
       {loading && <div className="loading">Cargando publicaciones...</div>}
       {error && <div className="error">{error}</div>}
 
-      {/* KPIs */}
-      {!loading && kpis && <KpisSection kpis={kpis} />}
-
       {/* KPIs por marca (en vista "todas") */}
       {!loading && viewMode === 'todas' && data?.kpis_por_marca && (
         <div className="marca-kpis-row">
@@ -274,10 +271,8 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
               <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '58px', maxWidth: '240px', objectFit: 'contain' }} />
             </div>
           )}
-          <div className="table-info" style={{ textAlign: 'center', color: '#f59e0b', fontWeight: 700, fontSize: '1.2em' }}>
-            <span>{publicaciones.length} publicaciones</span>
-          </div>
-          <br />
+          {/* KPIs debajo del logo */}
+          {!loading && kpis && <KpisSection kpis={kpis} />}
           <table className="publicaciones-table">
             <thead>
               <tr>

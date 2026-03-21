@@ -145,30 +145,16 @@ async def api_info():
 
 @app.get("/api/backgrounds")
 async def list_backgrounds():
-    """Lista imágenes de fondo desde GitHub (carpeta backgrounds/ del repo)"""
-    github_api = "https://api.github.com/repos/daniwally/SP/contents/backgrounds"
-    raw_base = "https://raw.githubusercontent.com/daniwally/SP/main/backgrounds"
+    """Lista imágenes de fondo disponibles en static/backgrounds/"""
     extensions = ('.jpg', '.jpeg', '.png', '.webp')
     images = []
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(github_api)
-            if resp.status_code == 200:
-                for item in resp.json():
-                    name = item.get("name", "")
-                    if any(name.lower().endswith(ext) for ext in extensions):
-                        images.append(f"{raw_base}/{name}")
-    except Exception:
-        pass
-    # Fallback local si GitHub no responde
-    if not images:
-        for bg_dir in [Path(__file__).parent.parent / "static" / "backgrounds",
-                       Path(__file__).parent / "static" / "backgrounds"]:
-            if bg_dir.exists():
-                for f in sorted(bg_dir.iterdir()):
-                    if f.suffix.lower() in extensions:
-                        images.append(f"/backgrounds/{f.name}")
-                break
+    for bg_dir in [Path(__file__).parent.parent / "static" / "backgrounds",
+                   Path(__file__).parent / "static" / "backgrounds"]:
+        if bg_dir.exists():
+            for f in sorted(bg_dir.iterdir()):
+                if f.suffix.lower() in extensions:
+                    images.append(f"/backgrounds/{f.name}")
+            break
     return {"backgrounds": images}
 
 

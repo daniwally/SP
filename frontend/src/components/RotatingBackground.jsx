@@ -13,12 +13,11 @@ function shuffle(arr) {
 export default function RotatingBackground() {
   const [current, setCurrent] = useState(0)
   const queue = useRef([])
-  const RAW = 'https://raw.githubusercontent.com/daniwally/SP/main/backgrounds'
   const [backgrounds, setBackgrounds] = useState([
-    `${RAW}/bg1.jpg`,
-    `${RAW}/bg2.jpg`,
-    `${RAW}/bg3.jpg`,
-    `${RAW}/bg4.jpg`
+    '/backgrounds/bg1.jpg',
+    '/backgrounds/bg2.jpg',
+    '/backgrounds/bg3.jpg',
+    '/backgrounds/bg4.jpg'
   ])
 
   useEffect(() => {

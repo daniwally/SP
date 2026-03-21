@@ -281,17 +281,23 @@
 /* Cells */
 .titulo {
   max-width: 280px;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 8px;
+  overflow: visible;
+}
+
+.titulo span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .thumb-wrapper {
   position: relative;
   flex-shrink: 0;
+  display: inline-block;
 }
 
 .titulo .thumb {
@@ -303,30 +309,18 @@
   cursor: pointer;
 }
 
-.thumb-preview {
-  display: none;
-  position: absolute;
-  top: -10px;
-  left: 40px;
-  width: 220px;
-  height: 220px;
+.thumb-preview-float {
+  position: fixed;
+  width: 250px;
+  height: 250px;
   object-fit: contain;
   background: #1a1a2e;
   border: 2px solid #06b6d4;
   border-radius: 8px;
-  padding: 4px;
-  z-index: 100;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-}
-
-.thumb-wrapper:hover .thumb-preview {
-  display: block;
-}
-
-.titulo span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 6px;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
 }
 
 .marca-cell {

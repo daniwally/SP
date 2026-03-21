@@ -24,7 +24,7 @@
 }
 
 .retail-controls input[type="date"] {
-  background: #1a1f2e;
+  background: #000;
   border: 1px solid #333;
   color: #e0e0e0;
   padding: 6px 10px;
@@ -61,7 +61,7 @@
 .retail-subtab {
   padding: 8px 18px;
   border: 1px solid #444;
-  background: #1a1f2e;
+  background: #000;
   color: #888;
   cursor: pointer;
   font-weight: 600;
@@ -92,7 +92,7 @@
 }
 
 .retail-kpi {
-  background: rgba(20, 24, 40, 0.85);
+  background: rgba(0, 0, 0, 0.85);
   border: 1px solid rgba(217, 70, 239, 0.15);
   border-radius: 12px;
   padding: 18px;
@@ -194,7 +194,7 @@
 
 /* Top productos */
 .retail-top-productos {
-  background: rgba(20, 24, 40, 0.85);
+  background: rgba(0, 0, 0, 0.85);
   border: 1px solid rgba(217, 70, 239, 0.15);
   border-radius: 12px;
   padding: 18px;

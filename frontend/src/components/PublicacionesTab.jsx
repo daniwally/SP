@@ -407,14 +407,17 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
 
       {/* PREGUNTAS Y RESPUESTAS POR MARCA */}
       {Object.keys(ventasMesMl).length > 0 && (
-        <section className="section">
-          <h2>Preguntas & Respuestas</h2>
+        <section className="section" style={{ marginTop: 0 }}>
+          <h2 style={{ marginBottom: '8px' }}>Preguntas & Respuestas</h2>
           <div className="questions-grid">
             {Object.entries(ventasMesMl).map(([marca, data]) => {
               const preg = data.preguntas || { total: 0, sin_responder: 0, tiempo_promedio_horas: 0, tasa_respuesta: 0 }
               return (
                 <div key={marca} className="question-card">
-                  <h3 style={{ color: '#06b6d4', marginBottom: '12px' }}>{marca}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                    {BRAND_LOGOS[marca] && <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', objectFit: 'contain' }} />}
+                    <h3 style={{ color: '#06b6d4', margin: 0 }}>{marca}</h3>
+                  </div>
                   <div style={{ fontSize: '0.85em', lineHeight: '1.6' }}>
                     <p><strong>Total preguntas:</strong> <span style={{ color: '#06b6d4' }}>{preg.total}</span></p>
                     <p><strong>Sin responder:</strong> <span style={{ color: preg.sin_responder > 10 ? '#ef4444' : '#86efac' }}>{preg.sin_responder}</span> {preg.sin_responder > 10 && '⚠️'}</p>

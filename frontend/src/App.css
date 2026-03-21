@@ -614,7 +614,7 @@ body {
 }
 
 /* RESPONSIVE */
-@media (max-width: 1200px) {
+@media (max-width: 600px) {
   .section-2col {
     grid-template-columns: 1fr;
   }

@@ -14,10 +14,10 @@ export default function VentasRetailTab() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Date range: last 30 days by default
+  // Date range: 1ro del mes actual hasta hoy por defecto
   const today = new Date().toISOString().slice(0, 10)
-  const thirtyAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
-  const [desde, setDesde] = useState(thirtyAgo)
+  const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10)
+  const [desde, setDesde] = useState(firstOfMonth)
   const [hasta, setHasta] = useState(today)
 
   const [dashboard, setDashboard] = useState(null)

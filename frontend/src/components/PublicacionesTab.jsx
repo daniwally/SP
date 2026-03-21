@@ -414,9 +414,8 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
               const preg = data.preguntas || { total: 0, sin_responder: 0, tiempo_promedio_horas: 0, tasa_respuesta: 0 }
               return (
                 <div key={marca} className="question-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                    {BRAND_LOGOS[marca] && <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', objectFit: 'contain' }} />}
-                    <h3 style={{ color: '#06b6d4', margin: 0 }}>{marca}</h3>
+                  <div style={{ marginBottom: '12px' }}>
+                    {BRAND_LOGOS[marca] ? <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', objectFit: 'contain' }} /> : <h3 style={{ color: '#06b6d4', margin: 0 }}>{marca}</h3>}
                   </div>
                   <div style={{ fontSize: '0.85em', lineHeight: '1.6' }}>
                     <p><strong>Total preguntas:</strong> <span style={{ color: '#06b6d4' }}>{preg.total}</span></p>

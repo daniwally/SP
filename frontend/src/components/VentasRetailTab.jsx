@@ -171,11 +171,10 @@ export default function VentasRetailTab() {
             </thead>
             <tbody>
               {list.map(p => {
+                const MARCAS = ['SHAQ', 'Starter', 'Timberland', 'Hydrate']
                 const marcas = [...new Set((p.lineas || []).map(l => {
-                  const name = l.producto || ''
-                  // Extract brand: skip [SKU] prefix, take first word
-                  const sinSku = name.replace(/^\[.*?\]\s*/, '')
-                  return sinSku.split(' ')[0]
+                  const name = (l.producto || '').toLowerCase()
+                  return MARCAS.find(m => name.includes(m.toLowerCase()))
                 }).filter(Boolean))]
                 return (
                   <tr key={p.id}>

@@ -53,6 +53,7 @@ export default function PublicacionesTab() {
   const [sortField, setSortField] = useState('vendidas');
   const [sortDir, setSortDir] = useState('desc');
   const [searchText, setSearchText] = useState('');
+  const [preview, setPreview] = useState(null);
 
   useEffect(() => {
     if (viewMode === 'marca') {
@@ -310,9 +311,15 @@ export default function PublicacionesTab() {
                   )}
                   <td className="titulo" title={pub.titulo}>
                     {pub.thumbnail && (
-                      <span className="thumb-wrapper">
+                      <span
+                        className="thumb-wrapper"
+                        onMouseEnter={e => {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          setPreview({ src: pub.thumbnail.replace('-I.jpg', '-O.jpg'), x: rect.right + 8, y: rect.top - 40 })
+                        }}
+                        onMouseLeave={() => setPreview(null)}
+                      >
                         <img src={pub.thumbnail} alt="" className="thumb" />
-                        <img src={pub.thumbnail.replace('-I.jpg', '-O.jpg')} alt="" className="thumb-preview" />
                       </span>
                     )}
                     <span>{cleanTitle(pub.titulo)}</span>
@@ -369,6 +376,15 @@ export default function PublicacionesTab() {
 
       {!loading && publicaciones.length === 0 && !error && (
         <div className="empty">No hay publicaciones {statusFilter !== 'active' ? `con estado "${statusFilter}"` : ''} para {viewMode === 'marca' ? marca : 'ninguna marca'}</div>
+      )}
+
+      {preview && (
+        <img
+          src={preview.src}
+          alt=""
+          className="thumb-preview-float"
+          style={{ top: preview.y, left: preview.x }}
+        />
       )}
     </div>
   );

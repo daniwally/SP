@@ -375,7 +375,11 @@ function App() {
                 
                 return (
                   <div key={marca} className="card">
-                    <h3>{marca}</h3>
+                    {BRAND_LOGOS[marca] ? (
+                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                    ) : (
+                      <h3>{marca}</h3>
+                    )}
                     <div style={{ display: 'flex', gap: '15px', marginTop: '12px' }}>
                       <div style={{ flex: 1 }}>
                         <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Artilleros</p>

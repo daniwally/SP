@@ -107,25 +107,57 @@ export default function VentasRetailTab() {
           </div>
         </div>
 
-        {v.top_productos && v.top_productos.length > 0 && (
-          <div className="retail-top-productos">
-            <h3>Top Productos Vendidos</h3>
-            {v.top_productos.map((p, i) => {
-              const maxMonto = v.top_productos[0]?.monto || 1
-              return (
-                <div key={i} className="top-prod-item">
-                  <span className="top-prod-rank">#{i + 1}</span>
-                  <span className="top-prod-name" title={p.producto}>{p.producto}</span>
-                  <span style={{ color: '#888', fontSize: '0.8em', minWidth: 40 }}>{Math.round(p.cantidad)}u</span>
-                  <div className="top-prod-bar">
-                    <div className="top-prod-bar-fill" style={{ width: `${(p.monto / maxMonto) * 100}%` }} />
+        <div className="ventas-period-grid">
+          {/* Ventas de la Semana */}
+          <div className="ventas-period-card">
+            <h3>Ventas de la Semana</h3>
+            <div className="period-total">
+              <span className="period-amount">{fmtMoney(dashboard.ventas_semana?.total_monto || 0)}</span>
+              <span className="period-count">{dashboard.ventas_semana?.total_pedidos || 0} pedidos</span>
+            </div>
+            <div className="period-range">
+              {fmtDate(dashboard.ventas_semana?.desde)} — {fmtDate(dashboard.ventas_semana?.hasta)}
+            </div>
+            {dashboard.ventas_semana?.top_ordenes?.length > 0 && (
+              <div className="period-orders">
+                <div className="period-orders-title">Top 5 órdenes</div>
+                {dashboard.ventas_semana.top_ordenes.map((o, i) => (
+                  <div key={i} className="period-order-item">
+                    <span className="order-rank">#{i + 1}</span>
+                    <span className="order-name" title={o.cliente}>{o.cliente}</span>
+                    <span className="order-date">{fmtDate(o.fecha)}</span>
+                    <span className="order-amount">{fmtMoney(o.total)}</span>
                   </div>
-                  <span className="top-prod-amount">{fmtMoney(p.monto)}</span>
-                </div>
-              )
-            })}
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Ventas del Mes */}
+          <div className="ventas-period-card">
+            <h3>Ventas del Mes</h3>
+            <div className="period-total">
+              <span className="period-amount">{fmtMoney(dashboard.ventas_mes?.total_monto || 0)}</span>
+              <span className="period-count">{dashboard.ventas_mes?.total_pedidos || 0} pedidos</span>
+            </div>
+            <div className="period-range">
+              {fmtDate(dashboard.ventas_mes?.desde)} — {fmtDate(dashboard.ventas_mes?.hasta)}
+            </div>
+            {dashboard.ventas_mes?.top_ordenes?.length > 0 && (
+              <div className="period-orders">
+                <div className="period-orders-title">Top 5 órdenes</div>
+                {dashboard.ventas_mes.top_ordenes.map((o, i) => (
+                  <div key={i} className="period-order-item">
+                    <span className="order-rank">#{i + 1}</span>
+                    <span className="order-name" title={o.cliente}>{o.cliente}</span>
+                    <span className="order-date">{fmtDate(o.fecha)}</span>
+                    <span className="order-amount">{fmtMoney(o.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </>
     )
   }

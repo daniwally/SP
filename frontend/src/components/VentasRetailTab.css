@@ -192,7 +192,112 @@
   color: #888;
 }
 
-/* Top productos */
+/* Ventas Semana / Mes cards */
+.ventas-period-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ventas-period-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(217, 70, 239, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.ventas-period-card h3 {
+  color: #d946ef;
+  font-size: 0.95em;
+  font-weight: 800;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.period-total {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.period-amount {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #06b6d4;
+  font-variant-numeric: tabular-nums;
+}
+
+.period-count {
+  font-size: 0.85em;
+  color: #888;
+}
+
+.period-range {
+  font-size: 0.78em;
+  color: #666;
+  margin-bottom: 14px;
+}
+
+.period-orders {
+  border-top: 1px solid rgba(217, 70, 239, 0.1);
+  padding-top: 12px;
+}
+
+.period-orders-title {
+  font-size: 0.8em;
+  color: #888;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.period-order-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.period-order-item:last-child {
+  border-bottom: none;
+}
+
+.order-rank {
+  color: #d946ef;
+  font-weight: 700;
+  font-size: 0.8em;
+  min-width: 22px;
+}
+
+.order-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85em;
+}
+
+.order-date {
+  color: #666;
+  font-size: 0.78em;
+  min-width: 60px;
+  text-align: center;
+}
+
+.order-amount {
+  color: #22c55e;
+  font-weight: 600;
+  font-size: 0.85em;
+  min-width: 80px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top productos (used in Pedidos tab) */
 .retail-top-productos {
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(217, 70, 239, 0.15);

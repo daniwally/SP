@@ -572,8 +572,7 @@ function App() {
               const today = new Date()
               const hace7 = new Date(today)
               hace7.setDate(hace7.getDate() - 7)
-              const hace30 = new Date(today)
-              hace30.setDate(hace30.getDate() - 30)
+              const inicioMes = new Date(today.getFullYear(), today.getMonth(), 1)
               const eneroActual = new Date(today.getFullYear(), 0, 1)
               
               return (
@@ -628,9 +627,9 @@ function App() {
                   {/* MES */}
                   <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(217, 70, 239, 0.2)' }}>
                     <div style={{ marginBottom: '12px' }}>
-                      <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Últimos 30 Días</h3>
+                      <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.44em', fontWeight: 900 }}>Acumulado Mensual</h3>
                       <p style={{ color: '#fbbf24', margin: '4px 0 0 0', fontSize: '1.02em', fontWeight: 800 }}>{testData.totales?.mes?.ordenes || 0} órdenes</p>
-                      <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(hace30)} - {formatDateShort(today)}</p>
+                      <p style={{ color: '#7f8c8d', margin: '4px 0 0 0', fontSize: '0.75em', fontWeight: 500 }}>{formatDateShort(inicioMes)} - {formatDateShort(today)}</p>
                     </div>
                     {Object.entries(testData.mes || {}).map(([marca, data]) => (
                       <div key={marca} style={{ marginBottom: '12px', fontSize: '0.85em', borderBottom: '1px solid rgba(217, 70, 239, 0.15)', paddingBottom: '8px' }}>

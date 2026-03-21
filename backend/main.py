@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import httpx
 import json
@@ -156,3 +157,9 @@ async def list_backgrounds():
     return {"backgrounds": images}
 
 
+# Servir archivos estáticos (frontend build + backgrounds)
+_static_dir = Path(__file__).parent.parent / "static"
+if not _static_dir.exists():
+    _static_dir = Path(__file__).parent / "static"
+if _static_dir.exists():
+    app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="static")

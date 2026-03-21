@@ -170,16 +170,26 @@ export default function VentasRetailTab() {
               </tr>
             </thead>
             <tbody>
-              {list.map(p => (
-                <tr key={p.id}>
-                  <td>{p.numero}</td>
-                  <td>{fmtDate(p.fecha)}</td>
-                  <td>{p.cliente}</td>
-                  <td>{p.items}</td>
-                  <td className="monto">{fmtMoney(p.total)}</td>
-                  <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
-                </tr>
-              ))}
+              {list.map(p => {
+                const productos = (p.lineas || []).map(l => l.producto).join(', ')
+                return (
+                  <>
+                    <tr key={p.id}>
+                      <td>{p.numero}</td>
+                      <td>{fmtDate(p.fecha)}</td>
+                      <td>{p.cliente}</td>
+                      <td>{p.items}</td>
+                      <td className="monto">{fmtMoney(p.total)}</td>
+                      <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
+                    </tr>
+                    {productos && (
+                      <tr key={`${p.id}-det`} className="pedido-detalle-row">
+                        <td colSpan="6" className="pedido-detalle">{productos}</td>
+                      </tr>
+                    )}
+                  </>
+                )
+              })}
             </tbody>
           </table>
         </div>

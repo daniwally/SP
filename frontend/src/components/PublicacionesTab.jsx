@@ -37,7 +37,6 @@ function KpisSection({ kpis }) {
       <KpiCard label="Precio Promedio" value={`$${kpis.precio_promedio?.toLocaleString()}`} color="#86efac" />
       <KpiCard label="Envío Gratis" value={`${kpis.con_envio_gratis}`} sub={`${kpis.pct_envio_gratis}%`} color="#22c55e" />
       <KpiCard label="Logística Full" value={`${kpis.con_full}`} sub={`${kpis.pct_full}%`} color="#3b82f6" />
-      <KpiCard label="Con Descuento" value={kpis.con_descuento} color="#ef4444" />
       <KpiCard label="Valor Stock" value={`$${(kpis.valor_stock_estimado / 1000000).toFixed(1)}M`} color="#d946ef" />
     </div>
   );

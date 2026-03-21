@@ -1,0 +1,302 @@
+.retail-container {
+  padding: 20px;
+  color: #e0e0e0;
+}
+
+.retail-container h2 {
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 1.8em;
+}
+
+/* Date range controls */
+.retail-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.retail-controls label {
+  color: #888;
+  font-size: 0.85em;
+}
+
+.retail-controls input[type="date"] {
+  background: #1a1f2e;
+  border: 1px solid #333;
+  color: #e0e0e0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85em;
+}
+
+.retail-controls button {
+  padding: 6px 16px;
+  background: #d946ef;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85em;
+  transition: background 0.2s;
+}
+
+.retail-controls button:hover {
+  background: #c026d3;
+}
+
+/* Sub-tabs */
+.retail-subtabs {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+  margin-bottom: 20px;
+}
+
+.retail-subtab {
+  padding: 8px 18px;
+  border: 1px solid #444;
+  background: #1a1f2e;
+  color: #888;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85em;
+  transition: all 0.2s;
+}
+
+.retail-subtab:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.retail-subtab:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.retail-subtab.active {
+  background: #d946ef;
+  color: #fff;
+  border-color: #d946ef;
+}
+
+/* KPI cards row */
+.retail-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.retail-kpi {
+  background: rgba(20, 24, 40, 0.85);
+  border: 1px solid rgba(217, 70, 239, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+
+.retail-kpi .kpi-value {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #d946ef;
+  line-height: 1.1;
+}
+
+.retail-kpi .kpi-value.cyan {
+  color: #06b6d4;
+}
+
+.retail-kpi .kpi-value.amber {
+  color: #f59e0b;
+}
+
+.retail-kpi .kpi-value.green {
+  color: #22c55e;
+}
+
+.retail-kpi .kpi-label {
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Table */
+.retail-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.retail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.retail-table th {
+  background: rgba(217, 70, 239, 0.1);
+  color: #d946ef;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(217, 70, 239, 0.2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.retail-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.retail-table tbody tr:hover {
+  background: rgba(217, 70, 239, 0.05);
+}
+
+.retail-table .monto {
+  color: #22c55e;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.retail-table .monto.red {
+  color: #ef4444;
+}
+
+.retail-table .estado-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.retail-table .estado-badge.sale,
+.retail-table .estado-badge.done,
+.retail-table .estado-badge.purchase {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.retail-table .estado-badge.draft {
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
+}
+
+/* Top productos */
+.retail-top-productos {
+  background: rgba(20, 24, 40, 0.85);
+  border: 1px solid rgba(217, 70, 239, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.retail-top-productos h3 {
+  color: #fff;
+  font-size: 1em;
+  margin-bottom: 14px;
+}
+
+.top-prod-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.top-prod-item:last-child {
+  border-bottom: none;
+}
+
+.top-prod-rank {
+  color: #d946ef;
+  font-weight: 700;
+  font-size: 0.85em;
+  min-width: 24px;
+}
+
+.top-prod-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85em;
+}
+
+.top-prod-bar {
+  width: 80px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.top-prod-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d946ef, #06b6d4);
+  border-radius: 3px;
+}
+
+.top-prod-amount {
+  color: #22c55e;
+  font-weight: 600;
+  font-size: 0.85em;
+  min-width: 80px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading */
+.retail-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: #888;
+  font-size: 1.1em;
+}
+
+.retail-loading .spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(217, 70, 239, 0.2);
+  border-top-color: #d946ef;
+  border-radius: 50%;
+  animation: retail-spin 0.7s linear infinite;
+  margin-right: 12px;
+}
+
+@keyframes retail-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Clientes recurrentes badge */
+.badge-recurrente {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: 600;
+  background: rgba(217, 70, 239, 0.15);
+  color: #d946ef;
+}
+
+.retail-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  color: #ef4444;
+  margin-bottom: 20px;
+}

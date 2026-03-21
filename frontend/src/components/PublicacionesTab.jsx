@@ -407,8 +407,8 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
 
       {/* PREGUNTAS Y RESPUESTAS POR MARCA */}
       {Object.keys(ventasMesMl).length > 0 && (
-        <section className="section" style={{ marginTop: 0 }}>
-          <h2 style={{ marginBottom: '8px' }}>Preguntas & Respuestas</h2>
+        <section className="section" style={{ marginTop: '32px' }}>
+          <h2 style={{ marginBottom: '8px', textAlign: 'center', color: '#f59e0b' }}>Preguntas & Respuestas</h2>
           <div className="questions-grid">
             {Object.entries(ventasMesMl).map(([marca, data]) => {
               const preg = data.preguntas || { total: 0, sin_responder: 0, tiempo_promedio_horas: 0, tasa_respuesta: 0 }

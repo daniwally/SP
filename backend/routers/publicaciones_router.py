@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Query
 import httpx
 import json
 import asyncio
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 from routers.token_manager import get_token_by_marca, CUENTAS
@@ -168,8 +169,9 @@ def format_item(item: Dict, marca: str) -> Dict:
         "envio_gratis": shipping.get("free_shipping", False),
         "logistica_full": "fulfillment" in shipping.get("logistic_type", ""),
         "permalink": item.get("permalink", ""),
-        "thumbnail": item.get("thumbnail", ""),
+        "thumbnail": f'{item.get("thumbnail", "")}?t={int(time.time())}' if item.get("thumbnail") else "",
         "fotos": len(item.get("pictures", [])),
+        "fotos_urls": [p.get("secure_url", p.get("url", "")) for p in item.get("pictures", [])],
         "catalog_listing": catalog_listing,
         "catalog_product_id": catalog_product_id,
         "health": health,
@@ -198,7 +200,7 @@ def compute_kpis(publicaciones: List[Dict]) -> Dict:
     stock_total = sum(p["stock"] for p in publicaciones)
     vendidas_total = sum(p["vendidas"] for p in publicaciones)
     precios = [p["precio"] for p in publicaciones if p["precio"] > 0]
-    precio_promedio = round(sum(precios) / len(precios), 2) if precios else 0
+    precio_promedio = int(round(sum(precios) / len(precios))) if precios else 0
     con_envio_gratis = sum(1 for p in publicaciones if p["envio_gratis"])
     con_full = sum(1 for p in publicaciones if p["logistica_full"])
     con_descuento = sum(1 for p in publicaciones if p["descuento_pct"] > 0)

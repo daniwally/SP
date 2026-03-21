@@ -95,7 +95,7 @@ async def ventas_detallado():
     NOW = datetime.now(ART)
     HOY = NOW.strftime("%Y-%m-%d")
     HACE_7 = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
-    HACE_30 = (NOW - timedelta(days=30)).strftime("%Y-%m-%d")
+    INICIO_MES = datetime(NOW.year, NOW.month, 1).strftime("%Y-%m-%d")
     ENERO_ACTUAL = datetime(NOW.year, 1, 1).strftime("%Y-%m-%d")
 
     async def fetch_cuenta(cuenta_num, uid, marca):
@@ -128,7 +128,7 @@ async def ventas_detallado():
 
             ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
             ordenes_7d = [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
-            ordenes_30d = [o for o in ordenes if HACE_30 <= o.get("date_created", "")[:10] <= HOY]
+            ordenes_30d = [o for o in ordenes if INICIO_MES <= o.get("date_created", "")[:10] <= HOY]
             ordenes_año = [o for o in ordenes if ENERO_ACTUAL <= o.get("date_created", "")[:10] <= HOY]
 
             return marca, {
@@ -165,7 +165,7 @@ async def ventas_detallado():
     results = await asyncio.gather(*[fetch_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
 
     resultado = {"hoy": {}, "semana": {}, "mes": {}, "año": {},
-                 "debug": {"fecha_hoy": HOY, "rango_7d": f"{HACE_7} a {HOY}", "rango_30d": f"{HACE_30} a {HOY}", "rango_año": f"{ENERO_ACTUAL} a {HOY}"}}
+                 "debug": {"fecha_hoy": HOY, "rango_7d": f"{HACE_7} a {HOY}", "rango_mes": f"{INICIO_MES} a {HOY}", "rango_año": f"{ENERO_ACTUAL} a {HOY}"}}
 
     for marca, data in results:
         if "error" in data:

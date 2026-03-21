@@ -429,7 +429,11 @@ function App() {
                     <div key={marca} className="card" style={{
                       borderColor: marca === 'SHAQ' ? 'rgba(217, 70, 239, 0.4)' : 'rgba(6, 182, 212, 0.2)'
                     }}>
-                      <h3 style={{ marginBottom: '15px' }}>{marca}</h3>
+                      {BRAND_LOGOS[marca] ? (
+                        <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '15px' }} />
+                      ) : (
+                        <h3 style={{ marginBottom: '15px' }}>{marca}</h3>
+                      )}
                       
                       {/* Fila Artilleros */}
                       <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid rgba(217, 70, 239, 0.1)' }}>

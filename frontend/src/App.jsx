@@ -6,11 +6,11 @@ import VentasRetailTab from './components/VentasRetailTab'
 
 const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
 const BRAND_LOGOS = {
-  'SHAQ': `${LOGO_BASE}/shaq.png`,
+  'SHAQ': `${LOGO_BASE}/shaq-logo.png`,
   'STARTER': `${LOGO_BASE}/starter.png`,
-  'HYDRATE': `${LOGO_BASE}/hydrate.png`,
-  'TIMBERLAND': `${LOGO_BASE}/timberland.png`,
-  'URBAN_FLOW': `${LOGO_BASE}/urban_flow.png`,
+  'HYDRATE': `${LOGO_BASE}/hydrate-logo.png`,
+  'TIMBERLAND': `${LOGO_BASE}/TBL-logo.png`,
+  'URBAN_FLOW': `${LOGO_BASE}/urban-flow-logo.png`,
 }
 import './App.css'
 

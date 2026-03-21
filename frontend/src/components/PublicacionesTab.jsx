@@ -270,11 +270,11 @@ export default function PublicacionesTab() {
       {!loading && publicaciones.length > 0 && (
         <div className="publicaciones-grid">
           {viewMode === 'marca' && BRAND_LOGOS[marca] && (
-            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '4px' }}>
               <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '58px', maxWidth: '240px', objectFit: 'contain' }} />
             </div>
           )}
-          <div className="table-info">
+          <div className="table-info" style={{ textAlign: 'center', color: '#f59e0b', fontWeight: 700 }}>
             <span>{publicaciones.length} publicaciones</span>
           </div>
           <table className="publicaciones-table">

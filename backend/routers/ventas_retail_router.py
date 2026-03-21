@@ -388,16 +388,63 @@ async def clientes(
 # ---------------------------------------------------------------------------
 # Dashboard resumen (combines all three)
 # ---------------------------------------------------------------------------
+def _resumen_periodo(pedidos_list, desde_str, hasta_str):
+    """Filter orders by date range and return summary with top 5 orders."""
+    filtrados = []
+    for p in pedidos_list:
+        fecha = (p.get('fecha') or '')[:10]
+        if desde_str <= fecha <= hasta_str:
+            filtrados.append(p)
+
+    filtrados.sort(key=lambda x: x.get('total', 0), reverse=True)
+    total = sum(p.get('total', 0) for p in filtrados)
+    top5 = [{
+        'numero': p.get('numero', ''),
+        'cliente': p.get('cliente', ''),
+        'fecha': p.get('fecha', ''),
+        'total': p.get('total', 0),
+        'items': p.get('items', 0),
+    } for p in filtrados[:5]]
+
+    return {
+        'total_monto': round(total, 2),
+        'total_pedidos': len(filtrados),
+        'top_ordenes': top5,
+    }
+
+
 def _dashboard_sync(desde: str, hasta: str):
     pedidos = _pedidos_sync(desde, hasta)
     compras_data = _compras_sync(desde, hasta)
     clientes_data = _clientes_sync(desde, hasta)
+
+    # Calculate week range (Monday to today)
+    today = datetime.now()
+    monday = today - timedelta(days=today.weekday())
+    semana_desde = monday.strftime('%Y-%m-%d')
+    semana_hasta = today.strftime('%Y-%m-%d')
+
+    # Month range (1st to today)
+    mes_desde = today.replace(day=1).strftime('%Y-%m-%d')
+    mes_hasta = today.strftime('%Y-%m-%d')
+
+    all_pedidos = pedidos.get("pedidos", [])
 
     result = {
         "periodo": {"desde": desde, "hasta": hasta},
         "ventas": pedidos.get("resumen", {}),
         "compras": compras_data.get("resumen", {}),
         "clientes": clientes_data.get("resumen", {}),
+        "ventas_semana": {
+            **_resumen_periodo(all_pedidos, semana_desde, semana_hasta),
+            "desde": semana_desde,
+            "hasta": semana_hasta,
+        },
+        "ventas_mes": {
+            **_resumen_periodo(all_pedidos, mes_desde, mes_hasta),
+            "desde": mes_desde,
+            "hasta": mes_hasta,
+        },
     }
 
     # Propagate error if any endpoint failed

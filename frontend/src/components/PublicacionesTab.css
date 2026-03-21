@@ -234,15 +234,15 @@
 .publicaciones-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(26, 31, 46, 0.9);
+  background: rgba(0, 0, 0, 0.9);
   border-radius: 8px;
   overflow: hidden;
   font-size: 0.85em;
 }
 
 .publicaciones-table thead {
-  background: rgba(10, 15, 30, 0.95);
-  border-bottom: 2px solid rgba(6, 182, 212, 0.3);
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .publicaciones-table th {
@@ -271,7 +271,7 @@
 }
 
 .publicaciones-table tr:hover {
-  background: rgba(6, 182, 212, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .publicaciones-table tr.row-inactive {

@@ -269,6 +269,11 @@ export default function PublicacionesTab() {
       {/* Table */}
       {!loading && publicaciones.length > 0 && (
         <div className="publicaciones-grid">
+          {viewMode === 'marca' && BRAND_LOGOS[marca] && (
+            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+              <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '48px', maxWidth: '200px', objectFit: 'contain' }} />
+            </div>
+          )}
           <div className="table-info">
             <span>{publicaciones.length} publicaciones</span>
           </div>

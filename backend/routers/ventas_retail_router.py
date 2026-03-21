@@ -81,8 +81,9 @@ def _pedidos_sync(desde: str, hasta: str):
             for ln in lines:
                 oid = ln['order_id'][0] if ln.get('order_id') else None
                 if oid:
+                    prod_name = ln['product_id'][1] if ln.get('product_id') else ln.get('name', '')
                     lines_by_order.setdefault(oid, []).append({
-                        'producto': ln.get('name', ''),
+                        'producto': prod_name,
                         'producto_id': ln['product_id'][0] if ln.get('product_id') else None,
                         'cantidad': ln.get('product_uom_qty', 0),
                         'precio_unitario': ln.get('price_unit', 0),
@@ -203,8 +204,9 @@ def _compras_sync(desde: str, hasta: str):
             for ln in lines:
                 oid = ln['order_id'][0] if ln.get('order_id') else None
                 if oid:
+                    prod_name = ln['product_id'][1] if ln.get('product_id') else ln.get('name', '')
                     lines_by_order.setdefault(oid, []).append({
-                        'producto': ln.get('name', ''),
+                        'producto': prod_name,
                         'cantidad': ln.get('product_qty', 0),
                         'precio_unitario': ln.get('price_unit', 0),
                         'subtotal': ln.get('price_subtotal', 0),

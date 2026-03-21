@@ -24,7 +24,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #000;
+  background: rgba(0, 0, 0, 0.4);
   position: relative;
   z-index: 1;
 }
@@ -35,7 +35,7 @@ body {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(217, 70, 239, 0.15);
-  background: #000;
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   gap: 30px;
 }

@@ -245,7 +245,11 @@ function App() {
             <div className="cards-grid">
               {Object.entries(ventas7d).map(([marca, data]) => (
                 <div key={marca} className="card">
-                  <h3>{marca}</h3>
+                  {BRAND_LOGOS[marca] ? (
+                    <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                  ) : (
+                    <h3>{marca}</h3>
+                  )}
                   <p className="value">${fmtMoney(data.total || 0)}</p>
                   <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (

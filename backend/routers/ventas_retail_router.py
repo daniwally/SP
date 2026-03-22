@@ -66,10 +66,10 @@ def _pedidos_sync(desde: str, hasta: str):
         for o in orders:
             all_line_ids.extend(o.get('order_line', []))
 
-        lines_by_order = {}
+        lines_raw = []
         all_product_ids = set()
         if all_line_ids:
-            lines = models.execute_kw(
+            lines_raw = models.execute_kw(
                 ODOO_DB, uid, ODOO_KEY, 'sale.order.line', 'read',
                 [all_line_ids[:2000]],
                 {
@@ -79,20 +79,10 @@ def _pedidos_sync(desde: str, hasta: str):
                     ],
                 }
             )
-            for ln in lines:
-                oid = ln['order_id'][0] if ln.get('order_id') else None
-                if oid:
-                    pid = ln['product_id'][0] if ln.get('product_id') else None
-                    prod_name = ln['product_id'][1] if ln.get('product_id') else ln.get('name', '')
-                    if pid:
-                        all_product_ids.add(pid)
-                    lines_by_order.setdefault(oid, []).append({
-                        'producto': prod_name,
-                        'producto_id': pid,
-                        'cantidad': ln.get('product_uom_qty', 0),
-                        'precio_unitario': ln.get('price_unit', 0),
-                        'subtotal': ln.get('price_subtotal', 0),
-                    })
+            for ln in lines_raw:
+                pid = ln['product_id'][0] if ln.get('product_id') else None
+                if pid:
+                    all_product_ids.add(pid)
 
         # Fetch brand for each product from product.product
         product_brand = {}
@@ -110,6 +100,23 @@ def _pedidos_sync(desde: str, hasta: str):
             except Exception as e:
                 print(f"Brand fetch error: {e}")
 
+        # Build lines_by_order with brand embedded
+        lines_by_order = {}
+        for ln in lines_raw:
+            oid = ln['order_id'][0] if ln.get('order_id') else None
+            if oid:
+                pid = ln['product_id'][0] if ln.get('product_id') else None
+                prod_name = ln['product_id'][1] if ln.get('product_id') else ln.get('name', '')
+                marca = product_brand.get(pid, 'Sin marca') if pid else 'Sin marca'
+                lines_by_order.setdefault(oid, []).append({
+                    'producto': prod_name,
+                    'producto_id': pid,
+                    'marca': marca,
+                    'cantidad': ln.get('product_uom_qty', 0),
+                    'precio_unitario': ln.get('price_unit', 0),
+                    'subtotal': ln.get('price_subtotal', 0),
+                })
+
         pedidos = []
         total_monto = 0
         total_items = 0
@@ -125,9 +132,9 @@ def _pedidos_sync(desde: str, hasta: str):
             # Get unique brands for this order
             order_brands = set()
             for ln in lineas:
-                pid = ln.get('producto_id')
-                if pid and pid in product_brand:
-                    order_brands.add(product_brand[pid])
+                m = ln.get('marca')
+                if m and m != 'Sin marca':
+                    order_brands.add(m)
 
             pedidos.append({
                 'id': oid,
@@ -146,8 +153,7 @@ def _pedidos_sync(desde: str, hasta: str):
         marca_totals = {}
         for p in pedidos:
             for ln in p['lineas']:
-                pid = ln.get('producto_id')
-                marca = product_brand.get(pid, 'Sin marca') if pid else 'Sin marca'
+                marca = ln.get('marca', 'Sin marca')
                 if marca not in marca_totals:
                     marca_totals[marca] = {'marca': marca, 'cantidad': 0, 'monto': 0}
                 marca_totals[marca]['cantidad'] += ln['cantidad']

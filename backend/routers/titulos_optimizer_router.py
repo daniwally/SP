@@ -67,7 +67,7 @@ Respondé ÚNICAMENTE con un JSON array, sin texto adicional, con este formato e
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-3-5-sonnet-latest",
+                "model": "claude-haiku-4-5-20251001",
                 "max_tokens": 4096,
                 "messages": [{"role": "user", "content": prompt}],
             },

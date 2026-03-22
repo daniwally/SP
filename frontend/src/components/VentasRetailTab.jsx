@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import './VentasRetailTab.css'
 
+const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
+const BRAND_LOGOS = {
+  'SHAQ': `${LOGO_BASE}/shaq-logo.png`,
+  'STARTER': `${LOGO_BASE}/starter.png`,
+  'HYDRATE': `${LOGO_BASE}/hydrate-logo.png`,
+  'TIMBERLAND': `${LOGO_BASE}/TBL-logo.png`,
+  'ELSYS': `${LOGO_BASE}/elsys-logo.png`,
+}
+
 const fmtMoney = (n) => '$' + Math.round(n).toLocaleString()
 const fmtDate = (d) => {
   if (!d) return '-'
@@ -259,10 +268,15 @@ export default function VentasRetailTab() {
             <h3>Top Marcas - Venta Mensual</h3>
             {pedidos.resumen.top_marcas.map((m, i) => {
               const maxMonto = pedidos.resumen.top_marcas[0]?.monto || 1
+              const logo = BRAND_LOGOS[m.marca?.toUpperCase()]
               return (
                 <div key={i} className="top-prod-item">
                   <span className="top-prod-rank">#{i + 1}</span>
-                  <span className="top-prod-name" title={m.marca}>{m.marca}</span>
+                  {logo ? (
+                    <img src={logo} alt={m.marca} className="top-marca-logo" />
+                  ) : (
+                    <span className="top-prod-name" title={m.marca}>{m.marca}</span>
+                  )}
                   <div className="top-prod-bar">
                     <div className="top-prod-bar-fill" style={{ width: `${(m.monto / maxMonto) * 100}%` }} />
                   </div>

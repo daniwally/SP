@@ -103,9 +103,11 @@ def _pedidos_sync(desde: str, hasta: str):
                         if brand:
                             product_brand[p['id']] = brand
                         else:
-                            # Try parent category for nested categories
+                            # Try parent category name, skip generic ones
                             categ_name = categ[1] if isinstance(categ, list) else str(categ)
-                            product_brand[p['id']] = categ_name.split('/')[0].strip()
+                            top = categ_name.split('/')[0].strip()
+                            if top.lower() not in ('marcas', 'all', 'todos', ''):
+                                product_brand[p['id']] = top
                 print(f"[Retail] Brands mapped: {len(product_brand)} of {len(pid_list)} products")
             except Exception as e:
                 print(f"[Retail] Brand mapping error: {e}")

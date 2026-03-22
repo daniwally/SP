@@ -35,33 +35,45 @@ async def call_claude(titles_data: list[dict]) -> dict:
         for t in titles_data
     )
 
-    prompt = f"""Sos un experto en SEO y posicionamiento en Mercado Libre Argentina.
-Tu trabajo es optimizar títulos de publicaciones para maximizar visibilidad en búsquedas de MeLi.
+    prompt = f"""Sos un experto en SEO, posicionamiento y research de búsquedas en Mercado Libre Argentina.
+Tu trabajo tiene DOS partes:
 
-REGLAS DE MERCADO LIBRE:
-1. Máximo 60 caracteres (ESTRICTO - contá cada caracter, MeLi corta lo que exceda)
-2. Estructura: [Tipo Producto] + [Marca] + [Modelo] + [Atributos Clave]
-3. La PRIMERA PALABRA siempre es lo que la gente busca: Termo, Zapatillas, Botella, Bota, Remera, etc.
-4. La marca va DESPUÉS del tipo de producto
-5. Title Case (primera letra mayúscula de cada palabra)
-6. PROHIBIDO: signos (! ? . , - _), palabras como "oferta", "envío gratis", "mejor precio", "original", "premium"
-7. Incluir atributos de alto valor de búsqueda: material (Acero Inoxidable), capacidad (530ml), uso (Mate, Gym, Camping)
+PARTE 1 - RESEARCH DE KEYWORDS GANADORAS:
+Antes de optimizar, pensá en qué palabras usa la gente REAL cuando busca estos productos en MeLi Argentina.
+Las keywords ganadoras son las que tienen mayor volumen de búsqueda y conversión. Ejemplos reales:
+- "Acero Inoxidable" pierde contra "Doble Acero" o "Acero 304" (la gente busca más específico)
+- "Botella" pierde contra "Botella Térmica" (más intención de compra)
+- "Frio Calor" pierde contra "Frío 24hs Calor 12hs" (dato concreto convierte más)
+- "Zapatillas Basquet" gana sobre "Zapatillas Basketball" (español > inglés en MeLi AR)
+- "Termo Mate" gana sobre "Termo Matero" (más volumen de búsqueda)
+- "Sin BPA" es keyword ganadora para productos infantiles
+- "Doble Pared" es keyword ganadora para termos (implica calidad)
+- "Pico Cebador" es keyword ganadora para termos materos
+- "Suela Antideslizante" gana en calzado
+- "Impermeable" o "Waterproof" gana en botas
+- "Aislamiento Vacío" es keyword premium para termos
+- Capacidades exactas: "500ml", "1L", "1.9L" son keywords de búsqueda directa
+
+Pensá: ¿qué pondría YO en el buscador de MeLi si quisiera comprar este producto?
+
+PARTE 2 - REGLAS DE TÍTULOS MELI:
+1. Máximo 60 caracteres (ESTRICTO - contá cada caracter incluyendo espacios)
+2. Estructura: [Producto] + [Keywords Ganadoras] + [Capacidad/Talle] + [Marca]
+3. Primera palabra = lo que la gente busca (Termo, Zapatillas, Botella, Bota)
+4. La marca del vendedor va al FINAL
+5. Title Case (Cada Palabra Con Mayúscula)
+6. PROHIBIDO: signos (! ? . , - _), "oferta", "envío gratis", "mejor precio", "nuevo", "original"
+7. Priorizar keywords ganadoras de la categoría sobre palabras genéricas
 8. Incluir género si aplica (Hombre/Mujer/Unisex)
-9. La marca del vendedor va al FINAL del título (ej: "...Doble Pared Hydrate")
-10. Maximizar keywords de búsqueda relevantes dentro del límite de 60 chars
+9. Si el título actual ya tiene las mejores keywords posibles, devolvé el mismo
 
-EJEMPLOS DE TÍTULOS BIEN OPTIMIZADOS:
-- "Termo Botella Acero Inoxidable 530ml Frío Calor Hydrate"
-- "Termo Mate Acero Inoxidable 915ml Pico Cebador Hydrate"
-- "Zapatillas Basquet Hombre Shaq Posture Negras"
-- "Botella Térmica Acero Inoxidable 355ml Café Hydrate"
-- "Bota Timberland Hombre Cuero Premium Waterproof"
-
-IMPORTANTE:
-- No inventes información que no esté en el título original
-- Podés agregar keywords relevantes que se deduzcan del producto (ej: si es un termo, agregar "Doble Pared" o "Frío Calor")
-- Si el título actual ya está bien optimizado, devolvé exactamente el mismo
-- CONTÁ LOS CARACTERES: no puede superar 60
+EJEMPLOS:
+- ANTES: "Termo Hydrate Acero Inoxidable Botella Frio Calor 530 ml"
+  DESPUÉS: "Termo Botella Térmica Doble Pared 530ml Frío 24hs Hydrate" (keywords ganadoras: Doble Pared, Térmica, 24hs)
+- ANTES: "Termo Mate Hydrate 915ml Acero Inoxidable"
+  DESPUÉS: "Termo Mate Doble Acero 915ml Pico Cebador Hydrate" (keywords: Doble Acero, Pico Cebador)
+- ANTES: "Zapatillas Basquet SHAQ Posture Negras"
+  DESPUÉS: "Zapatillas Basquet Hombre Caña Alta Shaq Posture" (keywords: Hombre, Caña Alta)
 
 Publicaciones a optimizar:
 
@@ -69,11 +81,11 @@ Publicaciones a optimizar:
 
 Respondé ÚNICAMENTE con un JSON array válido, sin markdown ni texto adicional:
 [
-  {{"item_id": "MLA...", "titulo_original": "...", "titulo_optimizado": "...", "cambios": "explicación de mejoras y keywords agregadas"}},
+  {{"item_id": "MLA...", "titulo_original": "...", "titulo_optimizado": "...", "cambios": "keywords ganadoras agregadas y por qué mejoran el posicionamiento"}},
   ...
 ]"""
 
-    async with httpx.AsyncClient(timeout=60) as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         resp = await client.post(
             ANTHROPIC_API_URL,
             headers={
@@ -82,7 +94,7 @@ Respondé ÚNICAMENTE con un JSON array válido, sin markdown ni texto adicional
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "claude-opus-4-6",
                 "max_tokens": 4096,
                 "temperature": 0,
                 "messages": [{"role": "user", "content": prompt}],

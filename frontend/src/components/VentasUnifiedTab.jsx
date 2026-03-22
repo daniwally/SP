@@ -103,7 +103,16 @@ export default function VentasUnifiedTab({ testData }) {
 
           {/* SEMANA */}
           <div style={{ ...cardStyle }}>
-            <h3 style={{ color: '#fff', fontSize: '1.3em', fontWeight: 800, margin: '0 0 20px 0' }}>Últimos 7 Días</h3>
+            <h3 style={{ color: '#fff', fontSize: '1.3em', fontWeight: 800, margin: '0 0 4px 0' }}>Últimos 7 Días</h3>
+            <p style={{ color: '#fbbf24', fontSize: '0.78em', fontWeight: 600, margin: '0 0 16px 0' }}>
+              {(() => {
+                const today = new Date()
+                const hace7 = new Date(today)
+                hace7.setDate(hace7.getDate() - 7)
+                const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+                return `${fmt(hace7)} - ${fmt(today)}`
+              })()}
+            </p>
 
             {/* Total combinado */}
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -142,7 +151,15 @@ export default function VentasUnifiedTab({ testData }) {
 
           {/* MES */}
           <div style={{ ...cardStyle }}>
-            <h3 style={{ color: '#fff', fontSize: '1.3em', fontWeight: 800, margin: '0 0 20px 0' }}>Acumulado del Mes</h3>
+            <h3 style={{ color: '#fff', fontSize: '1.3em', fontWeight: 800, margin: '0 0 4px 0' }}>Acumulado del Mes</h3>
+            <p style={{ color: '#fbbf24', fontSize: '0.78em', fontWeight: 600, margin: '0 0 16px 0' }}>
+              {(() => {
+                const today = new Date()
+                const inicio = new Date(today.getFullYear(), today.getMonth(), 1)
+                const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+                return `${fmt(inicio)} - ${fmt(today)}`
+              })()}
+            </p>
 
             {/* Total combinado */}
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>

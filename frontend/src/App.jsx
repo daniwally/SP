@@ -371,7 +371,7 @@ function App() {
                       </div>
                     </div>
                     <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                      <p style={{ color: '#d946ef', fontSize: '0.85em', fontWeight: 600 }}>Total: {(artilleros + aduana).toLocaleString()}</p>
+                      <p style={{ color: '#d946ef', fontSize: '0.85em', fontWeight: 600 }}>Total unidades: {(artilleros + aduana).toLocaleString()}</p>
                     </div>
                   </div>
                 )

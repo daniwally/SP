@@ -88,29 +88,45 @@ def _pedidos_sync(desde: str, hasta: str):
         product_brand = {}
         if all_product_ids:
             pid_list = list(all_product_ids)[:2000]
-            # Detect available brand fields
             brand_field = None
+            brand_model = 'product.product'
             try:
                 all_fields = models.execute_kw(
                     ODOO_DB, uid, ODOO_KEY, 'product.product', 'fields_get',
                     [], {'attributes': ['string', 'type']}
                 )
-                # Try common brand field names
+                # Try common brand field names in product.product
                 for candidate in ['product_brand_id', 'brand_id', 'x_brand', 'x_brand_id', 'x_marca', 'x_marca_id']:
                     if candidate in all_fields:
                         brand_field = candidate
                         break
                 if not brand_field:
-                    # Search for any field with 'brand' or 'marca' in name
                     for fname, finfo in all_fields.items():
                         if ('brand' in fname.lower() or 'marca' in fname.lower()) and finfo.get('type') == 'many2one':
                             brand_field = fname
                             break
-                print(f"[Retail] Brand field detected: {brand_field}")
+                # If not found in product.product, try product.template
+                if not brand_field:
+                    tmpl_fields = models.execute_kw(
+                        ODOO_DB, uid, ODOO_KEY, 'product.template', 'fields_get',
+                        [], {'attributes': ['string', 'type']}
+                    )
+                    for candidate in ['product_brand_id', 'brand_id', 'x_brand', 'x_brand_id', 'x_marca', 'x_marca_id']:
+                        if candidate in tmpl_fields:
+                            brand_field = candidate
+                            brand_model = 'product.template'
+                            break
+                    if not brand_field:
+                        for fname, finfo in tmpl_fields.items():
+                            if ('brand' in fname.lower() or 'marca' in fname.lower()) and finfo.get('type') == 'many2one':
+                                brand_field = fname
+                                brand_model = 'product.template'
+                                break
+                print(f"[Retail] Brand field detected: {brand_field} on {brand_model}")
             except Exception as e:
                 print(f"[Retail] fields_get error: {e}")
 
-            if brand_field:
+            if brand_field and brand_model == 'product.product':
                 try:
                     products = models.execute_kw(
                         ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
@@ -124,8 +140,38 @@ def _pedidos_sync(desde: str, hasta: str):
                     print(f"[Retail] Brands found: {len(product_brand)} of {len(pid_list)} products")
                 except Exception as e:
                     print(f"[Retail] Brand fetch error: {e}")
-            else:
-                print("[Retail] No brand field found in product.product - trying categ_id as fallback")
+            elif brand_field and brand_model == 'product.template':
+                try:
+                    # Get product_tmpl_id for each product
+                    products = models.execute_kw(
+                        ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
+                        [pid_list],
+                        {'fields': ['product_tmpl_id']},
+                    )
+                    tmpl_map = {}  # tmpl_id -> [product_ids]
+                    for p in products:
+                        tmpl_id = p['product_tmpl_id'][0] if p.get('product_tmpl_id') else None
+                        if tmpl_id:
+                            tmpl_map.setdefault(tmpl_id, []).append(p['id'])
+                    if tmpl_map:
+                        templates = models.execute_kw(
+                            ODOO_DB, uid, ODOO_KEY, 'product.template', 'read',
+                            [list(tmpl_map.keys())[:2000]],
+                            {'fields': [brand_field]},
+                        )
+                        for t in templates:
+                            brand = t.get(brand_field)
+                            if brand:
+                                brand_name = brand[1] if isinstance(brand, list) else str(brand)
+                                for pid in tmpl_map.get(t['id'], []):
+                                    product_brand[pid] = brand_name
+                    print(f"[Retail] Brands found (via template): {len(product_brand)} of {len(pid_list)} products")
+                except Exception as e:
+                    print(f"[Retail] Brand template fetch error: {e}")
+
+            # Fallback: use top-level category (first segment before /)
+            if not product_brand:
+                print("[Retail] No brand field found - using top-level category as fallback")
                 try:
                     products = models.execute_kw(
                         ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
@@ -136,7 +182,14 @@ def _pedidos_sync(desde: str, hasta: str):
                         categ = p.get('categ_id')
                         if categ:
                             categ_name = categ[1] if isinstance(categ, list) else str(categ)
-                            product_brand[p['id']] = categ_name
+                            # Use only the top-level category (before first /)
+                            top_categ = categ_name.split('/')[0].strip()
+                            if top_categ and top_categ.lower() != 'all':
+                                product_brand[p['id']] = top_categ
+                            elif '/' in categ_name:
+                                # Use second level if first is "All"
+                                parts = [s.strip() for s in categ_name.split('/')]
+                                product_brand[p['id']] = parts[1] if len(parts) > 1 else parts[0]
                 except Exception as e:
                     print(f"[Retail] Category fallback error: {e}")
 

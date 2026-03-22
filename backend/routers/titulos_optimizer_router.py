@@ -17,12 +17,21 @@ router = APIRouter(prefix="/api/titulos", tags=["titulos-optimizer"])
 
 ART = timezone(timedelta(hours=-3))
 
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+
+
+def _get_api_key():
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not key:
+        from dotenv import load_dotenv
+        load_dotenv()
+        key = os.environ.get("ANTHROPIC_API_KEY", "")
+    return key
 
 
 async def call_claude(titles_data: list[dict]) -> dict:
     """Llama a Claude API para optimizar títulos de MeLi"""
+    ANTHROPIC_API_KEY = _get_api_key()
     if not ANTHROPIC_API_KEY:
         raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY no configurada. Setear variable de entorno.")
 

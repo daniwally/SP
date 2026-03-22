@@ -3,6 +3,7 @@ import axios from 'axios'
 import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
+import VentasUnifiedTab from './components/VentasUnifiedTab'
 
 const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
 const BRAND_LOGOS = {
@@ -186,10 +187,16 @@ function App() {
               📦 Stock
             </button>
             <button
+              className={`tab-btn ${activeTab === 'ventas' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ventas')}
+            >
+              📊 Ventas
+            </button>
+            <button
               className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}
               onClick={() => setActiveTab('status')}
             >
-              📊 Status
+              ⚙️ Status
             </button>
           </div>
           <button onClick={fetchAllData} className="btn-refresh">↻</button>
@@ -678,6 +685,10 @@ function App() {
 
         {activeTab === 'publicaciones' && (
           <PublicacionesTab ventasMesMl={ventasMesMl} />
+        )}
+
+        {activeTab === 'ventas' && (
+          <VentasUnifiedTab testData={testData} />
         )}
 
         {activeTab === 'retail' && (

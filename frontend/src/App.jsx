@@ -157,23 +157,23 @@ function App() {
         <h1>SP</h1>
         <div className="header-actions">
           <div className="tabs">
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'mercadolibre' ? 'active' : ''}`}
               onClick={() => setActiveTab('mercadolibre')}
             >
               💰 Ventas e-commerce
             </button>
             <button
-              className={`tab-btn ${activeTab === 'publicaciones' ? 'active' : ''}`}
-              onClick={() => setActiveTab('publicaciones')}
-            >
-              📋 Publicaciones
-            </button>
-            <button
               className={`tab-btn ${activeTab === 'retail' ? 'active' : ''}`}
               onClick={() => setActiveTab('retail')}
             >
               🏪 Ventas Retail
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'publicaciones' ? 'active' : ''}`}
+              onClick={() => setActiveTab('publicaciones')}
+            >
+              📋 Publicaciones
             </button>
             <button
               className={`tab-btn ${activeTab === 'stock' ? 'active' : ''}`}

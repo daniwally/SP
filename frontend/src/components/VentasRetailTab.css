@@ -24,12 +24,15 @@
 }
 
 .retail-controls input[type="date"] {
-  background: #000;
-  border: 1px solid #333;
+  background: #1a1a2e;
+  border: 1px solid #444;
   color: #e0e0e0;
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.85em;
+  color-scheme: dark;
+  cursor: pointer;
+  min-width: 140px;
 }
 
 .retail-controls button {

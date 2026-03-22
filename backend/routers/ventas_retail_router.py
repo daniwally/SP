@@ -3,7 +3,6 @@ import xmlrpc.client
 from datetime import datetime, timedelta
 import os
 import asyncio
-import re
 
 router = APIRouter()
 
@@ -85,23 +84,31 @@ def _pedidos_sync(desde: str, hasta: str):
                 if pid:
                     all_product_ids.add(pid)
 
-        # Extract brand from product name
-        # Product names follow pattern: "[SKU] Brand Model (variants)"
-        # e.g. "[AQ95010M-B100] Shaq Devastator High Top Sneakers (Black, Hombre, 10 US)"
-        # e.g. "[STMRN0009004400] Slycer (Cool Grey, 40 AR, Hombre)"
-        # e.g. "[T1060AP] Termo (Azul Pacifico, 1060 ML)"
-
-        def _extract_brand(name):
-            """Extract brand from product name like '[SKU] Brand Model (variants)'"""
-            if not name:
-                return 'Sin marca'
-            # Remove SKU prefix [XXX]
-            clean = re.sub(r'^\[.*?\]\s*', '', name).strip()
-            if not clean:
-                return 'Sin marca'
-            # First word is the brand
-            brand = clean.split('(')[0].split()[0].strip() if clean else 'Sin marca'
-            return brand if brand else 'Sin marca'
+        # Map product -> brand using categ_id (same mapping as valuation_router)
+        categ_marca_map = {8: 'SHAQ', 7: 'STARTER', 11: 'HYDRATE', 6: 'TIMBERLAND', 10: 'ELSYS'}
+        product_brand = {}
+        if all_product_ids:
+            pid_list = list(all_product_ids)[:2000]
+            try:
+                products = models.execute_kw(
+                    ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
+                    [pid_list],
+                    {'fields': ['categ_id']},
+                )
+                for p in products:
+                    categ = p.get('categ_id')
+                    if categ:
+                        categ_id = categ[0] if isinstance(categ, list) else categ
+                        brand = categ_marca_map.get(categ_id)
+                        if brand:
+                            product_brand[p['id']] = brand
+                        else:
+                            # Try parent category for nested categories
+                            categ_name = categ[1] if isinstance(categ, list) else str(categ)
+                            product_brand[p['id']] = categ_name.split('/')[0].strip()
+                print(f"[Retail] Brands mapped: {len(product_brand)} of {len(pid_list)} products")
+            except Exception as e:
+                print(f"[Retail] Brand mapping error: {e}")
 
         # Build lines_by_order with brand embedded
         lines_by_order = {}
@@ -110,7 +117,7 @@ def _pedidos_sync(desde: str, hasta: str):
             if oid:
                 pid = ln['product_id'][0] if ln.get('product_id') else None
                 prod_name = ln['product_id'][1] if ln.get('product_id') else ln.get('name', '')
-                marca = _extract_brand(prod_name)
+                marca = product_brand.get(pid, 'Sin marca') if pid else 'Sin marca'
                 lines_by_order.setdefault(oid, []).append({
                     'producto': prod_name,
                     'producto_id': pid,

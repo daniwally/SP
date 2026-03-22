@@ -35,31 +35,41 @@ async def call_claude(titles_data: list[dict]) -> dict:
         for t in titles_data
     )
 
-    prompt = f"""Sos un experto en SEO y posicionamiento de publicaciones en Mercado Libre Argentina.
-Tu trabajo es optimizar títulos para que aparezcan primeros en las búsquedas de MeLi.
+    prompt = f"""Sos un experto en SEO y posicionamiento en Mercado Libre Argentina.
+Tu trabajo es optimizar títulos de publicaciones para maximizar visibilidad en búsquedas de MeLi.
 
-REGLAS ESTRICTAS DE MERCADO LIBRE:
-1. Máximo 60 caracteres (OBLIGATORIO - MeLi corta lo que exceda)
-2. Estructura ideal: [Tipo Producto] + [Marca] + [Modelo/Línea] + [Atributo Clave]
-   Ejemplo: "Zapatillas Shaq Posture Basquet Hombre Negras"
-3. La primera palabra SIEMPRE debe ser el tipo de producto genérico que la gente busca (Zapatillas, Botella, Remera, Bota, etc.)
+REGLAS DE MERCADO LIBRE:
+1. Máximo 60 caracteres (ESTRICTO - contá cada caracter, MeLi corta lo que exceda)
+2. Estructura: [Tipo Producto] + [Marca] + [Modelo] + [Atributos Clave]
+3. La PRIMERA PALABRA siempre es lo que la gente busca: Termo, Zapatillas, Botella, Bota, Remera, etc.
 4. La marca va DESPUÉS del tipo de producto
-5. TODO en Title Case (primera letra de cada palabra en mayúscula)
-6. NO usar: signos (! ? . ,), palabras promocionales (oferta, envío gratis, mejor precio, original, premium, nuevo), ni caracteres especiales
-7. NO repetir palabras que ya están en los atributos/fichas de MeLi (talle, color se ponen en ficha técnica)
-8. SÍ incluir: género (Hombre/Mujer/Unisex), color principal, modelo específico si existe
-9. Usar palabras que la gente realmente busca en Argentina (zapatillas, no zapatos deportivos)
-10. Si el título actual ya cumple todas las reglas y está bien optimizado, devolvé el mismo título exacto
+5. Title Case (primera letra mayúscula de cada palabra)
+6. PROHIBIDO: signos (! ? . , - _), palabras como "oferta", "envío gratis", "mejor precio", "original", "premium"
+7. Incluir atributos de alto valor de búsqueda: material (Acero Inoxidable), capacidad (530ml), uso (Mate, Gym, Camping)
+8. Incluir género si aplica (Hombre/Mujer/Unisex)
+9. La marca del vendedor va al FINAL del título (ej: "...Doble Pared Hydrate")
+10. Maximizar keywords de búsqueda relevantes dentro del límite de 60 chars
 
-IMPORTANTE: No inventes información. Solo reorganizá y optimizá lo que ya está en el título actual.
+EJEMPLOS DE TÍTULOS BIEN OPTIMIZADOS:
+- "Termo Botella Acero Inoxidable 530ml Frío Calor Hydrate"
+- "Termo Mate Acero Inoxidable 915ml Pico Cebador Hydrate"
+- "Zapatillas Basquet Hombre Shaq Posture Negras"
+- "Botella Térmica Acero Inoxidable 355ml Café Hydrate"
+- "Bota Timberland Hombre Cuero Premium Waterproof"
+
+IMPORTANTE:
+- No inventes información que no esté en el título original
+- Podés agregar keywords relevantes que se deduzcan del producto (ej: si es un termo, agregar "Doble Pared" o "Frío Calor")
+- Si el título actual ya está bien optimizado, devolvé exactamente el mismo
+- CONTÁ LOS CARACTERES: no puede superar 60
 
 Publicaciones a optimizar:
 
 {items_text}
 
-Respondé ÚNICAMENTE con un JSON array válido, sin markdown, sin texto adicional:
+Respondé ÚNICAMENTE con un JSON array válido, sin markdown ni texto adicional:
 [
-  {{"item_id": "MLA...", "titulo_original": "...", "titulo_optimizado": "...", "cambios": "explicación breve de las mejoras"}},
+  {{"item_id": "MLA...", "titulo_original": "...", "titulo_optimizado": "...", "cambios": "explicación de mejoras y keywords agregadas"}},
   ...
 ]"""
 

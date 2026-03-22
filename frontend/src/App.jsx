@@ -480,15 +480,15 @@ function App() {
                 <>
                   {/* Total grande */}
                   <div style={{
-                    background: 'linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
-                    border: '2px solid rgba(217, 70, 239, 0.3)',
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(217, 70, 239, 0.3)',
                     borderRadius: '12px',
-                    padding: '20px',
+                    padding: '16px',
                     textAlign: 'center',
-                    marginBottom: '20px'
+                    marginBottom: '16px'
                   }}>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase' }}>Valuación Total a Precio ML</p>
-                    <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 900, margin: 0 }}>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase' }}>Valuación Total a Precio ML</p>
+                    <p style={{ color: '#06b6d4', fontSize: '2em', fontWeight: 700, margin: 0 }}>
                       ${totalValuacionML >= 1e9 ? (totalValuacionML / 1e9).toFixed(2) + 'B' : (totalValuacionML / 1e6).toFixed(1) + 'M'}
                     </p>
                   </div>

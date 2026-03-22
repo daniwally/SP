@@ -82,7 +82,7 @@ Respondé ÚNICAMENTE con un JSON array válido, sin markdown ni texto adicional
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-haiku-4-5-20251001",
+                "model": "claude-sonnet-4-6",
                 "max_tokens": 4096,
                 "temperature": 0,
                 "messages": [{"role": "user", "content": prompt}],

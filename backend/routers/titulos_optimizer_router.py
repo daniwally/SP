@@ -8,6 +8,8 @@ from pydantic import BaseModel
 import httpx
 import asyncio
 import os
+import json
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from routers.token_manager import get_token_by_marca
@@ -16,6 +18,22 @@ from routers.publicaciones_router import MARCAS, get_seller_items, get_items_bat
 router = APIRouter(prefix="/api/titulos", tags=["titulos-optimizer"])
 
 ART = timezone(timedelta(hours=-3))
+
+# --- Historial de títulos aplicados (JSON local) ---
+HISTORIAL_PATH = Path(__file__).parent.parent / "titulos_historial.json"
+
+
+def _load_historial() -> list:
+    if HISTORIAL_PATH.exists():
+        try:
+            return json.loads(HISTORIAL_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return []
+    return []
+
+
+def _save_historial(historial: list):
+    HISTORIAL_PATH.write_text(json.dumps(historial, ensure_ascii=False, indent=2), encoding="utf-8")
 
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 
@@ -253,12 +271,28 @@ async def aplicar_titulo(req: AplicarTituloRequest):
             detail = resp.text[:300]
             raise HTTPException(status_code=resp.status_code, detail=f"Error ML API: {detail}")
 
+        ts = datetime.now(ART).isoformat()
+
+        # Guardar en historial
+        titulo_anterior = item_data.get("title", "")
+        historial = _load_historial()
+        historial.append({
+            "item_id": req.item_id,
+            "marca": marca_encontrada,
+            "titulo_anterior": titulo_anterior,
+            "titulo_nuevo": req.nuevo_titulo,
+            "chars_anterior": len(titulo_anterior),
+            "chars_nuevo": len(req.nuevo_titulo),
+            "timestamp": ts,
+        })
+        _save_historial(historial)
+
         return {
             "status": "ok",
             "item_id": req.item_id,
             "marca": marca_encontrada,
             "titulo_aplicado": req.nuevo_titulo,
-            "timestamp": datetime.now(ART).isoformat(),
+            "timestamp": ts,
         }
 
 
@@ -286,4 +320,18 @@ async def aplicar_titulos_multiple(req: AplicarMultipleRequest):
         "fallidos": len(resultados) - exitosos,
         "resultados": resultados,
         "timestamp": datetime.now(ART).isoformat(),
+    }
+
+
+@router.get("/historial")
+async def obtener_historial(marca: Optional[str] = None, limit: int = Query(50, ge=1, le=500)):
+    """Devuelve el historial de títulos aplicados, más recientes primero"""
+    historial = _load_historial()
+    if marca:
+        historial = [h for h in historial if h.get("marca", "").lower() == marca.lower()]
+    # Más recientes primero
+    historial.reverse()
+    return {
+        "total": len(historial),
+        "historial": historial[:limit],
     }

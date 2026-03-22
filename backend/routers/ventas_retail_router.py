@@ -32,6 +32,59 @@ def _get_models():
 
 
 # ---------------------------------------------------------------------------
+# Diagnostic endpoint to check brand fields
+# ---------------------------------------------------------------------------
+@router.get("/debug-marcas")
+async def debug_marcas():
+    """Check what brand fields are available in Odoo"""
+    uid = _get_uid()
+    if not uid:
+        return {"error": "No auth"}
+    models = _get_models()
+    result = {}
+
+    # Check product.product fields
+    try:
+        pp_fields = models.execute_kw(
+            ODOO_DB, uid, ODOO_KEY, 'product.product', 'fields_get',
+            [], {'attributes': ['string', 'type']}
+        )
+        brand_candidates = {k: v for k, v in pp_fields.items()
+                           if 'brand' in k.lower() or 'marca' in k.lower()}
+        result['product_product_brand_fields'] = brand_candidates
+    except Exception as e:
+        result['product_product_error'] = str(e)
+
+    # Check product.template fields
+    try:
+        pt_fields = models.execute_kw(
+            ODOO_DB, uid, ODOO_KEY, 'product.template', 'fields_get',
+            [], {'attributes': ['string', 'type']}
+        )
+        brand_candidates_t = {k: v for k, v in pt_fields.items()
+                              if 'brand' in k.lower() or 'marca' in k.lower()}
+        result['product_template_brand_fields'] = brand_candidates_t
+    except Exception as e:
+        result['product_template_error'] = str(e)
+
+    # Sample: get 5 products with categ_id to see what categories look like
+    try:
+        sample = models.execute_kw(
+            ODOO_DB, uid, ODOO_KEY, 'product.product', 'search_read',
+            [[]],
+            {'fields': ['name', 'categ_id'], 'limit': 10},
+        )
+        result['sample_products'] = [
+            {'name': p['name'], 'categ': p.get('categ_id', [None, ''])[1] if isinstance(p.get('categ_id'), list) else p.get('categ_id')}
+            for p in sample
+        ]
+    except Exception as e:
+        result['sample_error'] = str(e)
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # sale.order
 # ---------------------------------------------------------------------------
 def _pedidos_sync(desde: str, hasta: str):

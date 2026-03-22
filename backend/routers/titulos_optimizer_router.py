@@ -169,13 +169,18 @@ async def optimizar_titulos_marca(
     if not token:
         raise HTTPException(status_code=401, detail=f"Sin autenticación para {marca}")
 
-    uid = MARCAS[marca]
-    item_ids = await get_seller_items(uid, token, "active")
+    try:
+        uid = MARCAS[marca]
+        item_ids = await get_seller_items(uid, token, "active")
 
-    # Limitar para no exceder tokens de Claude
-    item_ids = item_ids[:limit]
-    items = await get_items_batch(item_ids, token)
-    publicaciones = [format_item(item, marca) for item in items]
+        # Limitar para no exceder tokens de Claude
+        item_ids = item_ids[:limit]
+        items = await get_items_batch(item_ids, token)
+        publicaciones = [format_item(item, marca) for item in items]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error obteniendo publicaciones de MeLi: {str(e)[:200]}")
 
     # Preparar datos para Claude
     titles_data = [
@@ -189,7 +194,12 @@ async def optimizar_titulos_marca(
         for p in publicaciones
     ]
 
-    suggestions = await call_claude(titles_data)
+    try:
+        suggestions = await call_claude(titles_data)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error procesando con Claude AI: {str(e)[:200]}")
 
     # Enriquecer con datos de la publicación
     suggestions_map = {s["item_id"]: s for s in suggestions}

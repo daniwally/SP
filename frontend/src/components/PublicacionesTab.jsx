@@ -87,7 +87,9 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
     setOptAplicando({});
     try {
       const resp = await fetch(`/api/titulos/optimizar/${selectedMarca}?limit=${limit}`);
-      const result = await resp.json();
+      const text = await resp.text();
+      let result;
+      try { result = JSON.parse(text); } catch { setOptError(`Error del servidor: ${text.slice(0, 150)}`); return; }
       if (resp.status !== 200) {
         setOptError(result.detail || 'Error al optimizar');
         return;
@@ -128,9 +130,9 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
       if (resp.status === 200) {
         setOptAplicando(prev => ({ ...prev, [itemId]: 'ok' }));
       } else {
-        const err = await resp.json();
+        const text = await resp.text();
         setOptAplicando(prev => ({ ...prev, [itemId]: 'error' }));
-        console.error('Error aplicando título:', err);
+        console.error('Error aplicando título:', text.slice(0, 200));
       }
     } catch {
       setOptAplicando(prev => ({ ...prev, [itemId]: 'error' }));

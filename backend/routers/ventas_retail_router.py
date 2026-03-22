@@ -3,6 +3,7 @@ import xmlrpc.client
 from datetime import datetime, timedelta
 import os
 import asyncio
+import re
 
 router = APIRouter()
 
@@ -29,59 +30,6 @@ def _get_uid():
 
 def _get_models():
     return xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
-
-
-# ---------------------------------------------------------------------------
-# Diagnostic endpoint to check brand fields
-# ---------------------------------------------------------------------------
-@router.get("/debug-marcas")
-async def debug_marcas():
-    """Check what brand fields are available in Odoo"""
-    uid = _get_uid()
-    if not uid:
-        return {"error": "No auth"}
-    models = _get_models()
-    result = {}
-
-    # Check product.product fields
-    try:
-        pp_fields = models.execute_kw(
-            ODOO_DB, uid, ODOO_KEY, 'product.product', 'fields_get',
-            [], {'attributes': ['string', 'type']}
-        )
-        brand_candidates = {k: v for k, v in pp_fields.items()
-                           if 'brand' in k.lower() or 'marca' in k.lower()}
-        result['product_product_brand_fields'] = brand_candidates
-    except Exception as e:
-        result['product_product_error'] = str(e)
-
-    # Check product.template fields
-    try:
-        pt_fields = models.execute_kw(
-            ODOO_DB, uid, ODOO_KEY, 'product.template', 'fields_get',
-            [], {'attributes': ['string', 'type']}
-        )
-        brand_candidates_t = {k: v for k, v in pt_fields.items()
-                              if 'brand' in k.lower() or 'marca' in k.lower()}
-        result['product_template_brand_fields'] = brand_candidates_t
-    except Exception as e:
-        result['product_template_error'] = str(e)
-
-    # Sample: get 5 products with categ_id to see what categories look like
-    try:
-        sample = models.execute_kw(
-            ODOO_DB, uid, ODOO_KEY, 'product.product', 'search_read',
-            [[]],
-            {'fields': ['name', 'categ_id'], 'limit': 10},
-        )
-        result['sample_products'] = [
-            {'name': p['name'], 'categ': p.get('categ_id', [None, ''])[1] if isinstance(p.get('categ_id'), list) else p.get('categ_id')}
-            for p in sample
-        ]
-    except Exception as e:
-        result['sample_error'] = str(e)
-
-    return result
 
 
 # ---------------------------------------------------------------------------
@@ -137,114 +85,23 @@ def _pedidos_sync(desde: str, hasta: str):
                 if pid:
                     all_product_ids.add(pid)
 
-        # Fetch brand for each product - auto-detect brand field
-        product_brand = {}
-        if all_product_ids:
-            pid_list = list(all_product_ids)[:2000]
-            brand_field = None
-            brand_model = 'product.product'
-            try:
-                all_fields = models.execute_kw(
-                    ODOO_DB, uid, ODOO_KEY, 'product.product', 'fields_get',
-                    [], {'attributes': ['string', 'type']}
-                )
-                # Try common brand field names in product.product
-                for candidate in ['product_brand_id', 'brand_id', 'x_brand', 'x_brand_id', 'x_marca', 'x_marca_id']:
-                    if candidate in all_fields:
-                        brand_field = candidate
-                        break
-                if not brand_field:
-                    for fname, finfo in all_fields.items():
-                        if ('brand' in fname.lower() or 'marca' in fname.lower()) and finfo.get('type') == 'many2one':
-                            brand_field = fname
-                            break
-                # If not found in product.product, try product.template
-                if not brand_field:
-                    tmpl_fields = models.execute_kw(
-                        ODOO_DB, uid, ODOO_KEY, 'product.template', 'fields_get',
-                        [], {'attributes': ['string', 'type']}
-                    )
-                    for candidate in ['product_brand_id', 'brand_id', 'x_brand', 'x_brand_id', 'x_marca', 'x_marca_id']:
-                        if candidate in tmpl_fields:
-                            brand_field = candidate
-                            brand_model = 'product.template'
-                            break
-                    if not brand_field:
-                        for fname, finfo in tmpl_fields.items():
-                            if ('brand' in fname.lower() or 'marca' in fname.lower()) and finfo.get('type') == 'many2one':
-                                brand_field = fname
-                                brand_model = 'product.template'
-                                break
-                print(f"[Retail] Brand field detected: {brand_field} on {brand_model}")
-            except Exception as e:
-                print(f"[Retail] fields_get error: {e}")
+        # Extract brand from product name
+        # Product names follow pattern: "[SKU] Brand Model (variants)"
+        # e.g. "[AQ95010M-B100] Shaq Devastator High Top Sneakers (Black, Hombre, 10 US)"
+        # e.g. "[STMRN0009004400] Slycer (Cool Grey, 40 AR, Hombre)"
+        # e.g. "[T1060AP] Termo (Azul Pacifico, 1060 ML)"
 
-            if brand_field and brand_model == 'product.product':
-                try:
-                    products = models.execute_kw(
-                        ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
-                        [pid_list],
-                        {'fields': [brand_field]},
-                    )
-                    for p in products:
-                        brand = p.get(brand_field)
-                        if brand:
-                            product_brand[p['id']] = brand[1] if isinstance(brand, list) else str(brand)
-                    print(f"[Retail] Brands found: {len(product_brand)} of {len(pid_list)} products")
-                except Exception as e:
-                    print(f"[Retail] Brand fetch error: {e}")
-            elif brand_field and brand_model == 'product.template':
-                try:
-                    # Get product_tmpl_id for each product
-                    products = models.execute_kw(
-                        ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
-                        [pid_list],
-                        {'fields': ['product_tmpl_id']},
-                    )
-                    tmpl_map = {}  # tmpl_id -> [product_ids]
-                    for p in products:
-                        tmpl_id = p['product_tmpl_id'][0] if p.get('product_tmpl_id') else None
-                        if tmpl_id:
-                            tmpl_map.setdefault(tmpl_id, []).append(p['id'])
-                    if tmpl_map:
-                        templates = models.execute_kw(
-                            ODOO_DB, uid, ODOO_KEY, 'product.template', 'read',
-                            [list(tmpl_map.keys())[:2000]],
-                            {'fields': [brand_field]},
-                        )
-                        for t in templates:
-                            brand = t.get(brand_field)
-                            if brand:
-                                brand_name = brand[1] if isinstance(brand, list) else str(brand)
-                                for pid in tmpl_map.get(t['id'], []):
-                                    product_brand[pid] = brand_name
-                    print(f"[Retail] Brands found (via template): {len(product_brand)} of {len(pid_list)} products")
-                except Exception as e:
-                    print(f"[Retail] Brand template fetch error: {e}")
-
-            # Fallback: use top-level category (first segment before /)
-            if not product_brand:
-                print("[Retail] No brand field found - using top-level category as fallback")
-                try:
-                    products = models.execute_kw(
-                        ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
-                        [pid_list],
-                        {'fields': ['categ_id']},
-                    )
-                    for p in products:
-                        categ = p.get('categ_id')
-                        if categ:
-                            categ_name = categ[1] if isinstance(categ, list) else str(categ)
-                            # Use only the top-level category (before first /)
-                            top_categ = categ_name.split('/')[0].strip()
-                            if top_categ and top_categ.lower() != 'all':
-                                product_brand[p['id']] = top_categ
-                            elif '/' in categ_name:
-                                # Use second level if first is "All"
-                                parts = [s.strip() for s in categ_name.split('/')]
-                                product_brand[p['id']] = parts[1] if len(parts) > 1 else parts[0]
-                except Exception as e:
-                    print(f"[Retail] Category fallback error: {e}")
+        def _extract_brand(name):
+            """Extract brand from product name like '[SKU] Brand Model (variants)'"""
+            if not name:
+                return 'Sin marca'
+            # Remove SKU prefix [XXX]
+            clean = re.sub(r'^\[.*?\]\s*', '', name).strip()
+            if not clean:
+                return 'Sin marca'
+            # First word is the brand
+            brand = clean.split('(')[0].split()[0].strip() if clean else 'Sin marca'
+            return brand if brand else 'Sin marca'
 
         # Build lines_by_order with brand embedded
         lines_by_order = {}
@@ -253,7 +110,7 @@ def _pedidos_sync(desde: str, hasta: str):
             if oid:
                 pid = ln['product_id'][0] if ln.get('product_id') else None
                 prod_name = ln['product_id'][1] if ln.get('product_id') else ln.get('name', '')
-                marca = product_brand.get(pid, 'Sin marca') if pid else 'Sin marca'
+                marca = _extract_brand(prod_name)
                 lines_by_order.setdefault(oid, []).append({
                     'producto': prod_name,
                     'producto_id': pid,

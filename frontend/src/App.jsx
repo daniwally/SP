@@ -306,7 +306,7 @@ function App() {
               }}>
                 {/* Total */}
                 <div style={{ flex: 1 }}>
-                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>INVENTARIO TOTAL</p>
+                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>TOTAL UNIDADES</p>
                   <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
                     {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
                   </p>
@@ -320,7 +320,7 @@ function App() {
                   <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Artilleros</p>
                   <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
                     {Object.values(stockData).reduce((sum, marca) => {
-                      return sum + (marca.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                      return sum + (marca.almacenes?.['Artilleros']?.total || 0)
                     }, 0).toLocaleString()}
                   </p>
                 </div>
@@ -333,7 +333,7 @@ function App() {
                   <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Aduana</p>
                   <p style={{ color: '#3e7fff', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
                     {Object.values(stockData).reduce((sum, marca) => {
-                      return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0)
+                      return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0)
                     }, 0).toLocaleString()}
                   </p>
                 </div>
@@ -345,13 +345,13 @@ function App() {
 
           {/* INVENTARIO POR MARCA Y DEPÓSITO - PRIMER CARD */}
           <section className="section">
-            <h2>📦 Inventario por Marca & Depósito</h2>
+            <h2>📦 Inventario por Marca & Depósito — Total Unidades</h2>
             <div className="cards-grid">
               {Object.entries(stockData)
                 .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(marca))
                 .map(([marca, data]) => {
-                const artilleros = data.almacenes?.['Artilleros']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
-                const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.productos?.reduce((s, p) => s + (p.cantidad || 0), 0) || 0
+                const artilleros = data.almacenes?.['Artilleros']?.total || 0
+                const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0
                 
                 return (
                   <div key={marca} className="card">

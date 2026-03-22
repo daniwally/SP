@@ -21,12 +21,7 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 
 
 def _get_api_key():
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not key:
-        from dotenv import load_dotenv
-        load_dotenv()
-        key = os.environ.get("ANTHROPIC_API_KEY", "")
-    return key
+    return os.environ.get("ANTHROPIC_API_KEY", "")
 
 
 async def call_claude(titles_data: list[dict]) -> dict:

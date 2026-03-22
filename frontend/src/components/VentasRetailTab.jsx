@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import './VentasRetailTab.css'
 
@@ -25,6 +25,7 @@ export default function VentasRetailTab() {
   const [pedidos, setPedidos] = useState(null)
   const [compras, setCompras] = useState(null)
   const [clientes, setClientes] = useState(null)
+  const [expandedRows, setExpandedRows] = useState({})
 
   const API = window.location.origin + '/api/retail'
 
@@ -204,17 +205,53 @@ export default function VentasRetailTab() {
               </tr>
             </thead>
             <tbody>
-              {list.map(p => (
-                  <tr key={p.id}>
-                    <td>{p.numero}</td>
-                    <td>{fmtDate(p.fecha)}</td>
-                    <td>{p.cliente}</td>
-                    <td className="pedido-marcas">{(p.marcas || []).join(', ') || '-'}</td>
-                    <td>{p.items}</td>
-                    <td className="monto">{fmtMoney(p.total)}</td>
-                    <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
-                  </tr>
-              ))}
+              {list.map(p => {
+                const isOpen = !!expandedRows[p.id]
+                return (
+                  <React.Fragment key={p.id}>
+                    <tr
+                      className={`pedido-row ${isOpen ? 'expanded' : ''}`}
+                      onClick={() => setExpandedRows(prev => ({ ...prev, [p.id]: !prev[p.id] }))}
+                    >
+                      <td><span className={`expand-icon ${isOpen ? 'open' : ''}`}>&#9654;</span> {p.numero}</td>
+                      <td>{fmtDate(p.fecha)}</td>
+                      <td>{p.cliente}</td>
+                      <td className="pedido-marcas">{(p.marcas || []).join(', ') || '-'}</td>
+                      <td>{p.items}</td>
+                      <td className="monto">{fmtMoney(p.total)}</td>
+                      <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
+                    </tr>
+                    {isOpen && p.lineas?.length > 0 && (
+                      <tr className="pedido-detail-row">
+                        <td colSpan={7}>
+                          <div className="pedido-detail">
+                            <table className="pedido-lineas-table">
+                              <thead>
+                                <tr>
+                                  <th>Producto</th>
+                                  <th>Cant.</th>
+                                  <th>P. Unit.</th>
+                                  <th>Subtotal</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {p.lineas.map((ln, j) => (
+                                  <tr key={j}>
+                                    <td>{ln.producto}</td>
+                                    <td>{ln.cantidad}</td>
+                                    <td>{fmtMoney(ln.precio_unitario)}</td>
+                                    <td className="monto">{fmtMoney(ln.subtotal)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )
+              })}
             </tbody>
           </table>
         </div>

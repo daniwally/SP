@@ -74,7 +74,13 @@ Respondé ÚNICAMENTE con un JSON array, sin texto adicional, con este formato e
         )
 
         if resp.status_code != 200:
-            detail = resp.text[:500]
+            try:
+                err_data = resp.json()
+                err_msg = err_data.get("error", {}).get("message", "")
+                err_type = err_data.get("error", {}).get("type", "")
+                detail = f"Status {resp.status_code} | {err_type}: {err_msg} | Full: {resp.text[:300]}"
+            except Exception:
+                detail = resp.text[:500]
             raise HTTPException(status_code=resp.status_code, detail=f"Error Claude API: {detail}")
 
         data = resp.json()

@@ -114,7 +114,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
         return;
       }
       setOptSugerencias(result.sugerencias || []);
-      setOptStats({ total: result.total_analizadas, con_cambios: result.con_cambios, no_editables: result.no_editables || 0, mensaje: result.mensaje || null });
+      setOptStats({ total: result.total_analizadas, con_cambios: result.con_cambios });
     } catch (err) {
       setOptError(`Error: ${err.message}`);
     } finally {
@@ -623,46 +623,6 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                     <p style={{ color: '#7f8c8d', fontSize: '0.75em', margin: '0 0 4px' }}>CON MEJORAS</p>
                     <p style={{ color: '#22d3ee', fontSize: '1.5em', fontWeight: 800, margin: 0 }}>{optStats?.con_cambios || 0}</p>
                   </div>
-                  <div style={{ background: 'rgba(134,239,172,0.1)', border: '1px solid rgba(134,239,172,0.3)', borderRadius: '10px', padding: '12px 20px', textAlign: 'center' }}>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', margin: '0 0 4px' }}>APROBADOS</p>
-                    <p style={{ color: '#86efac', fontSize: '1.5em', fontWeight: 800, margin: 0 }}>{aprobadosCount}</p>
-                  </div>
-                </div>
-
-                {optStats?.no_editables > 0 && (
-                  <div style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '8px', padding: '8px 16px', textAlign: 'center', marginBottom: '12px', color: '#fbbf24', fontSize: '0.8em' }}>
-                    {optStats.no_editables} publicaciones con ventas no se pueden editar (restricción de MeLi)
-                  </div>
-                )}
-
-                {optStats?.mensaje && optSugerencias.length === 0 && (
-                  <div style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '8px', padding: '16px', textAlign: 'center', color: '#fbbf24' }}>
-                    {optStats.mensaje}
-                  </div>
-                )}
-
-                {/* Acciones masivas */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <button
-                    onClick={handleAprobarTodos}
-                    style={{
-                      background: 'rgba(134,239,172,0.15)', border: '1px solid rgba(134,239,172,0.4)',
-                      color: '#86efac', borderRadius: '6px', padding: '6px 16px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85em',
-                    }}
-                  >
-                    {optSugerencias.filter(s => s.tiene_cambio).every(s => optAprobados[s.item_id]) ? 'Desmarcar Todos' : 'Aprobar Todos'}
-                  </button>
-                  {aprobadosCount > 0 && (
-                    <button
-                      onClick={handleAplicarAprobados}
-                      style={{
-                        background: 'linear-gradient(135deg, #22c55e, #16a34a)', border: 'none',
-                        color: '#fff', borderRadius: '6px', padding: '6px 16px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85em',
-                      }}
-                    >
-                      Aplicar {aprobadosCount} Aprobados en MeLi
-                    </button>
-                  )}
                 </div>
 
                 {/* Tabla de sugerencias */}
@@ -670,32 +630,18 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                   <table className="publicaciones-table" style={{ fontSize: '0.85em' }}>
                     <thead>
                       <tr>
-                        <th style={{ width: '40px' }}></th>
                         <th>Publicación</th>
                         <th>Título Actual</th>
                         <th>Título Optimizado</th>
-                        <th style={{ width: '100px' }}>Estado</th>
+                        <th style={{ width: '80px' }}></th>
                       </tr>
                     </thead>
                     <tbody>
                       {optSugerencias.map(sug => {
-                        const aprobado = !!optAprobados[sug.item_id];
-                        const estado = optAplicando[sug.item_id];
                         const sinCambio = !sug.tiene_cambio;
-                        const errorMsg = optErrores[sug.item_id];
+                        const copiado = optAplicando[sug.item_id] === 'copiado';
                         return (
                           <tr key={sug.item_id} style={{ opacity: sinCambio ? 0.5 : 1 }}>
-                            <td style={{ textAlign: 'center' }}>
-                              {!sinCambio && (
-                                <input
-                                  type="checkbox"
-                                  checked={aprobado}
-                                  onChange={() => handleAprobar(sug.item_id)}
-                                  disabled={estado === 'ok' || estado === 'loading'}
-                                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#d946ef' }}
-                                />
-                              )}
-                            </td>
                             <td>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {sug.thumbnail && <img src={sug.thumbnail} alt="" style={{ width: '52px', height: '52px', borderRadius: '6px', objectFit: 'cover' }} />}
@@ -721,27 +667,27 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                               )}
                               <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_optimizado.length} chars</span>
                             </td>
-                            <td style={{ textAlign: 'center', minWidth: '100px' }}>
-                              {estado === 'loading' && <span style={{ color: '#fbbf24' }}>Aplicando...</span>}
-                              {estado === 'ok' && <span style={{ color: '#22c55e', fontWeight: 700 }}>Aplicado</span>}
-                              {estado === 'error' && (
-                                <div>
-                                  <span style={{ color: '#ef4444', fontWeight: 700 }}>Error</span>
-                                  {errorMsg && <div style={{ color: '#ef4444', fontSize: '0.65em', marginTop: '2px', maxWidth: '150px', wordBreak: 'break-word' }}>{errorMsg.slice(0, 100)}</div>}
-                                </div>
+                            <td style={{ textAlign: 'center' }}>
+                              {!sinCambio && (
+                                copiado ? (
+                                  <span style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.8em' }}>Copiado</span>
+                                ) : (
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(sug.titulo_optimizado);
+                                      setOptAplicando(prev => ({ ...prev, [sug.item_id]: 'copiado' }));
+                                      setTimeout(() => setOptAplicando(prev => ({ ...prev, [sug.item_id]: null })), 2000);
+                                    }}
+                                    style={{
+                                      background: 'rgba(34,211,238,0.15)', border: '1px solid rgba(34,211,238,0.3)',
+                                      color: '#22d3ee', borderRadius: '4px', padding: '4px 12px', cursor: 'pointer', fontSize: '0.8em', fontWeight: 600,
+                                    }}
+                                  >
+                                    Copiar
+                                  </button>
+                                )
                               )}
-                              {!estado && !sinCambio && aprobado && (
-                                <button
-                                  onClick={() => handleAplicarUno(sug.item_id, sug.titulo_optimizado)}
-                                  style={{
-                                    background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)',
-                                    color: '#22c55e', borderRadius: '4px', padding: '3px 10px', cursor: 'pointer', fontSize: '0.8em',
-                                  }}
-                                >
-                                  Aplicar
-                                </button>
-                              )}
-                              {!estado && sinCambio && <span style={{ color: '#555' }}>-</span>}
+                              {sinCambio && <span style={{ color: '#555', fontSize: '0.75em' }}>Sin cambios</span>}
                             </td>
                           </tr>
                         );

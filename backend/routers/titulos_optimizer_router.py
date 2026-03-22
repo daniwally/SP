@@ -172,32 +172,17 @@ async def optimizar_titulos_marca(
     try:
         uid = MARCAS[marca]
         item_ids = await get_seller_items(uid, token, "active")
+
+        # Limitar para no exceder tokens de Claude
+        item_ids = item_ids[:limit]
         items = await get_items_batch(item_ids, token)
         publicaciones = [format_item(item, marca) for item in items]
-
-        # Separar editables (sin ventas) de no editables
-        editables = [p for p in publicaciones if p.get("vendidas", 0) == 0]
-        no_editables = [p for p in publicaciones if p.get("vendidas", 0) > 0]
-
-        # Limitar solo los editables para Claude
-        editables = editables[:limit]
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error obteniendo publicaciones de MeLi: {str(e)[:200]}")
 
-    if not editables:
-        return {
-            "marca": marca,
-            "timestamp": datetime.now(ART).isoformat(),
-            "total_analizadas": 0,
-            "con_cambios": 0,
-            "no_editables": len(no_editables),
-            "sugerencias": [],
-            "mensaje": f"No hay publicaciones sin ventas para optimizar. {len(no_editables)} publicaciones tienen ventas y MeLi no permite modificar su título.",
-        }
-
-    # Preparar datos para Claude (solo editables)
+    # Preparar datos para Claude
     titles_data = [
         {
             "item_id": p["item_id"],
@@ -206,7 +191,7 @@ async def optimizar_titulos_marca(
             "vendidas": p["vendidas"],
             "category_id": p.get("category_id", ""),
         }
-        for p in editables
+        for p in publicaciones
     ]
 
     try:
@@ -219,7 +204,7 @@ async def optimizar_titulos_marca(
     # Enriquecer con datos de la publicación
     suggestions_map = {s["item_id"]: s for s in suggestions}
     result = []
-    for pub in editables:
+    for pub in publicaciones:
         sug = suggestions_map.get(pub["item_id"])
         if sug:
             changed = sug.get("titulo_optimizado", "") != pub["titulo"]
@@ -241,7 +226,6 @@ async def optimizar_titulos_marca(
         "timestamp": datetime.now(ART).isoformat(),
         "total_analizadas": len(result),
         "con_cambios": sum(1 for r in result if r["tiene_cambio"]),
-        "no_editables": len(no_editables),
         "sugerencias": result,
     }
 

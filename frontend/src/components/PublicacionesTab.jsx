@@ -485,7 +485,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer', marginBottom: optShowSection ? '16px' : '0' }}
           onClick={() => setOptShowSection(!optShowSection)}
         >
-          <h2 style={{ margin: 0, textAlign: 'center', color: '#d946ef' }}>
+          <h2 style={{ margin: 0, textAlign: 'center', color: '#fff' }}>
             Optimización de Títulos con IA
           </h2>
           <span style={{ color: '#d946ef', fontSize: '1.2em' }}>{optShowSection ? '▼' : '▶'}</span>

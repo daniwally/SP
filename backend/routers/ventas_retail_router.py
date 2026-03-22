@@ -461,6 +461,7 @@ def _dashboard_sync(desde: str, hasta: str):
     result = {
         "periodo": {"desde": desde, "hasta": hasta},
         "ventas": resumen_rango,
+        "top_marcas": pedidos.get("resumen", {}).get("top_marcas", []),
         "compras": compras_data.get("resumen", {}),
         "clientes": clientes_data.get("resumen", {}),
         "ventas_semana": {

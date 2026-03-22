@@ -169,6 +169,30 @@ export default function VentasRetailTab() {
             )}
           </div>
         </div>
+
+        {dashboard.top_marcas?.length > 0 && (
+          <div className="retail-top-productos">
+            <h3>Top Marcas - Venta Mensual</h3>
+            {dashboard.top_marcas.map((m, i) => {
+              const maxMonto = dashboard.top_marcas[0]?.monto || 1
+              const logo = BRAND_LOGOS[m.marca?.toUpperCase()]
+              return (
+                <div key={i} className="top-prod-item">
+                  <span className="top-prod-rank">#{i + 1}</span>
+                  {logo ? (
+                    <img src={logo} alt={m.marca} className="top-marca-logo" />
+                  ) : (
+                    <span className="top-prod-name" title={m.marca}>{m.marca}</span>
+                  )}
+                  <div className="top-prod-bar">
+                    <div className="top-prod-bar-fill" style={{ width: `${(m.monto / maxMonto) * 100}%` }} />
+                  </div>
+                  <span className="top-prod-amount">{fmtMoney(m.monto)}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </>
     )
   }
@@ -263,29 +287,6 @@ export default function VentasRetailTab() {
           </table>
         </div>
 
-        {pedidos.resumen?.top_marcas?.length > 0 && (
-          <div className="retail-top-productos">
-            <h3>Top Marcas - Venta Mensual</h3>
-            {pedidos.resumen.top_marcas.map((m, i) => {
-              const maxMonto = pedidos.resumen.top_marcas[0]?.monto || 1
-              const logo = BRAND_LOGOS[m.marca?.toUpperCase()]
-              return (
-                <div key={i} className="top-prod-item">
-                  <span className="top-prod-rank">#{i + 1}</span>
-                  {logo ? (
-                    <img src={logo} alt={m.marca} className="top-marca-logo" />
-                  ) : (
-                    <span className="top-prod-name" title={m.marca}>{m.marca}</span>
-                  )}
-                  <div className="top-prod-bar">
-                    <div className="top-prod-bar-fill" style={{ width: `${(m.monto / maxMonto) * 100}%` }} />
-                  </div>
-                  <span className="top-prod-amount">{fmtMoney(m.monto)}</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </>
     )
   }

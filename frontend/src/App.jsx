@@ -457,30 +457,9 @@ function App() {
             </div>
           </section>
 
-          {/* RESUMEN STOCK VALORIZADO */}
+          {/* DISTRIBUCIÓN POR MARCA */}
           <section className="section">
-            <h2>📊 Resumen de Stock Valorizado</h2>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
-              border: '2px solid rgba(217, 70, 239, 0.3)',
-              borderRadius: '12px',
-              padding: '30px',
-              textAlign: 'center',
-              marginBottom: '20px'
-            }}>
-              <p style={{ color: '#7f8c8d', fontSize: '0.9em', fontWeight: 600, marginBottom: '10px', textTransform: 'uppercase' }}>💰 Valor Total Inventario</p>
-              <p style={{ color: '#06b6d4', fontSize: '3em', fontWeight: 900, margin: '0 0 15px 0' }}>
-                ${(valuationData.TOTAL_GENERAL / 1000000000).toFixed(2)}B
-              </p>
-              <p style={{ color: '#95a5a6', fontSize: '0.85em', margin: 0 }}>
-                {Object.entries(valuationData)
-                  .filter(([key]) => key !== 'TOTAL_GENERAL')
-                  .reduce((sum, [, data]) => sum + (data.total_unidades || 0), 0)
-                  .toLocaleString()} unidades en stock
-              </p>
-            </div>
-
-            {/* DESGLOSE POR MARCA */}
+            <h2>📊 Distribución por Marca</h2>
             <div style={{
               background: 'rgba(0, 0, 0, 0.5)',
               border: '1px solid rgba(217, 70, 239, 0.2)',
@@ -488,7 +467,6 @@ function App() {
               padding: '20px',
               marginBottom: '0'
             }}>
-              <p style={{ color: '#d946ef', fontSize: '0.9em', fontWeight: 700, marginBottom: '15px', textTransform: 'uppercase' }}>Distribución por Marca</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {Object.entries(valuationData)
                   .filter(([key]) => key !== 'TOTAL_GENERAL' && ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(key))
@@ -500,8 +478,8 @@ function App() {
                         <div style={{ flex: '0 0 100px' }}>
                           <p style={{ color: '#d946ef', fontWeight: 700, margin: 0, fontSize: '0.9em' }}>{marca}</p>
                         </div>
-                        <div style={{ 
-                          flex: 1, 
+                        <div style={{
+                          flex: 1,
                           background: 'rgba(217, 70, 239, 0.1)',
                           borderRadius: '4px',
                           height: '24px',

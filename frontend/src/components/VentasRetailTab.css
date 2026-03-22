@@ -307,6 +307,7 @@
   border-radius: 12px;
   padding: 18px;
   margin-bottom: 24px;
+  max-width: 480px;
 }
 
 .retail-top-productos h3 {

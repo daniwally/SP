@@ -397,3 +397,40 @@ async def publicaciones_consolidado():
         "timestamp": datetime.now(ART).isoformat(),
         "consolidado": {marca: data for marca, data in results if data},
     }
+
+
+@router.get("/precios-promedio")
+async def precios_promedio_ml():
+    """Precio promedio de venta en ML por marca (de publicaciones activas)"""
+
+    async def fetch_precios(marca):
+        token = await get_token_by_marca(marca)
+        if not token:
+            return marca, None
+
+        uid = MARCAS[marca]
+        item_ids = await get_seller_items(uid, token, "active")
+        items = await get_items_batch(item_ids, token)
+
+        precios = []
+        for item in items:
+            price = item.get("price", 0) or 0
+            if price > 0:
+                precios.append(price)
+
+        if not precios:
+            return marca, {"precio_promedio": 0, "precio_min": 0, "precio_max": 0, "items": 0}
+
+        return marca, {
+            "precio_promedio": int(round(sum(precios) / len(precios))),
+            "precio_min": int(min(precios)),
+            "precio_max": int(max(precios)),
+            "items": len(precios),
+        }
+
+    results = await asyncio.gather(*[fetch_precios(m) for m in MARCAS.keys()])
+
+    return {
+        "timestamp": datetime.now(ART).isoformat(),
+        "precios": {marca: data for marca, data in results if data},
+    }

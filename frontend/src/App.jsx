@@ -219,8 +219,8 @@ function App() {
                   ) : (
                     <h3>{marca}</h3>
                   )}
+                  <p className="total-item-ordenes" style={{ margin: '8px 0 4px 0' }}>{data.ordenes || 0} órdenes</p>
                   <p className="value">${fmtMoney(data.total || 0)}</p>
-                  <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (
                     <div className="productos-list">
                       {data.productos.slice(0, 10).map((prod, idx) => (
@@ -261,8 +261,8 @@ function App() {
                   ) : (
                     <h3>{marca}</h3>
                   )}
+                  <p className="total-item-ordenes" style={{ margin: '8px 0 4px 0' }}>{data.ordenes || 0} órdenes</p>
                   <p className="value">${fmtMoney(data.total || 0)}</p>
-                  <p className="subtitle">{data.ordenes || 0} órdenes</p>
                   {data.productos && data.productos.length > 0 && (
                     <div className="productos-list">
                       {data.productos.slice(0, 10).map((prod, idx) => (

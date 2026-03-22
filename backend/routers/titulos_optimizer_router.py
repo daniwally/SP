@@ -117,7 +117,7 @@ Respondé ÚNICAMENTE con un JSON array válido, sin markdown ni texto adicional
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-opus-4-6",
+                "model": "claude-sonnet-4-6",
                 "max_tokens": 4096,
                 "temperature": 0,
                 "messages": [{"role": "user", "content": prompt}],
@@ -158,7 +158,7 @@ Respondé ÚNICAMENTE con un JSON array válido, sin markdown ni texto adicional
 @router.get("/optimizar/{marca}")
 async def optimizar_titulos_marca(
     marca: str,
-    limit: int = Query(20, ge=1, le=50, description="Cantidad de publicaciones a analizar"),
+    limit: int = Query(10, ge=1, le=50, description="Cantidad de publicaciones a analizar"),
 ):
     """Obtiene publicaciones de una marca y genera títulos optimizados con Claude AI"""
     marca = marca.upper()

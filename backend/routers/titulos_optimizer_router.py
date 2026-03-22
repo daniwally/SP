@@ -58,22 +58,27 @@ Pensá: ¿qué pondría YO en el buscador de MeLi si quisiera comprar este produ
 
 PARTE 2 - REGLAS DE TÍTULOS MELI:
 1. Máximo 60 caracteres (ESTRICTO - contá cada caracter incluyendo espacios)
-2. Estructura: [Producto] + [Keywords Ganadoras] + [Capacidad/Talle] + [Marca]
-3. Primera palabra = lo que la gente busca (Termo, Zapatillas, Botella, Bota)
-4. La marca del vendedor va al FINAL
-5. Title Case (Cada Palabra Con Mayúscula)
-6. PROHIBIDO: signos (! ? . , - _), "oferta", "envío gratis", "mejor precio", "nuevo", "original"
-7. Priorizar keywords ganadoras de la categoría sobre palabras genéricas
-8. Incluir género si aplica (Hombre/Mujer/Unisex)
-9. Si el título actual ya tiene las mejores keywords posibles, devolvé el mismo
+2. USÁ LOS 60 CARACTERES AL MÁXIMO. Cada caracter libre es una oportunidad perdida de posicionamiento. Si te sobran caracteres, agregá: color (Negro, Blanco, Gris), material, uso (Gym, Oficina, Camping, Running), género, o atributo diferenciador.
+3. Estructura: [Producto] + [Keywords Ganadoras] + [Capacidad/Talle] + [Color/Atributo Extra] + [Marca]
+4. Primera palabra = lo que la gente busca (Termo, Zapatillas, Botella, Bota)
+5. La marca del vendedor va al FINAL
+6. Title Case (Cada Palabra Con Mayúscula)
+7. PROHIBIDO: signos (! ? . , - _), "oferta", "envío gratis", "mejor precio", "nuevo", "original"
+8. Priorizar keywords ganadoras de la categoría sobre palabras genéricas
+9. Incluir género si aplica (Hombre/Mujer/Unisex)
+10. Si el título actual ya tiene las mejores keywords posibles Y usa los 60 chars, devolvé el mismo
+11. SIEMPRE sumá el color del producto si se puede deducir del título original o es un atributo relevante
+12. Cada keyword extra que sumes = más búsquedas donde aparece el producto = más ventas
 
-EJEMPLOS:
+EJEMPLOS (notar que todos usan cerca de 60 chars):
 - ANTES: "Termo Hydrate Acero Inoxidable Botella Frio Calor 530 ml"
-  DESPUÉS: "Termo Botella Térmica Doble Pared 530ml Frío 24hs Hydrate" (keywords ganadoras: Doble Pared, Térmica, 24hs)
+  DESPUÉS: "Termo Botella Térmica Doble Pared 530ml Frío 24hs Hydrate" (57 chars - keywords: Doble Pared, Térmica, 24hs)
 - ANTES: "Termo Mate Hydrate 915ml Acero Inoxidable"
-  DESPUÉS: "Termo Mate Doble Acero 915ml Pico Cebador Hydrate" (keywords: Doble Acero, Pico Cebador)
+  DESPUÉS: "Termo Mate Doble Acero 915ml Pico Cebador Negro Hydrate" (55 chars - keywords: Doble Acero, Pico Cebador, Negro)
 - ANTES: "Zapatillas Basquet SHAQ Posture Negras"
-  DESPUÉS: "Zapatillas Basquet Hombre Caña Alta Shaq Posture" (keywords: Hombre, Caña Alta)
+  DESPUÉS: "Zapatillas Basquet Hombre Caña Alta Negras Shaq Posture" (55 chars - keywords: Hombre, Caña Alta, Negras)
+- ANTES: "Botella Hydrate 620ml"
+  DESPUÉS: "Botella Térmica Deportiva Acero 620ml Sin BPA Gym Hydrate" (57 chars - llenó con keywords de alto valor)
 
 Publicaciones a optimizar:
 

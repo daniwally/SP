@@ -117,7 +117,7 @@ export default function VentasUnifiedTab({ testData }) {
             {/* Total combinado */}
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <p style={{ color: '#7f8c8d', fontSize: '0.85em', fontWeight: 600, marginBottom: '4px' }}>TOTAL COMBINADO</p>
-              <p style={{ fontSize: '2.8em', fontWeight: 800, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <p style={{ fontSize: '2.1em', fontWeight: 800, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {fmtMoney(totalSemana)}
               </p>
             </div>
@@ -126,12 +126,12 @@ export default function VentasUnifiedTab({ testData }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <div style={kpiBoxStyle('#d946ef')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>E-COMMERCE (ML)</p>
-                <p style={{ color: '#d946ef', fontSize: '1.8em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomSemana)}</p>
+                <p style={{ color: '#d946ef', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomSemana)}</p>
                 <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{ecomSemanaOrdenes} órdenes</p>
               </div>
               <div style={kpiBoxStyle('#06b6d4')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>RETAIL (ODOO)</p>
-                <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 800, margin: 0 }}>{fmtMoney(retailSemana)}</p>
+                <p style={{ color: '#06b6d4', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(retailSemana)}</p>
                 <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{retailSemanaPedidos} pedidos</p>
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function VentasUnifiedTab({ testData }) {
             {/* Total combinado */}
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <p style={{ color: '#7f8c8d', fontSize: '0.85em', fontWeight: 600, marginBottom: '4px' }}>TOTAL COMBINADO</p>
-              <p style={{ fontSize: '2.8em', fontWeight: 800, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <p style={{ fontSize: '2.1em', fontWeight: 800, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {fmtMoney(totalMes)}
               </p>
             </div>
@@ -173,12 +173,12 @@ export default function VentasUnifiedTab({ testData }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <div style={kpiBoxStyle('#d946ef')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>E-COMMERCE (ML)</p>
-                <p style={{ color: '#d946ef', fontSize: '1.8em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomMes)}</p>
+                <p style={{ color: '#d946ef', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomMes)}</p>
                 <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{ecomMesOrdenes} órdenes</p>
               </div>
               <div style={kpiBoxStyle('#06b6d4')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>RETAIL (ODOO)</p>
-                <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 800, margin: 0 }}>{fmtMoney(retailMes)}</p>
+                <p style={{ color: '#06b6d4', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(retailMes)}</p>
                 <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{retailMesPedidos} pedidos</p>
               </div>
             </div>

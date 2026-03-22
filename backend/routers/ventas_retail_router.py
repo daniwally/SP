@@ -191,28 +191,14 @@ def _pedidos_sync(desde: str, hasta: str):
             })
 
         marca_totals = {}
-        marca_productos = {}  # marca -> {producto_name: {cantidad, monto}}
         for p in pedidos:
             for ln in p['lineas']:
                 marca = ln.get('marca', 'Sin marca')
                 if marca not in marca_totals:
-                    marca_totals[marca] = {'marca': marca, 'cantidad': 0, 'monto': 0}
-                marca_totals[marca]['cantidad'] += ln['cantidad']
+                    marca_totals[marca] = {'marca': marca, 'monto': 0}
                 marca_totals[marca]['monto'] += ln['subtotal']
-                # Track products per brand
-                prod_name = ln.get('producto', '')
-                if marca not in marca_productos:
-                    marca_productos[marca] = {}
-                if prod_name not in marca_productos[marca]:
-                    marca_productos[marca][prod_name] = {'producto': prod_name, 'cantidad': 0, 'monto': 0}
-                marca_productos[marca][prod_name]['cantidad'] += ln['cantidad']
-                marca_productos[marca][prod_name]['monto'] += ln['subtotal']
 
         top_marcas = sorted(marca_totals.values(), key=lambda x: x['monto'], reverse=True)[:10]
-        # Add top 5 products per brand
-        for tm in top_marcas:
-            prods = marca_productos.get(tm['marca'], {}).values()
-            tm['top_productos'] = sorted(prods, key=lambda x: x['monto'], reverse=True)[:5]
 
         resumen = {
             'total_pedidos': len(pedidos),

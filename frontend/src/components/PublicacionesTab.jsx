@@ -646,7 +646,13 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {sug.thumbnail && <img src={sug.thumbnail} alt="" style={{ width: '52px', height: '52px', borderRadius: '6px', objectFit: 'cover' }} />}
                                 <div>
-                                  <div style={{ color: '#06b6d4', fontSize: '0.8em' }}>{sug.item_id}</div>
+                                  <div style={{ color: '#06b6d4', fontSize: '0.8em' }}>
+                                    {sug.permalink ? (
+                                      <a href={sug.permalink} target="_blank" rel="noopener noreferrer" style={{ color: '#06b6d4', textDecoration: 'none' }}>
+                                        {sug.item_id} ↗
+                                      </a>
+                                    ) : sug.item_id}
+                                  </div>
                                   <div style={{ color: '#7f8c8d', fontSize: '0.75em' }}>${sug.precio?.toLocaleString()} · {sug.vendidas} vendidas</div>
                                 </div>
                               </div>

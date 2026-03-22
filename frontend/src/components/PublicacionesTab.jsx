@@ -62,6 +62,85 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
   const [searchText, setSearchText] = useState('');
   const [preview, setPreview] = useState(null);
 
+  // --- Estado para Optimización de Títulos ---
+  const [optMarca, setOptMarca] = useState('SHAQ');
+  const [optLoading, setOptLoading] = useState(false);
+  const [optError, setOptError] = useState(null);
+  const [optSugerencias, setOptSugerencias] = useState([]);
+  const [optStats, setOptStats] = useState(null);
+  const [optAprobados, setOptAprobados] = useState({});  // item_id -> bool
+  const [optAplicando, setOptAplicando] = useState({});  // item_id -> 'loading' | 'ok' | 'error'
+  const [optLimit, setOptLimit] = useState(20);
+  const [optShowSection, setOptShowSection] = useState(false);
+
+  const fetchOptimizacion = async (selectedMarca, limit) => {
+    setOptLoading(true);
+    setOptError(null);
+    setOptSugerencias([]);
+    setOptStats(null);
+    setOptAprobados({});
+    setOptAplicando({});
+    try {
+      const resp = await fetch(`/api/titulos/optimizar/${selectedMarca}?limit=${limit}`);
+      const result = await resp.json();
+      if (resp.status !== 200) {
+        setOptError(result.detail || 'Error al optimizar');
+        return;
+      }
+      setOptSugerencias(result.sugerencias || []);
+      setOptStats({ total: result.total_analizadas, con_cambios: result.con_cambios });
+    } catch (err) {
+      setOptError(`Error: ${err.message}`);
+    } finally {
+      setOptLoading(false);
+    }
+  };
+
+  const handleAprobar = (itemId) => {
+    setOptAprobados(prev => ({ ...prev, [itemId]: !prev[itemId] }));
+  };
+
+  const handleAprobarTodos = () => {
+    const conCambio = optSugerencias.filter(s => s.tiene_cambio);
+    const todosAprobados = conCambio.every(s => optAprobados[s.item_id]);
+    if (todosAprobados) {
+      setOptAprobados({});
+    } else {
+      const nuevos = {};
+      conCambio.forEach(s => { nuevos[s.item_id] = true; });
+      setOptAprobados(nuevos);
+    }
+  };
+
+  const handleAplicarUno = async (itemId, nuevoTitulo) => {
+    setOptAplicando(prev => ({ ...prev, [itemId]: 'loading' }));
+    try {
+      const resp = await fetch('/api/titulos/aplicar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item_id: itemId, nuevo_titulo: nuevoTitulo }),
+      });
+      if (resp.status === 200) {
+        setOptAplicando(prev => ({ ...prev, [itemId]: 'ok' }));
+      } else {
+        const err = await resp.json();
+        setOptAplicando(prev => ({ ...prev, [itemId]: 'error' }));
+        console.error('Error aplicando título:', err);
+      }
+    } catch {
+      setOptAplicando(prev => ({ ...prev, [itemId]: 'error' }));
+    }
+  };
+
+  const handleAplicarAprobados = async () => {
+    const aprobados = optSugerencias.filter(s => optAprobados[s.item_id] && s.tiene_cambio);
+    for (const s of aprobados) {
+      await handleAplicarUno(s.item_id, s.titulo_optimizado);
+    }
+  };
+
+  const aprobadosCount = Object.values(optAprobados).filter(Boolean).length;
+
   useEffect(() => {
     if (viewMode === 'marca') {
       fetchReporteMarca(marca, statusFilter);
@@ -399,6 +478,189 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
           style={{ top: preview.y, left: preview.x }}
         />
       )}
+
+      {/* OPTIMIZACIÓN DE TÍTULOS CON IA */}
+      <section className="section" style={{ marginTop: '32px' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer', marginBottom: optShowSection ? '16px' : '0' }}
+          onClick={() => setOptShowSection(!optShowSection)}
+        >
+          <h2 style={{ margin: 0, textAlign: 'center', color: '#d946ef' }}>
+            Optimización de Títulos con IA
+          </h2>
+          <span style={{ color: '#d946ef', fontSize: '1.2em' }}>{optShowSection ? '▼' : '▶'}</span>
+        </div>
+
+        {optShowSection && (
+          <div style={{ marginTop: '8px' }}>
+            {/* Controles */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {MARCAS.map(m => (
+                  <button
+                    key={m}
+                    className={`marca-btn ${optMarca === m ? 'active' : ''}`}
+                    onClick={() => setOptMarca(m)}
+                    style={{ fontSize: '0.8em', padding: '6px 12px' }}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+              <select
+                value={optLimit}
+                onChange={(e) => setOptLimit(Number(e.target.value))}
+                style={{ background: '#1a1a2e', color: '#fff', border: '1px solid #333', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85em' }}
+              >
+                <option value={10}>10 publicaciones</option>
+                <option value={20}>20 publicaciones</option>
+                <option value={30}>30 publicaciones</option>
+                <option value={50}>50 publicaciones</option>
+              </select>
+              <button
+                onClick={() => fetchOptimizacion(optMarca, optLimit)}
+                disabled={optLoading}
+                style={{
+                  background: optLoading ? '#555' : 'linear-gradient(135deg, #d946ef, #a855f7)',
+                  color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 20px',
+                  fontWeight: 700, fontSize: '0.9em', cursor: optLoading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {optLoading ? 'Analizando con Claude AI...' : 'Analizar Títulos'}
+              </button>
+            </div>
+
+            {optError && <div className="error" style={{ textAlign: 'center', marginBottom: '12px' }}>{optError}</div>}
+
+            {optLoading && (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#d946ef' }}>
+                <div style={{ fontSize: '1.5em', marginBottom: '8px' }}>Analizando títulos...</div>
+                <div style={{ color: '#7f8c8d', fontSize: '0.9em' }}>Claude AI está evaluando {optLimit} publicaciones de {optMarca}</div>
+              </div>
+            )}
+
+            {/* Resultados */}
+            {!optLoading && optSugerencias.length > 0 && (
+              <div>
+                {/* Stats */}
+                <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '16px' }}>
+                  <div style={{ background: 'rgba(217,70,239,0.1)', border: '1px solid rgba(217,70,239,0.3)', borderRadius: '10px', padding: '12px 20px', textAlign: 'center' }}>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', margin: '0 0 4px' }}>ANALIZADAS</p>
+                    <p style={{ color: '#d946ef', fontSize: '1.5em', fontWeight: 800, margin: 0 }}>{optStats?.total || 0}</p>
+                  </div>
+                  <div style={{ background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.3)', borderRadius: '10px', padding: '12px 20px', textAlign: 'center' }}>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', margin: '0 0 4px' }}>CON MEJORAS</p>
+                    <p style={{ color: '#22d3ee', fontSize: '1.5em', fontWeight: 800, margin: 0 }}>{optStats?.con_cambios || 0}</p>
+                  </div>
+                  <div style={{ background: 'rgba(134,239,172,0.1)', border: '1px solid rgba(134,239,172,0.3)', borderRadius: '10px', padding: '12px 20px', textAlign: 'center' }}>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', margin: '0 0 4px' }}>APROBADOS</p>
+                    <p style={{ color: '#86efac', fontSize: '1.5em', fontWeight: 800, margin: 0 }}>{aprobadosCount}</p>
+                  </div>
+                </div>
+
+                {/* Acciones masivas */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <button
+                    onClick={handleAprobarTodos}
+                    style={{
+                      background: 'rgba(134,239,172,0.15)', border: '1px solid rgba(134,239,172,0.4)',
+                      color: '#86efac', borderRadius: '6px', padding: '6px 16px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85em',
+                    }}
+                  >
+                    {optSugerencias.filter(s => s.tiene_cambio).every(s => optAprobados[s.item_id]) ? 'Desmarcar Todos' : 'Aprobar Todos'}
+                  </button>
+                  {aprobadosCount > 0 && (
+                    <button
+                      onClick={handleAplicarAprobados}
+                      style={{
+                        background: 'linear-gradient(135deg, #22c55e, #16a34a)', border: 'none',
+                        color: '#fff', borderRadius: '6px', padding: '6px 16px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85em',
+                      }}
+                    >
+                      Aplicar {aprobadosCount} Aprobados en MeLi
+                    </button>
+                  )}
+                </div>
+
+                {/* Tabla de sugerencias */}
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="publicaciones-table" style={{ fontSize: '0.85em' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '40px' }}></th>
+                        <th>Publicación</th>
+                        <th>Título Actual</th>
+                        <th>Título Optimizado</th>
+                        <th>Cambios</th>
+                        <th style={{ width: '80px' }}>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {optSugerencias.map(sug => {
+                        const aprobado = !!optAprobados[sug.item_id];
+                        const estado = optAplicando[sug.item_id];
+                        const sinCambio = !sug.tiene_cambio;
+                        return (
+                          <tr key={sug.item_id} style={{ opacity: sinCambio ? 0.5 : 1 }}>
+                            <td style={{ textAlign: 'center' }}>
+                              {!sinCambio && (
+                                <input
+                                  type="checkbox"
+                                  checked={aprobado}
+                                  onChange={() => handleAprobar(sug.item_id)}
+                                  disabled={estado === 'ok' || estado === 'loading'}
+                                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#d946ef' }}
+                                />
+                              )}
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {sug.thumbnail && <img src={sug.thumbnail} alt="" style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />}
+                                <div>
+                                  <div style={{ color: '#06b6d4', fontSize: '0.8em' }}>{sug.item_id}</div>
+                                  <div style={{ color: '#7f8c8d', fontSize: '0.75em' }}>${sug.precio?.toLocaleString()} · {sug.vendidas} vendidas</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ color: sinCambio ? '#7f8c8d' : '#ef4444', maxWidth: '250px' }}>
+                              <span style={{ fontSize: '0.9em' }}>{sug.titulo_actual}</span>
+                              <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_actual.length} chars</span>
+                            </td>
+                            <td style={{ color: sinCambio ? '#7f8c8d' : '#86efac', maxWidth: '250px', fontWeight: sinCambio ? 400 : 600 }}>
+                              <span style={{ fontSize: '0.9em' }}>{sug.titulo_optimizado}</span>
+                              <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_optimizado.length} chars</span>
+                            </td>
+                            <td style={{ color: '#fbbf24', fontSize: '0.8em', maxWidth: '180px' }}>
+                              {sinCambio ? <span style={{ color: '#555' }}>Sin cambios</span> : sug.cambios}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {estado === 'loading' && <span style={{ color: '#fbbf24' }}>Aplicando...</span>}
+                              {estado === 'ok' && <span style={{ color: '#22c55e', fontWeight: 700 }}>Aplicado</span>}
+                              {estado === 'error' && <span style={{ color: '#ef4444' }}>Error</span>}
+                              {!estado && !sinCambio && aprobado && (
+                                <button
+                                  onClick={() => handleAplicarUno(sug.item_id, sug.titulo_optimizado)}
+                                  style={{
+                                    background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)',
+                                    color: '#22c55e', borderRadius: '4px', padding: '3px 10px', cursor: 'pointer', fontSize: '0.8em',
+                                  }}
+                                >
+                                  Aplicar
+                                </button>
+                              )}
+                              {!estado && sinCambio && <span style={{ color: '#555' }}>-</span>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
       {/* PREGUNTAS Y RESPUESTAS POR MARCA */}
       {Object.keys(ventasMesMl).length > 0 && (

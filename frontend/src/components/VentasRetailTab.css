@@ -406,10 +406,48 @@
   margin-bottom: 20px;
 }
 
-.pedido-marcas {
-  color: #d946ef;
-  font-size: 0.85em;
+/* Top marca group with expandable products */
+.top-marca-group {
+  margin-bottom: 2px;
+}
+
+.top-marca-group .top-prod-item {
+  border-bottom: none;
+}
+
+.marca-productos {
+  padding: 4px 0 8px 34px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.marca-prod-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 0.8em;
+  color: #aaa;
+}
+
+.marca-prod-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marca-prod-qty {
+  color: #888;
+  min-width: 36px;
+  text-align: right;
+}
+
+.marca-prod-amount {
+  color: #22c55e;
   font-weight: 600;
+  min-width: 80px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Expandable pedido rows */

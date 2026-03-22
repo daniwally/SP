@@ -198,9 +198,8 @@ export default function VentasRetailTab() {
                 <th>Pedido</th>
                 <th>Fecha</th>
                 <th>Cliente</th>
-                <th>Marcas</th>
+                <th>Importe</th>
                 <th>Items</th>
-                <th>Total</th>
                 <th>Estado</th>
               </tr>
             </thead>
@@ -216,14 +215,13 @@ export default function VentasRetailTab() {
                       <td><span className={`expand-icon ${isOpen ? 'open' : ''}`}>&#9654;</span> {p.numero}</td>
                       <td>{fmtDate(p.fecha)}</td>
                       <td>{p.cliente}</td>
-                      <td className="pedido-marcas">{(p.marcas || []).join(', ') || '-'}</td>
-                      <td>{p.items}</td>
                       <td className="monto">{fmtMoney(p.total)}</td>
+                      <td>{p.items}</td>
                       <td><span className={`estado-badge ${p.estado}`}>{p.estado}</span></td>
                     </tr>
                     {isOpen && p.lineas?.length > 0 && (
                       <tr className="pedido-detail-row">
-                        <td colSpan={7}>
+                        <td colSpan={6}>
                           <div className="pedido-detail">
                             <table className="pedido-lineas-table">
                               <thead>
@@ -262,14 +260,27 @@ export default function VentasRetailTab() {
             {pedidos.resumen.top_marcas.map((m, i) => {
               const maxMonto = pedidos.resumen.top_marcas[0]?.monto || 1
               return (
-                <div key={i} className="top-prod-item">
-                  <span className="top-prod-rank">#{i + 1}</span>
-                  <span className="top-prod-name" title={m.marca}>{m.marca}</span>
-                  <span style={{ color: '#888', fontSize: '0.8em', minWidth: 40 }}>{Math.round(m.cantidad)}u</span>
-                  <div className="top-prod-bar">
-                    <div className="top-prod-bar-fill" style={{ width: `${(m.monto / maxMonto) * 100}%` }} />
+                <div key={i} className="top-marca-group">
+                  <div className="top-prod-item">
+                    <span className="top-prod-rank">#{i + 1}</span>
+                    <span className="top-prod-name" title={m.marca}>{m.marca}</span>
+                    <span style={{ color: '#888', fontSize: '0.8em', minWidth: 40 }}>{Math.round(m.cantidad)}u</span>
+                    <div className="top-prod-bar">
+                      <div className="top-prod-bar-fill" style={{ width: `${(m.monto / maxMonto) * 100}%` }} />
+                    </div>
+                    <span className="top-prod-amount">{fmtMoney(m.monto)}</span>
                   </div>
-                  <span className="top-prod-amount">{fmtMoney(m.monto)}</span>
+                  {m.top_productos?.length > 0 && (
+                    <div className="marca-productos">
+                      {m.top_productos.map((tp, j) => (
+                        <div key={j} className="marca-prod-item">
+                          <span className="marca-prod-name">{tp.producto}</span>
+                          <span className="marca-prod-qty">{Math.round(tp.cantidad)}u</span>
+                          <span className="marca-prod-amount">{fmtMoney(tp.monto)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             })}

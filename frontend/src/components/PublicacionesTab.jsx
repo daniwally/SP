@@ -119,23 +119,30 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
     }
   };
 
+  const [optErrores, setOptErrores] = useState({}); // item_id -> error message
+
   const handleAplicarUno = async (itemId, nuevoTitulo) => {
     setOptAplicando(prev => ({ ...prev, [itemId]: 'loading' }));
+    setOptErrores(prev => ({ ...prev, [itemId]: null }));
     try {
       const resp = await fetch('/api/titulos/aplicar', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ item_id: itemId, nuevo_titulo: nuevoTitulo, marca: optMarca }),
       });
-      if (resp.status === 200) {
+      if (resp.status === 200 || resp.status === 201) {
         setOptAplicando(prev => ({ ...prev, [itemId]: 'ok' }));
       } else {
         const text = await resp.text();
+        let errMsg = text.slice(0, 150);
+        try { errMsg = JSON.parse(text).detail || errMsg; } catch {}
         setOptAplicando(prev => ({ ...prev, [itemId]: 'error' }));
-        console.error('Error aplicando título:', text.slice(0, 200));
+        setOptErrores(prev => ({ ...prev, [itemId]: errMsg }));
+        console.error('Error aplicando título:', errMsg);
       }
-    } catch {
+    } catch (e) {
       setOptAplicando(prev => ({ ...prev, [itemId]: 'error' }));
+      setOptErrores(prev => ({ ...prev, [itemId]: e.message }));
     }
   };
 
@@ -636,8 +643,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                         <th>Publicación</th>
                         <th>Título Actual</th>
                         <th>Título Optimizado</th>
-                        <th>Cambios</th>
-                        <th style={{ width: '80px' }}>Estado</th>
+                        <th style={{ width: '100px' }}>Estado</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -645,6 +651,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                         const aprobado = !!optAprobados[sug.item_id];
                         const estado = optAplicando[sug.item_id];
                         const sinCambio = !sug.tiene_cambio;
+                        const errorMsg = optErrores[sug.item_id];
                         return (
                           <tr key={sug.item_id} style={{ opacity: sinCambio ? 0.5 : 1 }}>
                             <td style={{ textAlign: 'center' }}>
@@ -659,8 +666,8 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                               )}
                             </td>
                             <td>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                {sug.thumbnail && <img src={sug.thumbnail} alt="" style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {sug.thumbnail && <img src={sug.thumbnail} alt="" style={{ width: '52px', height: '52px', borderRadius: '6px', objectFit: 'cover' }} />}
                                 <div>
                                   <div style={{ color: '#06b6d4', fontSize: '0.8em' }}>{sug.item_id}</div>
                                   <div style={{ color: '#7f8c8d', fontSize: '0.75em' }}>${sug.precio?.toLocaleString()} · {sug.vendidas} vendidas</div>
@@ -671,17 +678,23 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                               <span style={{ fontSize: '0.9em' }}>{sug.titulo_actual}</span>
                               <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_actual.length} chars</span>
                             </td>
-                            <td style={{ color: sinCambio ? '#7f8c8d' : '#86efac', maxWidth: '250px', fontWeight: sinCambio ? 400 : 600 }}>
-                              <span style={{ fontSize: '0.9em' }}>{sug.titulo_optimizado}</span>
+                            <td style={{ maxWidth: '280px', position: 'relative' }}>
+                              <span
+                                style={{ fontSize: '0.9em', color: sinCambio ? '#7f8c8d' : '#fff', fontWeight: sinCambio ? 400 : 600, cursor: sinCambio ? 'default' : 'help' }}
+                                title={sinCambio ? '' : sug.cambios}
+                              >
+                                {sug.titulo_optimizado}
+                              </span>
                               <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_optimizado.length} chars</span>
-                            </td>
-                            <td style={{ color: '#fbbf24', fontSize: '0.8em', maxWidth: '180px' }}>
-                              {sinCambio ? <span style={{ color: '#555' }}>Sin cambios</span> : sug.cambios}
                             </td>
                             <td style={{ textAlign: 'center' }}>
                               {estado === 'loading' && <span style={{ color: '#fbbf24' }}>Aplicando...</span>}
                               {estado === 'ok' && <span style={{ color: '#22c55e', fontWeight: 700 }}>Aplicado</span>}
-                              {estado === 'error' && <span style={{ color: '#ef4444' }}>Error</span>}
+                              {estado === 'error' && (
+                                <span style={{ color: '#ef4444', cursor: errorMsg ? 'help' : 'default' }} title={errorMsg || ''}>
+                                  Error
+                                </span>
+                              )}
                               {!estado && !sinCambio && aprobado && (
                                 <button
                                   onClick={() => handleAplicarUno(sug.item_id, sug.titulo_optimizado)}

@@ -297,9 +297,10 @@ async def aplicar_titulo(req: AplicarTituloRequest):
             timeout=15,
         )
 
-        if resp.status_code != 200:
-            detail = resp.text[:300]
-            raise HTTPException(status_code=resp.status_code, detail=f"Error ML API: {detail}")
+        if resp.status_code not in (200, 201):
+            detail = resp.text[:500]
+            print(f"[TITULO ERROR] item={req.item_id} marca={marca_encontrada} status={resp.status_code} titulo='{titulo_final}' response={detail}")
+            raise HTTPException(status_code=resp.status_code, detail=f"Error ML API ({resp.status_code}): {detail}")
 
         ts = datetime.now(ART).isoformat()
 

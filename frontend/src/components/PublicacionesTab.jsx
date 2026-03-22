@@ -11,8 +11,8 @@ const Tooltip = ({ text, children }) => {
         <span style={{
           position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
           background: '#1a1a2e', color: '#fff', padding: '8px 12px', borderRadius: '6px',
-          fontSize: '1.5em', fontWeight: 400, lineHeight: '1.4', whiteSpace: 'normal',
-          width: '380px', zIndex: 100, border: '1px solid #333', marginBottom: '6px',
+          fontSize: '1.1em', fontWeight: 400, lineHeight: '1.4', whiteSpace: 'normal',
+          width: '340px', zIndex: 100, border: '1px solid #333', marginBottom: '6px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.5)', pointerEvents: 'none',
         }}>{text}</span>
       )}

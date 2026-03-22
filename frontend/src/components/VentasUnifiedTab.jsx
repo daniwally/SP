@@ -180,19 +180,6 @@ export default function VentasUnifiedTab({ testData }) {
           </div>
         </div>
 
-        {/* HOY - Fila individual */}
-        <div style={{ ...cardStyle, marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-            <div>
-              <h3 style={{ color: '#fff', fontSize: '1.2em', fontWeight: 800, margin: 0 }}>Ventas Hoy</h3>
-              <p style={{ color: '#7f8c8d', fontSize: '0.8em', margin: '4px 0 0 0' }}>E-commerce (MercadoLibre)</p>
-            </div>
-            <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-              <p style={{ fontSize: '2.2em', fontWeight: 800, margin: 0, color: '#d946ef' }}>{fmtMoney(ecomHoy)}</p>
-              <p style={{ color: '#fbbf24', fontSize: '0.85em', margin: '4px 0 0 0', fontWeight: 700 }}>{ecomHoyOrdenes} órdenes</p>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* DESGLOSE POR MARCA */}

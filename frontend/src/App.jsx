@@ -383,72 +383,6 @@ function App() {
             </div>
           </section>
 
-          {/* VALUACIÓN A PRECIO ML */}
-          <section className="section">
-            <h2>💰 Valuación Stock a Precio ML</h2>
-            <p style={{ color: '#95a5a6', fontSize: '0.8em', marginTop: '-10px', marginBottom: '15px' }}>
-              Stock Odoo × Precio promedio de venta en Mercado Libre
-            </p>
-            {(() => {
-              const marcas = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND']
-              const rows = marcas.map(marca => {
-                const stock = stockData[marca]?.total_unidades || 0
-                const precioML = mlPreciosData[marca]?.precio_promedio || 0
-                const valuacionML = stock * precioML
-                return { marca, stock, precioML, valuacionML }
-              }).filter(r => r.stock > 0 || r.precioML > 0)
-              const totalValuacionML = rows.reduce((s, r) => s + r.valuacionML, 0)
-
-              return (
-                <>
-                  {/* Total grande */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
-                    border: '2px solid rgba(217, 70, 239, 0.3)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    marginBottom: '20px'
-                  }}>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase' }}>Valuación Total a Precio ML</p>
-                    <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 900, margin: 0 }}>
-                      ${totalValuacionML >= 1e9 ? (totalValuacionML / 1e9).toFixed(2) + 'B' : (totalValuacionML / 1e6).toFixed(1) + 'M'}
-                    </p>
-                  </div>
-
-                  {/* Cards por marca */}
-                  <div className="cards-grid">
-                    {rows.map(({ marca, stock, precioML, valuacionML }) => (
-                      <div key={marca} className="card">
-                        {BRAND_LOGOS[marca] ? (
-                          <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain', marginBottom: '12px' }} />
-                        ) : (
-                          <h3 style={{ marginBottom: '12px' }}>{marca}</h3>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Stock Odoo</span>
-                          <span style={{ color: '#06b6d4', fontWeight: 700 }}>{stock.toLocaleString()}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Precio ML prom.</span>
-                          <span style={{ color: '#fbbf24', fontWeight: 700 }}>${precioML.toLocaleString()}</span>
-                        </div>
-                        <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px', marginTop: '4px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Valuación ML</span>
-                            <span style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.1em' }}>
-                              ${valuacionML >= 1e9 ? (valuacionML / 1e9).toFixed(2) + 'B' : (valuacionML / 1e6).toFixed(1) + 'M'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )
-            })()}
-          </section>
-
           {/* DISTRIBUCIÓN POR MARCA - Valuación Stock Cruzado */}
           <section className="section">
             <h2>📊 Distribución por Marca — 💎 Valuación Stock Cruzado</h2>
@@ -524,6 +458,72 @@ function App() {
                   })}
               </div>
             </div>
+          </section>
+
+          {/* VALUACIÓN A PRECIO ML */}
+          <section className="section">
+            <h2>💰 Valuación Stock a Precio ML</h2>
+            <p style={{ color: '#95a5a6', fontSize: '0.8em', marginTop: '-10px', marginBottom: '15px' }}>
+              Stock Odoo × Precio promedio de venta en Mercado Libre
+            </p>
+            {(() => {
+              const marcas = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND']
+              const rows = marcas.map(marca => {
+                const stock = stockData[marca]?.total_unidades || 0
+                const precioML = mlPreciosData[marca]?.precio_promedio || 0
+                const valuacionML = stock * precioML
+                return { marca, stock, precioML, valuacionML }
+              }).filter(r => r.stock > 0 || r.precioML > 0)
+              const totalValuacionML = rows.reduce((s, r) => s + r.valuacionML, 0)
+
+              return (
+                <>
+                  {/* Total grande */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
+                    border: '2px solid rgba(217, 70, 239, 0.3)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.8em', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase' }}>Valuación Total a Precio ML</p>
+                    <p style={{ color: '#06b6d4', fontSize: '2.5em', fontWeight: 900, margin: 0 }}>
+                      ${totalValuacionML >= 1e9 ? (totalValuacionML / 1e9).toFixed(2) + 'B' : (totalValuacionML / 1e6).toFixed(1) + 'M'}
+                    </p>
+                  </div>
+
+                  {/* Cards por marca */}
+                  <div className="cards-grid">
+                    {rows.map(({ marca, stock, precioML, valuacionML }) => (
+                      <div key={marca} className="card">
+                        {BRAND_LOGOS[marca] ? (
+                          <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain', marginBottom: '12px' }} />
+                        ) : (
+                          <h3 style={{ marginBottom: '12px' }}>{marca}</h3>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                          <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Stock Odoo</span>
+                          <span style={{ color: '#06b6d4', fontWeight: 700 }}>{stock.toLocaleString()}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                          <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Precio ML prom.</span>
+                          <span style={{ color: '#fbbf24', fontWeight: 700 }}>${precioML.toLocaleString()}</span>
+                        </div>
+                        <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px', marginTop: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Valuación ML</span>
+                            <span style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.1em' }}>
+                              ${valuacionML >= 1e9 ? (valuacionML / 1e9).toFixed(2) + 'B' : (valuacionML / 1e6).toFixed(1) + 'M'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )
+            })()}
           </section>
 
         </>

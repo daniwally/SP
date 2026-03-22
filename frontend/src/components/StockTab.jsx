@@ -64,7 +64,7 @@ export default function StockTab({ data }) {
         {kpis.map(kpi => (
           <div key={kpi.label} className="kpi-item">
             <div className="kpi-number">
-              {(kpi.value / 1000).toFixed(0)}k
+              {kpi.value.toLocaleString()}
             </div>
             <div className="kpi-label">{kpi.label}</div>
             <div className="kpi-bar">

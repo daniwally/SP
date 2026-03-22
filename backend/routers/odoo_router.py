@@ -27,15 +27,13 @@ STOCK_DATA = {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
-                "productos": [
-                    {"nombre": "SHAQ Products", "cantidad": 873},
-                ]
+                "productos": [{"nombre": "SHAQ Products", "cantidad": 873}],
+                "total": 873
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [
-                    {"nombre": "SHAQ Products", "cantidad": 21591},
-                ]
+                "productos": [{"nombre": "SHAQ Products", "cantidad": 21591}],
+                "total": 21591
             }
         },
         "total_unidades": 22464
@@ -44,15 +42,13 @@ STOCK_DATA = {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
-                "productos": [
-                    {"nombre": "STARTER Products", "cantidad": 1348},
-                ]
+                "productos": [{"nombre": "STARTER Products", "cantidad": 1348}],
+                "total": 1348
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [
-                    {"nombre": "STARTER Products", "cantidad": 40476},
-                ]
+                "productos": [{"nombre": "STARTER Products", "cantidad": 40476}],
+                "total": 40476
             }
         },
         "total_unidades": 41824
@@ -61,15 +57,13 @@ STOCK_DATA = {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
-                "productos": [
-                    {"nombre": "HYDRATE Products", "cantidad": 3065},
-                ]
+                "productos": [{"nombre": "HYDRATE Products", "cantidad": 3065}],
+                "total": 3065
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [
-                    {"nombre": "HYDRATE Products", "cantidad": 6789},
-                ]
+                "productos": [{"nombre": "HYDRATE Products", "cantidad": 6789}],
+                "total": 6789
             }
         },
         "total_unidades": 9854
@@ -78,15 +72,13 @@ STOCK_DATA = {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
-                "productos": [
-                    {"nombre": "TIMBERLAND Products", "cantidad": 306},
-                ]
+                "productos": [{"nombre": "TIMBERLAND Products", "cantidad": 306}],
+                "total": 306
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [
-                    {"nombre": "TIMBERLAND Products", "cantidad": 4897},
-                ]
+                "productos": [{"nombre": "TIMBERLAND Products", "cantidad": 4897}],
+                "total": 4897
             }
         },
         "total_unidades": 5203
@@ -95,15 +87,13 @@ STOCK_DATA = {
         "almacenes": {
             "Artilleros": {
                 "nombre": "Artilleros",
-                "productos": [
-                    {"nombre": "ELSYS Products", "cantidad": 84},
-                ]
+                "productos": [{"nombre": "ELSYS Products", "cantidad": 84}],
+                "total": 84
             },
             "Aduana (Tránsito – Solo interno)": {
                 "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [
-                    {"nombre": "ELSYS Products", "cantidad": 200},
-                ]
+                "productos": [{"nombre": "ELSYS Products", "cantidad": 200}],
+                "total": 200
             }
         },
         "total_unidades": 284
@@ -304,18 +294,19 @@ def _stock_actual_sync():
                     if marca not in result:
                         result[marca] = {'almacenes': {}, 'total_unidades': 0, 'costo_total': 0.0}
                     if wh_name not in result[marca]['almacenes']:
-                        result[marca]['almacenes'][wh_name] = {'nombre': wh_name, 'productos': []}
+                        result[marca]['almacenes'][wh_name] = {'nombre': wh_name, 'productos': [], 'total': 0}
 
                     cantidad = int(q['quantity'])
                     costo_u = float(prod_data.get('standard_price', 0)) or 0.0
 
-                    if len(result[marca]['almacenes'][wh_name]['productos']) < 3:
+                    if len(result[marca]['almacenes'][wh_name]['productos']) < 50:
                         result[marca]['almacenes'][wh_name]['productos'].append({
                             'nombre': prod_data['name'],
                             'cantidad': cantidad,
                             'costo_unitario': costo_u
                         })
 
+                    result[marca]['almacenes'][wh_name]['total'] += cantidad
                     result[marca]['total_unidades'] += cantidad
                     result[marca]['costo_total'] += cantidad * costo_u
 

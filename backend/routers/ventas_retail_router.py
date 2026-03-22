@@ -143,23 +143,24 @@ def _pedidos_sync(desde: str, hasta: str):
                 'lineas': lineas,
             })
 
-        prod_totals = {}
+        marca_totals = {}
         for p in pedidos:
             for ln in p['lineas']:
-                key = ln['producto']
-                if key not in prod_totals:
-                    prod_totals[key] = {'producto': key, 'cantidad': 0, 'monto': 0}
-                prod_totals[key]['cantidad'] += ln['cantidad']
-                prod_totals[key]['monto'] += ln['subtotal']
+                pid = ln.get('producto_id')
+                marca = product_brand.get(pid, 'Sin marca') if pid else 'Sin marca'
+                if marca not in marca_totals:
+                    marca_totals[marca] = {'marca': marca, 'cantidad': 0, 'monto': 0}
+                marca_totals[marca]['cantidad'] += ln['cantidad']
+                marca_totals[marca]['monto'] += ln['subtotal']
 
-        top_productos = sorted(prod_totals.values(), key=lambda x: x['monto'], reverse=True)[:10]
+        top_marcas = sorted(marca_totals.values(), key=lambda x: x['monto'], reverse=True)[:10]
 
         resumen = {
             'total_pedidos': len(pedidos),
             'total_monto': round(total_monto, 2),
             'total_items': int(total_items),
             'ticket_promedio': round(total_monto / len(pedidos), 2) if pedidos else 0,
-            'top_productos': top_productos,
+            'top_marcas': top_marcas,
         }
 
         return {"pedidos": pedidos, "resumen": resumen}

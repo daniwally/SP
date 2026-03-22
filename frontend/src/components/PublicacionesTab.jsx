@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import './PublicacionesTab.css';
 
+const Tooltip = ({ text, children }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      {children}
+      {show && text && (
+        <span style={{
+          position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
+          background: '#1a1a2e', color: '#fff', padding: '8px 12px', borderRadius: '6px',
+          fontSize: '0.75em', fontWeight: 400, lineHeight: '1.4', whiteSpace: 'normal',
+          width: '280px', zIndex: 100, border: '1px solid #333', marginBottom: '6px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.5)', pointerEvents: 'none',
+        }}>{text}</span>
+      )}
+    </span>
+  );
+};
+
 const MARCAS = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'URBAN_FLOW'];
 
 const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos';
@@ -678,22 +697,26 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                               <span style={{ fontSize: '0.9em' }}>{sug.titulo_actual}</span>
                               <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_actual.length} chars</span>
                             </td>
-                            <td style={{ maxWidth: '280px', position: 'relative' }}>
-                              <span
-                                style={{ fontSize: '0.9em', color: sinCambio ? '#7f8c8d' : '#fff', fontWeight: sinCambio ? 400 : 600, cursor: sinCambio ? 'default' : 'help' }}
-                                title={sinCambio ? '' : sug.cambios}
-                              >
-                                {sug.titulo_optimizado}
-                              </span>
+                            <td style={{ maxWidth: '280px' }}>
+                              {sinCambio ? (
+                                <span style={{ fontSize: '0.9em', color: '#7f8c8d' }}>{sug.titulo_optimizado}</span>
+                              ) : (
+                                <Tooltip text={sug.cambios}>
+                                  <span style={{ fontSize: '0.9em', color: '#fff', fontWeight: 600, cursor: 'help', borderBottom: '1px dotted #555' }}>
+                                    {sug.titulo_optimizado}
+                                  </span>
+                                </Tooltip>
+                              )}
                               <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{sug.titulo_optimizado.length} chars</span>
                             </td>
-                            <td style={{ textAlign: 'center' }}>
+                            <td style={{ textAlign: 'center', minWidth: '100px' }}>
                               {estado === 'loading' && <span style={{ color: '#fbbf24' }}>Aplicando...</span>}
                               {estado === 'ok' && <span style={{ color: '#22c55e', fontWeight: 700 }}>Aplicado</span>}
                               {estado === 'error' && (
-                                <span style={{ color: '#ef4444', cursor: errorMsg ? 'help' : 'default' }} title={errorMsg || ''}>
-                                  Error
-                                </span>
+                                <div>
+                                  <span style={{ color: '#ef4444', fontWeight: 700 }}>Error</span>
+                                  {errorMsg && <div style={{ color: '#ef4444', fontSize: '0.65em', marginTop: '2px', maxWidth: '150px', wordBreak: 'break-word' }}>{errorMsg.slice(0, 100)}</div>}
+                                </div>
                               )}
                               {!estado && !sinCambio && aprobado && (
                                 <button

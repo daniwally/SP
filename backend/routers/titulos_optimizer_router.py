@@ -35,26 +35,31 @@ async def call_claude(titles_data: list[dict]) -> dict:
         for t in titles_data
     )
 
-    prompt = f"""Sos un experto en SEO y optimización de títulos para Mercado Libre Argentina.
+    prompt = f"""Sos un experto en SEO y posicionamiento de publicaciones en Mercado Libre Argentina.
+Tu trabajo es optimizar títulos para que aparezcan primeros en las búsquedas de MeLi.
 
-REGLAS CLAVE para títulos de MeLi:
-1. Máximo 60 caracteres (ESTRICTO - MeLi corta títulos más largos)
-2. Incluir: marca + producto + atributo clave (color, talle, modelo)
-3. NO usar signos de exclamación, puntos, caracteres especiales
-4. NO usar palabras como "oferta", "envío gratis", "mejor precio" (MeLi penaliza)
-5. Usar mayúsculas solo en marcas y primera letra
-6. Palabras clave más buscadas primero (ej: "Zapatillas" antes que el modelo)
-7. Separar atributos con espacios, no guiones
-8. Incluir género si aplica (Hombre/Mujer/Unisex)
-9. Si el título actual ya es óptimo, devolver el mismo título
+REGLAS ESTRICTAS DE MERCADO LIBRE:
+1. Máximo 60 caracteres (OBLIGATORIO - MeLi corta lo que exceda)
+2. Estructura ideal: [Tipo Producto] + [Marca] + [Modelo/Línea] + [Atributo Clave]
+   Ejemplo: "Zapatillas Shaq Posture Basquet Hombre Negras"
+3. La primera palabra SIEMPRE debe ser el tipo de producto genérico que la gente busca (Zapatillas, Botella, Remera, Bota, etc.)
+4. La marca va DESPUÉS del tipo de producto
+5. TODO en Title Case (primera letra de cada palabra en mayúscula)
+6. NO usar: signos (! ? . ,), palabras promocionales (oferta, envío gratis, mejor precio, original, premium, nuevo), ni caracteres especiales
+7. NO repetir palabras que ya están en los atributos/fichas de MeLi (talle, color se ponen en ficha técnica)
+8. SÍ incluir: género (Hombre/Mujer/Unisex), color principal, modelo específico si existe
+9. Usar palabras que la gente realmente busca en Argentina (zapatillas, no zapatos deportivos)
+10. Si el título actual ya cumple todas las reglas y está bien optimizado, devolvé el mismo título exacto
 
-Analiza estos títulos y genera versiones optimizadas:
+IMPORTANTE: No inventes información. Solo reorganizá y optimizá lo que ya está en el título actual.
+
+Publicaciones a optimizar:
 
 {items_text}
 
-Respondé ÚNICAMENTE con un JSON array, sin texto adicional, con este formato exacto:
+Respondé ÚNICAMENTE con un JSON array válido, sin markdown, sin texto adicional:
 [
-  {{"item_id": "MLA...", "titulo_original": "...", "titulo_optimizado": "...", "cambios": "breve explicación de qué cambiaste"}},
+  {{"item_id": "MLA...", "titulo_original": "...", "titulo_optimizado": "...", "cambios": "explicación breve de las mejoras"}},
   ...
 ]"""
 
@@ -69,6 +74,7 @@ Respondé ÚNICAMENTE con un JSON array, sin texto adicional, con este formato e
             json={
                 "model": "claude-haiku-4-5-20251001",
                 "max_tokens": 4096,
+                "temperature": 0,
                 "messages": [{"role": "user", "content": prompt}],
             },
         )

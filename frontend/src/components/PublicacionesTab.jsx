@@ -125,7 +125,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
       const resp = await fetch('/api/titulos/aplicar', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item_id: itemId, nuevo_titulo: nuevoTitulo }),
+        body: JSON.stringify({ item_id: itemId, nuevo_titulo: nuevoTitulo, marca: optMarca }),
       });
       if (resp.status === 200) {
         setOptAplicando(prev => ({ ...prev, [itemId]: 'ok' }));

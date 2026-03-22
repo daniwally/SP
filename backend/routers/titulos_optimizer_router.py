@@ -233,37 +233,57 @@ async def optimizar_titulos_marca(
 class AplicarTituloRequest(BaseModel):
     item_id: str
     nuevo_titulo: str
+    marca: Optional[str] = None
 
 
 @router.put("/aplicar")
 async def aplicar_titulo(req: AplicarTituloRequest):
     """Aplica un título optimizado a una publicación de MeLi"""
-    if not req.nuevo_titulo or len(req.nuevo_titulo) > 60:
-        raise HTTPException(status_code=400, detail="Título inválido o mayor a 60 caracteres")
+    if not req.nuevo_titulo:
+        raise HTTPException(status_code=400, detail="Título vacío")
+    # Truncar a 60 chars si Claude se pasó
+    titulo_final = req.nuevo_titulo[:60]
 
-    # Detectar marca del item
+    # Si viene la marca, usarla directo (evita iterar por todas)
     marca_encontrada = None
     token = None
-    for marca_name in MARCAS:
-        t = await get_token_by_marca(marca_name)
-        if t:
-            # Verificar si el item pertenece a esta marca
-            async with httpx.AsyncClient() as client:
-                check = await client.get(
-                    f"https://api.mercadolibre.com/items/{req.item_id}",
-                    headers={"Authorization": f"Bearer {t}"},
-                    timeout=10,
-                )
-                if check.status_code == 200:
-                    item_data = check.json()
-                    seller_id = item_data.get("seller_id")
-                    if seller_id == MARCAS[marca_name]:
-                        marca_encontrada = marca_name
-                        token = t
-                        break
+    item_data = None
+
+    if req.marca and req.marca.upper() in MARCAS:
+        marca_encontrada = req.marca.upper()
+        token = await get_token_by_marca(marca_encontrada)
+
+    # Fallback: detectar marca del item
+    if not token:
+        for marca_name in MARCAS:
+            t = await get_token_by_marca(marca_name)
+            if t:
+                async with httpx.AsyncClient() as client:
+                    check = await client.get(
+                        f"https://api.mercadolibre.com/items/{req.item_id}",
+                        headers={"Authorization": f"Bearer {t}"},
+                        timeout=10,
+                    )
+                    if check.status_code == 200:
+                        item_data = check.json()
+                        seller_id = item_data.get("seller_id")
+                        if seller_id == MARCAS[marca_name]:
+                            marca_encontrada = marca_name
+                            token = t
+                            break
 
     if not token:
         raise HTTPException(status_code=404, detail=f"No se encontró el item {req.item_id} en ninguna cuenta")
+
+    # Obtener título anterior si no lo tenemos
+    if not item_data:
+        async with httpx.AsyncClient() as client:
+            check = await client.get(
+                f"https://api.mercadolibre.com/items/{req.item_id}",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10,
+            )
+            item_data = check.json() if check.status_code == 200 else {}
 
     # Aplicar cambio via ML API
     async with httpx.AsyncClient() as client:
@@ -273,7 +293,7 @@ async def aplicar_titulo(req: AplicarTituloRequest):
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
             },
-            json={"title": req.nuevo_titulo},
+            json={"title": titulo_final},
             timeout=15,
         )
 
@@ -290,9 +310,9 @@ async def aplicar_titulo(req: AplicarTituloRequest):
             "item_id": req.item_id,
             "marca": marca_encontrada,
             "titulo_anterior": titulo_anterior,
-            "titulo_nuevo": req.nuevo_titulo,
+            "titulo_nuevo": titulo_final,
             "chars_anterior": len(titulo_anterior),
-            "chars_nuevo": len(req.nuevo_titulo),
+            "chars_nuevo": len(titulo_final),
             "timestamp": ts,
         })
         _save_historial(historial)
@@ -301,7 +321,7 @@ async def aplicar_titulo(req: AplicarTituloRequest):
             "status": "ok",
             "item_id": req.item_id,
             "marca": marca_encontrada,
-            "titulo_aplicado": req.nuevo_titulo,
+            "titulo_aplicado": titulo_final,
             "timestamp": ts,
         }
 

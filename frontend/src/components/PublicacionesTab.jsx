@@ -70,7 +70,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
   const [optStats, setOptStats] = useState(null);
   const [optAprobados, setOptAprobados] = useState({});  // item_id -> bool
   const [optAplicando, setOptAplicando] = useState({});  // item_id -> 'loading' | 'ok' | 'error'
-  const [optLimit, setOptLimit] = useState(20);
+  const [optLimit, setOptLimit] = useState(10);
   const [optShowSection, setOptShowSection] = useState(false);
 
   // --- Estado para Historial de Títulos ---

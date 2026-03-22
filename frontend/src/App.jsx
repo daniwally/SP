@@ -175,6 +175,12 @@ function App() {
               🏪 Ventas Retail
             </button>
             <button
+              className={`tab-btn ${activeTab === 'ventas' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ventas')}
+            >
+              📊 Ventas
+            </button>
+            <button
               className={`tab-btn ${activeTab === 'publicaciones' ? 'active' : ''}`}
               onClick={() => setActiveTab('publicaciones')}
             >
@@ -185,12 +191,6 @@ function App() {
               onClick={() => setActiveTab('stock')}
             >
               📦 Stock
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'ventas' ? 'active' : ''}`}
-              onClick={() => setActiveTab('ventas')}
-            >
-              📊 Ventas
             </button>
             <button
               className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}

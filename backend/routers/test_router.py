@@ -104,13 +104,21 @@ async def ventas_detallado():
             return marca, {"error": "Token not found"}
 
         try:
-            # Traer órdenes con paginación async
+            # Traer órdenes desde inicio de mes con paginación async
             ordenes = []
-            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc"
+            date_from = f"{INICIO_MES}T00:00:00.000-03:00"
+            date_to = f"{HOY}T23:59:59.999-03:00"
+            base_url = (
+                f"https://api.mercadolibre.com/orders/search"
+                f"?seller={uid}&sort=date_desc"
+                f"&order.date_created.from={date_from}"
+                f"&order.date_created.to={date_to}"
+            )
+            url = base_url
 
             async with httpx.AsyncClient() as client:
                 while True:
-                    resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+                    resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
                     resp.raise_for_status()
                     data = resp.json()
 
@@ -120,16 +128,18 @@ async def ventas_detallado():
                     batch = data.get("results", [])
                     ordenes.extend(batch)
 
-                    scroll_id = data.get("paging", {}).get("scroll_id")
-                    if not scroll_id or len(batch) < 50:
+                    # Use offset pagination
+                    paging = data.get("paging", {})
+                    offset = paging.get("offset", 0)
+                    limit = paging.get("limit", 50)
+                    total = paging.get("total", 0)
+                    if offset + limit >= total:
                         break
-
-                    url = f"https://api.mercadolibre.com/orders/search?seller={uid}&sort=date_desc&scroll_id={scroll_id}"
+                    url = f"{base_url}&offset={offset + limit}"
 
             ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
             ordenes_7d = [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
-            ordenes_30d = [o for o in ordenes if INICIO_MES <= o.get("date_created", "")[:10] <= HOY]
-            ordenes_año = [o for o in ordenes if ENERO_ACTUAL <= o.get("date_created", "")[:10] <= HOY]
+            ordenes_mes = ordenes  # Already filtered by date_from/date_to in API call
 
             return marca, {
                 "hoy": {
@@ -145,16 +155,14 @@ async def ventas_detallado():
                     "productos": extract_sku_productos(ordenes_7d)[:10]
                 },
                 "mes": {
-                    "total": sum(o.get("total_amount", 0) for o in ordenes_30d),
-                    "ordenes": len(ordenes_30d),
-                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_30d) / len(ordenes_30d) if ordenes_30d else 0,
-                    "productos": extract_sku_productos(ordenes_30d)[:10]
+                    "total": sum(o.get("total_amount", 0) for o in ordenes_mes),
+                    "ordenes": len(ordenes_mes),
+                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_mes) / len(ordenes_mes) if ordenes_mes else 0,
+                    "productos": extract_sku_productos(ordenes_mes)[:10]
                 },
                 "año": {
-                    "total": sum(o.get("total_amount", 0) for o in ordenes_año),
-                    "ordenes": len(ordenes_año),
-                    "promedio": sum(o.get("total_amount", 0) for o in ordenes_año) / len(ordenes_año) if ordenes_año else 0,
-                    "productos": extract_sku_productos(ordenes_año)[:10]
+                    "total": sum(o.get("total_amount", 0) for o in ordenes_mes),
+                    "ordenes": len(ordenes_mes),
                 }
             }
 

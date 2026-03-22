@@ -84,21 +84,61 @@ def _pedidos_sync(desde: str, hasta: str):
                 if pid:
                     all_product_ids.add(pid)
 
-        # Fetch brand for each product from product.product
+        # Fetch brand for each product - auto-detect brand field
         product_brand = {}
         if all_product_ids:
+            pid_list = list(all_product_ids)[:2000]
+            # Detect available brand fields
+            brand_field = None
             try:
-                products = models.execute_kw(
-                    ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
-                    [list(all_product_ids)[:2000]],
-                    {'fields': ['product_brand_id']},
+                all_fields = models.execute_kw(
+                    ODOO_DB, uid, ODOO_KEY, 'product.product', 'fields_get',
+                    [], {'attributes': ['string', 'type']}
                 )
-                for p in products:
-                    brand = p.get('product_brand_id')
-                    if brand:
-                        product_brand[p['id']] = brand[1] if isinstance(brand, list) else str(brand)
+                # Try common brand field names
+                for candidate in ['product_brand_id', 'brand_id', 'x_brand', 'x_brand_id', 'x_marca', 'x_marca_id']:
+                    if candidate in all_fields:
+                        brand_field = candidate
+                        break
+                if not brand_field:
+                    # Search for any field with 'brand' or 'marca' in name
+                    for fname, finfo in all_fields.items():
+                        if ('brand' in fname.lower() or 'marca' in fname.lower()) and finfo.get('type') == 'many2one':
+                            brand_field = fname
+                            break
+                print(f"[Retail] Brand field detected: {brand_field}")
             except Exception as e:
-                print(f"Brand fetch error: {e}")
+                print(f"[Retail] fields_get error: {e}")
+
+            if brand_field:
+                try:
+                    products = models.execute_kw(
+                        ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
+                        [pid_list],
+                        {'fields': [brand_field]},
+                    )
+                    for p in products:
+                        brand = p.get(brand_field)
+                        if brand:
+                            product_brand[p['id']] = brand[1] if isinstance(brand, list) else str(brand)
+                    print(f"[Retail] Brands found: {len(product_brand)} of {len(pid_list)} products")
+                except Exception as e:
+                    print(f"[Retail] Brand fetch error: {e}")
+            else:
+                print("[Retail] No brand field found in product.product - trying categ_id as fallback")
+                try:
+                    products = models.execute_kw(
+                        ODOO_DB, uid, ODOO_KEY, 'product.product', 'read',
+                        [pid_list],
+                        {'fields': ['categ_id']},
+                    )
+                    for p in products:
+                        categ = p.get('categ_id')
+                        if categ:
+                            categ_name = categ[1] if isinstance(categ, list) else str(categ)
+                            product_brand[p['id']] = categ_name
+                except Exception as e:
+                    print(f"[Retail] Category fallback error: {e}")
 
         # Build lines_by_order with brand embedded
         lines_by_order = {}

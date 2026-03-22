@@ -311,7 +311,7 @@ function App() {
                 {/* Total */}
                 <div style={{ flex: 1 }}>
                   <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>TOTAL UNIDADES</p>
-                  <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '2.43em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
                   </p>
                 </div>
@@ -322,7 +322,7 @@ function App() {
                 {/* Artilleros */}
                 <div style={{ flex: 1 }}>
                   <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Artilleros</p>
-                  <p style={{ color: '#06b6d4', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '2.43em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     {Object.values(stockData).reduce((sum, marca) => {
                       return sum + (marca.almacenes?.['Artilleros']?.total || 0)
                     }, 0).toLocaleString()}
@@ -335,7 +335,7 @@ function App() {
                 {/* Aduana */}
                 <div style={{ flex: 1 }}>
                   <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, marginBottom: '4px' }}>Aduana</p>
-                  <p style={{ color: '#3e7fff', fontSize: '1.8em', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '2.43em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     {Object.values(stockData).reduce((sum, marca) => {
                       return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0)
                     }, 0).toLocaleString()}

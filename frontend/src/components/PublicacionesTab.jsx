@@ -114,7 +114,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
         return;
       }
       setOptSugerencias(result.sugerencias || []);
-      setOptStats({ total: result.total_analizadas, con_cambios: result.con_cambios });
+      setOptStats({ total: result.total_analizadas, con_cambios: result.con_cambios, no_editables: result.no_editables || 0, mensaje: result.mensaje || null });
     } catch (err) {
       setOptError(`Error: ${err.message}`);
     } finally {
@@ -628,6 +628,18 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                     <p style={{ color: '#86efac', fontSize: '1.5em', fontWeight: 800, margin: 0 }}>{aprobadosCount}</p>
                   </div>
                 </div>
+
+                {optStats?.no_editables > 0 && (
+                  <div style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '8px', padding: '8px 16px', textAlign: 'center', marginBottom: '12px', color: '#fbbf24', fontSize: '0.8em' }}>
+                    {optStats.no_editables} publicaciones con ventas no se pueden editar (restricción de MeLi)
+                  </div>
+                )}
+
+                {optStats?.mensaje && optSugerencias.length === 0 && (
+                  <div style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '8px', padding: '16px', textAlign: 'center', color: '#fbbf24' }}>
+                    {optStats.mensaje}
+                  </div>
+                )}
 
                 {/* Acciones masivas */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '16px' }}>

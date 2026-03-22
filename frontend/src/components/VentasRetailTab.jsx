@@ -256,7 +256,7 @@ export default function VentasRetailTab() {
 
         {pedidos.resumen?.top_marcas?.length > 0 && (
           <div className="retail-top-productos">
-            <h3>Top Marcas</h3>
+            <h3>Top Marcas - Venta Mensual</h3>
             {pedidos.resumen.top_marcas.map((m, i) => {
               const maxMonto = pedidos.resumen.top_marcas[0]?.monto || 1
               return (

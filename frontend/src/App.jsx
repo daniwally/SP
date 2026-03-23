@@ -58,6 +58,10 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
+  const [rangoDesde, setRangoDesde] = useState('')
+  const [rangoHasta, setRangoHasta] = useState('')
+  const [rangoData, setRangoData] = useState(null)
+  const [rangoLoading, setRangoLoading] = useState(false)
 
   useEffect(() => {
     const today = new Date()
@@ -124,6 +128,20 @@ function App() {
       console.error('❌ Error fetching data:', error)
       setLoading(false)
     }
+  }
+
+  const fetchVentasRango = async () => {
+    if (!rangoDesde || !rangoHasta) return
+    setRangoLoading(true)
+    try {
+      const API = window.location.origin + '/api'
+      const resp = await axios.get(`${API}/test/ventas-rango?desde=${rangoDesde}&hasta=${rangoHasta}`, { timeout: 30000 })
+      setRangoData(resp.data)
+    } catch (e) {
+      console.error('Error fetching rango:', e)
+      setRangoData(null)
+    }
+    setRangoLoading(false)
   }
 
   if (loading) {
@@ -300,7 +318,58 @@ function App() {
           </div>
         </section>
 
+        {/* CONSULTA POR RANGO DE FECHAS */}
+        <section className="section">
+          <h2>Consulta por Rango</h2>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+            <input type="date" value={rangoDesde} onChange={e => setRangoDesde(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.9em' }} />
+            <span style={{ color: '#7f8c8d' }}>a</span>
+            <input type="date" value={rangoHasta} onChange={e => setRangoHasta(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.9em' }} />
+            <button onClick={fetchVentasRango} disabled={rangoLoading || !rangoDesde || !rangoHasta}
+              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: rangoLoading ? '#555' : 'linear-gradient(135deg, #d946ef, #06b6d4)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
+              {rangoLoading ? 'Buscando...' : 'Buscar'}
+            </button>
+          </div>
 
+          {rangoData && (
+            <>
+              <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
+                <div className="total-item">
+                  <span>Total Rango:</span>
+                  <span className="total-item-ordenes">{rangoData.totales?.ordenes || 0} órdenes</span>
+                  <span className="total-item-value">${fmtMoney(rangoData.totales?.total || 0)}</span>
+                </div>
+              </div>
+              <div className="cards-grid">
+                {Object.entries(rangoData).filter(([k]) => k !== 'totales').map(([marca, data]) => (
+                  <div key={marca} className="card">
+                    {BRAND_LOGOS[marca] ? (
+                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                    ) : (
+                      <h3>{marca}</h3>
+                    )}
+                    <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
+                      <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{data.ordenes || 0}</p>
+                      <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>órdenes</p>
+                    </div>
+                    <p className="value" style={{ fontSize: '0.68em' }}>${fmtMoney(data.total || 0)}</p>
+                    {data.productos && data.productos.length > 0 && (
+                      <div className="productos-list">
+                        {data.productos.slice(0, 10).map((prod, idx) => (
+                          <p key={idx} className="producto-item">
+                            {prod.nombre} <span className="cantidad">x{prod.cantidad}</span>
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
 
         </>
         )}

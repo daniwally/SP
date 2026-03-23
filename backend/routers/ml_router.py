@@ -172,16 +172,41 @@ async def ventas_hoy():
     """Ventas de hoy por marca con productos - ASYNC PARALELO"""
     NOW = datetime.now(ART)
     HOY = NOW.strftime("%Y-%m-%d")
+    fecha_from = f"{HOY}T00:00:00.000-03:00"
+    fecha_to = f"{HOY}T23:59:59.000-03:00"
 
-    def filter_hoy(ordenes):
-        return [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
-
-    # Fetch tokens + data en paralelo
-    async def fetch_with_token(cuenta_num, uid, marca):
+    async def fetch_hoy(cuenta_num, uid, marca):
         token = await get_token(cuenta_num)
-        return await _fetch_ventas_marca(cuenta_num, uid, marca, token, filter_hoy)
+        if not token:
+            return marca, None
+        try:
+            url = (
+                f"https://api.mercadolibre.com/orders/search?seller={uid}"
+                f"&order.status=paid"
+                f"&order.date_created.from={fecha_from}"
+                f"&order.date_created.to={fecha_to}"
+                f"&sort=date_desc&limit=50"
+            )
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+                resp.raise_for_status()
+                data = resp.json()
 
-    results = await asyncio.gather(*[fetch_with_token(cn, uid, m) for cn, (uid, m) in CUENTAS.items()])
+            if data and "results" in data:
+                ordenes = data.get("results", [])
+                total = sum(o.get("total_amount", 0) for o in ordenes)
+                productos = extract_productos(ordenes)
+                return marca, {
+                    "total": int(total),
+                    "ordenes": len(ordenes),
+                    "productos": productos[:5]
+                }
+            return marca, None
+        except Exception as e:
+            print(f"Error fetching {marca}: {e}")
+            return marca, None
+
+    results = await asyncio.gather(*[fetch_hoy(cn, uid, m) for cn, (uid, m) in CUENTAS.items()])
 
     resultado = {}
     for marca, data in results:
@@ -215,7 +240,7 @@ async def ventas_mes():
             }
 
         try:
-            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&limit=50"
+            url = f"https://api.mercadolibre.com/orders/search?seller={uid}&order.status=paid&order.date_created.from={fecha_from}&order.date_created.to={fecha_to}&sort=date_desc&limit=50"
             async with httpx.AsyncClient() as client:
                 resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
                 resp.raise_for_status()
@@ -272,15 +297,41 @@ async def ventas_7dias():
     NOW = datetime.now(ART)
     HOY = NOW.strftime("%Y-%m-%d")
     HACE_7 = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
+    fecha_from = f"{HACE_7}T00:00:00.000-03:00"
+    fecha_to = f"{HOY}T23:59:59.000-03:00"
 
-    def filter_7d(ordenes):
-        return [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
-
-    async def fetch_with_token(cuenta_num, uid, marca):
+    async def fetch_7d(cuenta_num, uid, marca):
         token = await get_token(cuenta_num)
-        return await _fetch_ventas_marca(cuenta_num, uid, marca, token, filter_7d)
+        if not token:
+            return marca, None
+        try:
+            url = (
+                f"https://api.mercadolibre.com/orders/search?seller={uid}"
+                f"&order.status=paid"
+                f"&order.date_created.from={fecha_from}"
+                f"&order.date_created.to={fecha_to}"
+                f"&sort=date_desc&limit=50"
+            )
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+                resp.raise_for_status()
+                data = resp.json()
 
-    results = await asyncio.gather(*[fetch_with_token(cn, uid, m) for cn, (uid, m) in CUENTAS.items()])
+            if data and "results" in data:
+                ordenes = data.get("results", [])
+                total = sum(o.get("total_amount", 0) for o in ordenes)
+                productos = extract_productos(ordenes)
+                return marca, {
+                    "total": int(total),
+                    "ordenes": len(ordenes),
+                    "productos": productos[:5]
+                }
+            return marca, None
+        except Exception as e:
+            print(f"Error fetching {marca}: {e}")
+            return marca, None
+
+    results = await asyncio.gather(*[fetch_7d(cn, uid, m) for cn, (uid, m) in CUENTAS.items()])
 
     resultado = {}
     for marca, data in results:

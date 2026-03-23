@@ -137,9 +137,23 @@ async def ventas_detallado():
                         break
                     url = f"{base_url}&offset={offset + limit}"
 
-            ordenes_hoy = [o for o in ordenes if o.get("date_created", "")[:10] == HOY]
-            ordenes_7d = [o for o in ordenes if HACE_7 <= o.get("date_created", "")[:10] <= HOY]
+            # Filtrar órdenes válidas (pagadas o confirmadas, excluir canceladas)
+            ordenes = [o for o in ordenes if o.get("status") != "cancelled"]
+
+            # Convertir date_created a fecha ART para comparar correctamente
+            def fecha_art(date_str):
+                """Extrae fecha en ART de un ISO datetime string de MeLi"""
+                try:
+                    dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                    return dt.astimezone(ART).strftime("%Y-%m-%d")
+                except Exception:
+                    return date_str[:10]
+
+            ordenes_hoy = [o for o in ordenes if fecha_art(o.get("date_created", "")) == HOY]
+            ordenes_7d = [o for o in ordenes if HACE_7 <= fecha_art(o.get("date_created", "")) <= HOY]
             ordenes_mes = ordenes  # Already filtered by date_from/date_to in API call
+
+            print(f"📦 {marca}: {len(ordenes)} órdenes mes, {len(ordenes_hoy)} hoy ({HOY})")
 
             return marca, {
                 "hoy": {

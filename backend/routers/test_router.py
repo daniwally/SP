@@ -207,3 +207,68 @@ async def ventas_detallado():
         }
 
     return resultado
+
+
+@router.get("/ventas-rango")
+async def ventas_rango(desde: str, hasta: str):
+    """Ventas por rango de fechas personalizado - ASYNC PARALELO"""
+    date_from = f"{desde}T00:00:00.000-03:00"
+    date_to = f"{hasta}T23:59:59.999-03:00"
+
+    async def fetch_cuenta(cuenta_num, uid, marca):
+        token = await get_token(cuenta_num)
+        if not token:
+            return marca, {"error": "Token not found"}
+
+        try:
+            ordenes = []
+            base_url = (
+                f"https://api.mercadolibre.com/orders/search"
+                f"?seller={uid}&sort=date_desc"
+                f"&order.date_created.from={date_from}"
+                f"&order.date_created.to={date_to}"
+            )
+            url = base_url
+
+            async with httpx.AsyncClient() as client:
+                while True:
+                    resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+                    resp.raise_for_status()
+                    data = resp.json()
+
+                    if not data or "results" not in data:
+                        break
+
+                    batch = data.get("results", [])
+                    ordenes.extend(batch)
+
+                    paging = data.get("paging", {})
+                    offset = paging.get("offset", 0)
+                    limit = paging.get("limit", 50)
+                    total = paging.get("total", 0)
+                    if offset + limit >= total:
+                        break
+                    url = f"{base_url}&offset={offset + limit}"
+
+            ordenes = [o for o in ordenes if o.get("status") != "cancelled"]
+
+            return marca, {
+                "total": sum(o.get("total_amount", 0) for o in ordenes),
+                "ordenes": len(ordenes),
+                "productos": extract_sku_productos(ordenes)[:10]
+            }
+
+        except Exception as e:
+            return marca, {"error": str(e)}
+
+    results = await asyncio.gather(*[fetch_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
+
+    resultado = {}
+    for marca, data in results:
+        resultado[marca] = data
+
+    total_general = sum(v.get("total", 0) for v in resultado.values() if "total" in v)
+    ordenes_general = sum(v.get("ordenes", 0) for v in resultado.values() if "ordenes" in v)
+    resultado["totales"] = {"total": total_general, "ordenes": ordenes_general}
+
+    return resultado

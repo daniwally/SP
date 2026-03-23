@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import es from 'date-fns/locale/es'
+import 'react-datepicker/dist/react-datepicker.css'
+
+registerLocale('es', es)
 import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
@@ -58,8 +63,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
-  const [rangoDesde, setRangoDesde] = useState('')
-  const [rangoHasta, setRangoHasta] = useState('')
+  const [rangoDesde, setRangoDesde] = useState(null)
+  const [rangoHasta, setRangoHasta] = useState(null)
   const [rangoData, setRangoData] = useState(null)
   const [rangoLoading, setRangoLoading] = useState(false)
 
@@ -130,12 +135,14 @@ function App() {
     }
   }
 
+  const fmtDate = (d) => d.toISOString().slice(0, 10)
+
   const fetchVentasRango = async () => {
     if (!rangoDesde || !rangoHasta) return
     setRangoLoading(true)
     try {
       const API = window.location.origin + '/api'
-      const resp = await axios.get(`${API}/test/ventas-rango?desde=${rangoDesde}&hasta=${rangoHasta}`, { timeout: 30000 })
+      const resp = await axios.get(`${API}/test/ventas-rango?desde=${fmtDate(rangoDesde)}&hasta=${fmtDate(rangoHasta)}`, { timeout: 30000 })
       setRangoData(resp.data)
     } catch (e) {
       console.error('Error fetching rango:', e)
@@ -322,11 +329,32 @@ function App() {
         <section className="section">
           <h2>Consulta por Rango</h2>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-            <input type="date" value={rangoDesde} onChange={e => setRangoDesde(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.9em' }} />
+            <DatePicker
+              selected={rangoDesde}
+              onChange={date => setRangoDesde(date)}
+              selectsStart
+              startDate={rangoDesde}
+              endDate={rangoHasta}
+              maxDate={new Date()}
+              locale="es"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Desde"
+              className="rango-datepicker"
+            />
             <span style={{ color: '#7f8c8d' }}>a</span>
-            <input type="date" value={rangoHasta} onChange={e => setRangoHasta(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.9em' }} />
+            <DatePicker
+              selected={rangoHasta}
+              onChange={date => setRangoHasta(date)}
+              selectsEnd
+              startDate={rangoDesde}
+              endDate={rangoHasta}
+              minDate={rangoDesde}
+              maxDate={new Date()}
+              locale="es"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Hasta"
+              className="rango-datepicker"
+            />
             <button onClick={fetchVentasRango} disabled={rangoLoading || !rangoDesde || !rangoHasta}
               style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: rangoLoading ? '#555' : 'linear-gradient(135deg, #d946ef, #06b6d4)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
               {rangoLoading ? 'Buscando...' : 'Buscar'}

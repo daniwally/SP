@@ -9,6 +9,26 @@
   font-size: 1.8em;
 }
 
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(217, 70, 239, 0.15));
+  color: #06b6d4;
+  font-weight: 600;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(217, 70, 239, 0.3));
+  border-color: rgba(6, 182, 212, 0.6);
+  color: #fff;
+}
+
 /* Controls bar */
 .controls-bar {
   display: flex;

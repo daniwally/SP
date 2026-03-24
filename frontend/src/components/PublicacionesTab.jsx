@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import './PublicacionesTab.css';
 
 const Tooltip = ({ text, children }) => {
@@ -280,6 +281,44 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
     return pubs;
   };
 
+  const downloadExcel = () => {
+    const pubs = getFilteredPublicaciones();
+    const rows = pubs.map(pub => {
+      const row = {};
+      if (viewMode === 'todas') row['Marca'] = pub.marca;
+      row['Título'] = cleanTitle(pub.titulo);
+      row['Estado'] = pub.status_label;
+      row['Precio'] = pub.precio;
+      row['Salud'] = pub.health != null ? `${Math.round(pub.health * 100)}%` : '-';
+      row['Stock'] = pub.stock;
+      row['Vendidas'] = pub.vendidas;
+      row['Tipo'] = pub.listing_type_label;
+      row['Envío'] = pub.logistica_full ? 'FULL' : pub.envio_gratis ? 'Gratis' : 'Pago';
+      row['Condición'] = pub.condition_label;
+      row['Fotos'] = pub.fotos;
+      row['Días'] = pub.dias_publicado ?? '-';
+      row['Link'] = pub.permalink || '';
+      return row;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // Auto-width columns
+    const colWidths = Object.keys(rows[0] || {}).map(key => {
+      const maxLen = Math.max(key.length, ...rows.map(r => String(r[key] ?? '').length));
+      return { wch: Math.min(maxLen + 2, 50) };
+    });
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    const sheetName = viewMode === 'todas' ? 'Todas las Marcas' : marca;
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    const fileName = viewMode === 'todas'
+      ? `Publicaciones_Todas_${statusFilter}.xlsx`
+      : `Publicaciones_${marca}_${statusFilter}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
@@ -302,7 +341,17 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
 
   return (
     <div className="publicaciones-container">
-      <h2>Reporte de Publicaciones</h2>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+        <h2 style={{ margin: 0 }}>Reporte de Publicaciones</h2>
+        {publicaciones.length > 0 && (
+          <button onClick={downloadExcel} className="download-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+              <path d="M8 1v9m0 0L5 7m3 3l3-3M2 12v1a2 2 0 002 2h8a2 2 0 002-2v-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Descargar Excel
+          </button>
+        )}
+      </div>
 
       {/* Controls bar */}
       <div className="controls-bar">

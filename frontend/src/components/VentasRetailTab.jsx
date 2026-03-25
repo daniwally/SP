@@ -433,9 +433,18 @@ export default function VentasRetailTab() {
       {error && <div className="retail-error">{error}</div>}
 
       {loading ? (
-        <div className="retail-loading">
-          <div className="spinner" />
-          Cargando datos de Odoo...
+        <div className="loading-screen">
+          <img src="/loading-bg.jpg" alt="" className="loading-bg" />
+          <div className="loading-overlay" />
+          <div className="loading-content">
+            <div className="loading-spinner-ring">
+              <div className="ring-segment" />
+              <div className="ring-segment" />
+              <div className="ring-segment" />
+            </div>
+            <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
+            <p className="loading-subtitle">Trayendo datos de Odoo</p>
+          </div>
         </div>
       ) : (
         <>

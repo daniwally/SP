@@ -377,21 +377,16 @@ function App() {
 
           {rangoData && (
             <>
-              <div className="totals-row totals-row-small" style={{ marginBottom: '16px', gridTemplateColumns: '1fr' }}>
-                <div className="total-item" style={{ flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '16px 22px' }}>
-                  <span style={{ marginBottom: '4px' }}>Total Rango:</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <span className="total-item-ordenes">{rangoData.totales?.ordenes || 0} órdenes</span>
-                    <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(rangoData.totales?.total || 0)}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '2px' }}>
-                    <span className="total-item-ordenes" style={{ fontSize: '0.95em', opacity: 0.8 }}>
-                      Prom. diario: {Math.round((rangoData.totales?.ordenes || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1))} órdenes
-                    </span>
-                    <span className="total-item-value" style={{ fontSize: '0.95em', opacity: 0.8 }}>
-                      ${fmtMoney(Math.round((rangoData.totales?.total || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1)))}
-                    </span>
-                  </div>
+              <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
+                <div className="total-item">
+                  <span>Total Rango:</span>
+                  <span className="total-item-ordenes">{rangoData.totales?.ordenes || 0} órdenes</span>
+                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(rangoData.totales?.total || 0)}</span>
+                </div>
+                <div className="total-item">
+                  <span>Prom. diario:</span>
+                  <span className="total-item-ordenes">{Math.round((rangoData.totales?.ordenes || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1))} órdenes</span>
+                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(Math.round((rangoData.totales?.total || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1)))}</span>
                 </div>
               </div>
               <div className="cards-grid">

@@ -153,9 +153,18 @@ function App() {
 
   if (loading) {
     return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>Cargando datos...</p>
+      <div className="loading-screen">
+        <img src="/loading-bg.jpg" alt="" className="loading-bg" />
+        <div className="loading-overlay" />
+        <div className="loading-content">
+          <div className="loading-spinner-ring">
+            <div className="ring-segment" />
+            <div className="ring-segment" />
+            <div className="ring-segment" />
+          </div>
+          <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
+          <p className="loading-subtitle">Conectando con Mercado Libre</p>
+        </div>
       </div>
     )
   }

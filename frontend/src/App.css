@@ -303,14 +303,6 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-.total-item-avg {
-  font-size: 0.85em;
-  font-weight: 600;
-  color: #06b6d4;
-  margin-top: 4px;
-  opacity: 0.85;
-}
-
 .total-bar span:first-child {
   color: #95a5a6;
   font-weight: 600;

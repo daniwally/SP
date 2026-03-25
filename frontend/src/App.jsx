@@ -380,16 +380,17 @@ function App() {
 
           {rangoData && (
             <>
-              <div className="totals-row totals-row-small">
+              <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
                 <div className="total-item">
                   <span>Total Rango:</span>
                   <span className="total-item-ordenes">{rangoData.totales?.ordenes || 0} órdenes</span>
                   <span className="total-item-value">${fmtMoney(rangoData.totales?.total || 0)}</span>
-                </div>
-              </div>
-              <div className="totals-row totals-row-small" style={{ marginTop: '-8px', marginBottom: '16px' }}>
-                <div style={{ flex: 1, textAlign: 'center', color: '#06b6d4', fontSize: '0.85em', fontWeight: 600 }}>
-                  Prom. diario: {Math.round((rangoData.totales?.ordenes || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1))} órdenes · ${fmtMoney(Math.round((rangoData.totales?.total || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1)))}
+                  <span className="total-item-ordenes" style={{ fontSize: '0.85em', marginTop: '6px', opacity: 0.85 }}>
+                    Prom. diario: {Math.round((rangoData.totales?.ordenes || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1))} órdenes
+                  </span>
+                  <span className="total-item-value" style={{ fontSize: '0.85em', opacity: 0.85 }}>
+                    ${fmtMoney(Math.round((rangoData.totales?.total || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1)))}
+                  </span>
                 </div>
               </div>
               <div className="cards-grid">

@@ -328,8 +328,8 @@ function App() {
             </div>
 
             <div className="compare-card">
-              <p className="big-number">${fmtMoney(Math.round(total7d / 7))}</p>
-              <p className="subtitle">Promedio diario (últimos 7 días)</p>
+              <p className="big-number">${fmtMoney(Math.round(totalMensual / new Date().getDate()))}</p>
+              <p className="subtitle">Promedio diario del mes</p>
             </div>
           </div>
         </section>

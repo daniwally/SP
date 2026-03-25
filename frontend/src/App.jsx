@@ -285,11 +285,6 @@ function App() {
               <span className="total-item-value">${fmtMoney(total7d)}</span>
             </div>
           </div>
-          <div className="totals-row totals-row-small" style={{ marginTop: '-8px', marginBottom: '12px', gridTemplateColumns: '1fr' }}>
-            <div style={{ textAlign: 'center', color: '#06b6d4', fontSize: '0.85em', fontWeight: 600 }}>
-              Prom. diario semana: ${fmtMoney(Math.round(total7d / 7))}
-            </div>
-          </div>
 
           {/* VENTAS DE LA SEMANA */}
           <section className="section">

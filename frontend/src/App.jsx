@@ -286,7 +286,7 @@ function App() {
             </div>
           </div>
           <div style={{ textAlign: 'center', margin: '-8px 0 12px 0', color: '#06b6d4', fontSize: '0.95em', fontWeight: 600 }}>
-            Promedio diario del mes: ${fmtMoney(Math.round(totalMensual / new Date().getDate()))}
+            Promedio diario del mes: ${fmtMoney(Math.round(totalMensual / new Date().getDate()))} | Promedio semanal: ${fmtMoney(Math.round(total7d / 7))}
           </div>
 
           {/* VENTAS DE LA SEMANA */}

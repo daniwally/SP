@@ -83,12 +83,19 @@ export default function VentasUnifiedTab({ testData }) {
 
   if (loading) {
     return (
-      <section className="section">
-        <div style={{ textAlign: 'center', padding: '60px', color: '#b0b0c0' }}>
-          <div className="spinner" style={{ margin: '0 auto 16px' }}></div>
-          <p>Cargando datos de ventas...</p>
+      <div className="loading-screen">
+        <img src="/loading-bg.jpg" alt="" className="loading-bg" />
+        <div className="loading-overlay" />
+        <div className="loading-content">
+          <div className="loading-spinner-ring">
+            <div className="ring-segment" />
+            <div className="ring-segment" />
+            <div className="ring-segment" />
+          </div>
+          <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
+          <p className="loading-subtitle">Trayendo datos de Mercado Libre</p>
         </div>
-      </section>
+      </div>
     )
   }
 

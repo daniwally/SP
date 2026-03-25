@@ -278,15 +278,18 @@ function App() {
               <span>Total Hoy:</span>
               <span className="total-item-ordenes">{ordenesHoy} órdenes</span>
               <span className="total-item-value">${fmtMoney(totalHoy)}</span>
+              <span style={{ color: '#06b6d4', fontSize: '0.85em', fontWeight: 600, marginTop: '4px' }}>
+                Prom. diario mes: ${fmtMoney(Math.round(totalMensual / new Date().getDate()))}
+              </span>
             </div>
             <div className="total-item">
               <span>Total Semana:</span>
               <span className="total-item-ordenes">{ordenes7d} órdenes</span>
               <span className="total-item-value">${fmtMoney(total7d)}</span>
+              <span style={{ color: '#06b6d4', fontSize: '0.85em', fontWeight: 600, marginTop: '4px' }}>
+                Prom. diario semana: ${fmtMoney(Math.round(total7d / 7))}
+              </span>
             </div>
-          </div>
-          <div style={{ textAlign: 'center', margin: '-8px 0 12px 0', color: '#06b6d4', fontSize: '0.95em', fontWeight: 600 }}>
-            Promedio diario del mes: ${fmtMoney(Math.round(totalMensual / new Date().getDate()))} | Promedio semanal: ${fmtMoney(Math.round(total7d / 7))}
           </div>
 
           {/* VENTAS DE LA SEMANA */}

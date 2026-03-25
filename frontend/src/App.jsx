@@ -283,6 +283,7 @@ function App() {
               <span>Total Semana:</span>
               <span className="total-item-ordenes">{ordenes7d} órdenes</span>
               <span className="total-item-value">${fmtMoney(total7d)}</span>
+              <span className="total-item-avg">Prom. diario: ${fmtMoney(Math.round(totalMensual / new Date().getDate()))}</span>
             </div>
           </div>
 

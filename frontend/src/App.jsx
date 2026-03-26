@@ -87,21 +87,39 @@ function App() {
     fetchAllData()
   }, [])
 
-  // Buscar matches ML para un producto por SKUs de Odoo
-  const fetchMlMatch = async (cardKey, marca, skus) => {
-    if (comparadorMlData[cardKey]) return // ya cargado o en curso
-    setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [] } }))
-    try {
+  // Efecto: cuando cambia la selección del comparador, buscar ML matches
+  useEffect(() => {
+    if (comparadorSelected.length === 0 || !stockData) return
+    comparadorSelected.forEach(sel => {
+      const cardKey = `${sel.marca}-${sel.key}`
+      if (comparadorMlData[cardKey]) return // ya cargado
+      const mData = stockData[sel.marca]
+      if (!mData) return
+      // Recopilar todos los SKUs del producto
+      const skus = new Set()
+      for (const [, whData] of Object.entries(mData.almacenes || {})) {
+        for (const prod of (whData.productos || [])) {
+          const pKey = prod.template_id || prod.nombre
+          if (String(pKey) === String(sel.key) && prod.sku) {
+            skus.add(prod.sku.toUpperCase())
+          }
+        }
+      }
+      if (skus.size === 0) return
+      console.log(`Fetching ML match for ${sel.name} [${cardKey}], SKUs:`, [...skus])
+      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [] } }))
       const API = window.location.origin + '/api'
-      const res = await axios.post(`${API}/publicaciones/match-skus`, { marca, skus: [...skus] }, { timeout: 30000 })
-      console.log(`ML match ${marca} [${cardKey}]:`, JSON.stringify(res.data, null, 2))
-      const allItems = res.data?.items || []
-      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: allItems } }))
-    } catch (e) {
-      console.log(`ML match ${marca} error:`, e)
-      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: [] } }))
-    }
-  }
+      axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus] }, { timeout: 30000 })
+        .then(res => {
+          console.log(`ML match result [${cardKey}]:`, res.data)
+          setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: res.data?.items || [] } }))
+        })
+        .catch(e => {
+          console.log(`ML match error [${cardKey}]:`, e)
+          setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: [] } }))
+        })
+    })
+  }, [comparadorSelected, stockData])
 
   const fetchAllData = async () => {
     try {
@@ -830,9 +848,8 @@ function App() {
                   }
                 }
 
-                // ML: buscar por SKU via backend
+                // ML: datos del match (cargados via useEffect)
                 const cardKey = `${sel.marca}-${sel.key}`
-                if (skus.size > 0) fetchMlMatch(cardKey, sel.marca, skus)
                 const mlInfo = comparadorMlData[cardKey] || { loading: false, items: [] }
                 const mlItems = mlInfo.items || []
                 const mlTotal = mlItems.reduce((s, p) => s + (p.stock || 0), 0)

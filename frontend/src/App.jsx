@@ -106,13 +106,13 @@ function App() {
         }
       }
       if (skus.size === 0) return
-      console.log(`Fetching ML match for ${sel.name} [${cardKey}], SKUs:`, [...skus])
       setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [] } }))
       const API = window.location.origin + '/api'
       axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus] }, { timeout: 30000 })
         .then(res => {
-          console.log(`ML match result [${cardKey}]:`, JSON.stringify(res.data?.debug_ml_sample, null, 2))
-          setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: res.data?.items || [] } }))
+          const d = res.data || {}
+          console.log(`ML [${sel.name}]: ${d.items?.length || 0} match de ${d.total_items_marca} items (${d.items_con_sku} con SKU). Buscados: ${d.skus_buscados}`, d.skus_sin_match?.length ? `Sin match: ${d.skus_sin_match.slice(0,5).join(', ')}` : '')
+          setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: d.items || [] } }))
         })
         .catch(e => {
           console.log(`ML match error [${cardKey}]:`, e)

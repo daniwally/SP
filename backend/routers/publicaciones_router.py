@@ -487,9 +487,9 @@ async def match_skus_ml(body: dict):
     # Normalizar SKUs buscados
     skus_upper = set(s.upper().strip() for s in skus if s)
 
-    # Cache de items raw por marca (5 min)
+    # Cache de items raw por marca (3 min)
     now = time.time()
-    if marca not in _marca_cache or (now - _marca_cache_ts.get(marca, 0)) > 300:
+    if marca not in _marca_cache or (now - _marca_cache_ts.get(marca, 0)) > 180:
         token = await get_token_by_marca(marca)
         if not token:
             raise HTTPException(status_code=401, detail="Sin autenticación para " + marca)
@@ -521,27 +521,14 @@ async def match_skus_ml(body: dict):
                 "matched_skus": matched_skus,
             })
 
-    # Debug: mostrar muestra de SKUs encontrados en ML
-    debug_sample = []
-    for item in items[:5]:
-        item_skus = _extract_skus(item)
-        # Buscar SKU en attributes también
-        attrs_sku = [a for a in item.get("attributes", []) if "sku" in (a.get("id", "") or "").lower() or "seller" in (a.get("id", "") or "").lower()]
-        var_attrs_sku = []
-        for v in item.get("variations", [])[:2]:
-            for a in v.get("attribute_combinations", []):
-                if "sku" in (a.get("id", "") or "").lower():
-                    var_attrs_sku.append(a)
-        debug_sample.append({
-            "item_id": item.get("id", ""),
-            "title": (item.get("title", "") or "")[:60],
-            "seller_custom_field": item.get("seller_custom_field"),
-            "extracted_skus": item_skus,
-            "variations_count": len(item.get("variations", [])),
-            "var_scf": [v.get("seller_custom_field") for v in item.get("variations", [])[:5]],
-            "attrs_sku": attrs_sku,
-            "var_attrs_sku": var_attrs_sku,
-            "all_root_keys": [k for k in item.keys() if "sku" in k.lower() or "seller" in k.lower() or "custom" in k.lower() or "code" in k.lower()],
-        })
+    # Debug ligero: cuántos items tienen SKU extraído
+    items_con_sku = sum(1 for item in items if _extract_skus(item))
+    skus_no_encontrados = skus_upper - set(s.upper() for m in matched for s in m.get("ml_skus", []))
 
-    return {"items": matched, "total_items_marca": len(items), "skus_buscados": list(skus_upper), "debug_ml_sample": debug_sample}
+    return {
+        "items": matched,
+        "total_items_marca": len(items),
+        "items_con_sku": items_con_sku,
+        "skus_buscados": len(skus_upper),
+        "skus_sin_match": list(skus_no_encontrados)[:10],
+    }

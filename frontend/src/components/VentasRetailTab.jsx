@@ -32,6 +32,7 @@ export default function VentasRetailTab() {
 
   const [dashboard, setDashboard] = useState(null)
   const [pedidos, setPedidos] = useState(null)
+  const [preVentas, setPreVentas] = useState(null)
   const [clientes, setClientes] = useState(null)
   const [expandedRows, setExpandedRows] = useState({})
 
@@ -48,9 +49,13 @@ export default function VentasRetailTab() {
         if (res.data.error) setError(res.data.error)
         setDashboard(res.data)
       } else if (subTab === 'pedidos') {
-        const res = await axios.get(API + '/pedidos' + params, { timeout: 30000 })
+        const [res, resPV] = await Promise.all([
+          axios.get(API + '/pedidos' + params, { timeout: 30000 }),
+          axios.get(API + '/presupuestos-detalle' + params, { timeout: 30000 }),
+        ])
         if (res.data.error) setError(res.data.error)
         setPedidos(res.data)
+        setPreVentas(resPV.data)
       } else if (subTab === 'clientes') {
         const res = await axios.get(API + '/clientes' + params, { timeout: 30000 })
         if (res.data.error) setError(res.data.error)
@@ -217,6 +222,43 @@ export default function VentasRetailTab() {
           </div>
         </div>
 
+        {renderOrderTable(list)}
+
+        {/* PRE VENTAS */}
+        {preVentas && (() => {
+          const pv = preVentas.resumen || {}
+          const pvList = preVentas.pedidos || []
+          return (
+            <>
+              <h3 style={{ color: '#f59e0b', marginTop: 24, marginBottom: 8 }}>Pre Ventas</h3>
+              <div className="retail-kpis">
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{pv.total_pedidos || 0}</div>
+                  <div className="kpi-label">Pre Ventas</div>
+                </div>
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pv.total_monto || 0)}</div>
+                  <div className="kpi-label">Total</div>
+                </div>
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pv.ticket_promedio || 0)}</div>
+                  <div className="kpi-label">Ticket Prom.</div>
+                </div>
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{pv.total_items || 0}</div>
+                  <div className="kpi-label">Items</div>
+                </div>
+              </div>
+              {renderOrderTable(pvList)}
+            </>
+          )
+        })()}
+
+      </>
+    )
+  }
+
+  const renderOrderTable = (list) => (
         <div className="retail-table-wrap">
           <table className="retail-table">
             <thead>
@@ -279,10 +321,7 @@ export default function VentasRetailTab() {
             </tbody>
           </table>
         </div>
-
-      </>
-    )
-  }
+  )
 
   // ---- CLIENTES ----
   const renderClientes = () => {

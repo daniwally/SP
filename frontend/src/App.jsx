@@ -58,6 +58,7 @@ function App() {
   const [salesData, setSalesData] = useState({})
   const [stockData, setStockData] = useState({})
   const [expandedBrand, setExpandedBrand] = useState(null)
+  const [expandedWarehouses, setExpandedWarehouses] = useState({})
   const [valuationData, setValuationData] = useState({})
   const [testData, setTestData] = useState({})
   const [tokenStatus, setTokenStatus] = useState({})
@@ -533,7 +534,7 @@ function App() {
                 return (
                   <div
                     key={marca}
-                    onClick={() => setExpandedBrand(isActive ? null : marca)}
+                    onClick={() => { setExpandedBrand(isActive ? null : marca); setExpandedWarehouses({}) }}
                     style={{
                       cursor: 'pointer',
                       padding: '10px 18px',
@@ -567,34 +568,44 @@ function App() {
                   )}
                   <span style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.2em' }}>{(data.total_unidades || 0).toLocaleString('es-AR')} unidades</span>
                 </div>
-                {Object.entries(almacenes).map(([whName, whData]) => (
-                  <div key={whName} style={{ marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', paddingBottom: '6px', borderBottom: '1px solid rgba(217, 70, 239, 0.15)' }}>
-                      <span style={{ color: whName.includes('Aduana') ? '#3e7fff' : '#06b6d4', fontWeight: 700, fontSize: '0.95em' }}>{whName}</span>
-                      <span style={{ color: '#888', fontSize: '0.85em' }}>{(whData.total || 0).toLocaleString('es-AR')} unidades</span>
+                {Object.entries(almacenes).map(([whName, whData]) => {
+                  const whKey = `${expandedBrand}-${whName}`
+                  const isOpen = !!expandedWarehouses[whKey]
+                  const whColor = whName.includes('Aduana') ? '#3e7fff' : '#06b6d4'
+                  return (
+                    <div key={whName} style={{ marginBottom: '4px' }}>
+                      <div
+                        onClick={() => setExpandedWarehouses(prev => ({ ...prev, [whKey]: !prev[whKey] }))}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', cursor: 'pointer', borderRadius: '8px', background: isOpen ? 'rgba(217, 70, 239, 0.06)' : 'transparent', transition: 'background 0.2s' }}
+                      >
+                        <span className={`expand-icon${isOpen ? ' open' : ''}`}>&#9654;</span>
+                        <span style={{ color: whColor, fontWeight: 700, fontSize: '0.95em' }}>{whName}</span>
+                        <span style={{ color: '#888', fontSize: '0.85em' }}>{(whData.total || 0).toLocaleString('es-AR')} unidades</span>
+                        <span style={{ color: '#666', fontSize: '0.8em' }}>({(whData.productos || []).length} productos)</span>
+                      </div>
+                      {isOpen && (
+                        <table className="retail-table" style={{ fontSize: '0.82em', margin: '0 0 8px 0' }}>
+                          <thead>
+                            <tr>
+                              <th style={{ textAlign: 'right' }}>Cantidad</th>
+                              <th>Producto</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(whData.productos || [])
+                              .sort((a, b) => b.cantidad - a.cantidad)
+                              .map((prod, idx) => (
+                              <tr key={idx}>
+                                <td style={{ textAlign: 'right', fontWeight: 600, minWidth: '70px' }}>{prod.cantidad.toLocaleString('es-AR')}</td>
+                                <td style={{ whiteSpace: 'normal' }}>{prod.nombre}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
                     </div>
-                    <table className="retail-table" style={{ fontSize: '0.82em' }}>
-                      <thead>
-                        <tr>
-                          <th style={{ width: '50%' }}>Producto</th>
-                          <th style={{ textAlign: 'right' }}>Cantidad</th>
-                          <th style={{ textAlign: 'right' }}>Costo Unit.</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(whData.productos || [])
-                          .sort((a, b) => b.cantidad - a.cantidad)
-                          .map((prod, idx) => (
-                          <tr key={idx}>
-                            <td style={{ whiteSpace: 'normal', maxWidth: '400px' }}>{prod.nombre}</td>
-                            <td style={{ textAlign: 'right', fontWeight: 600 }}>{prod.cantidad.toLocaleString('es-AR')}</td>
-                            <td style={{ textAlign: 'right', color: '#22c55e' }}>${prod.costo_unitario?.toLocaleString('es-AR')}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )
           })()}

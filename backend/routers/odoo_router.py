@@ -66,7 +66,7 @@ def _stock_actual_sync():
         all_prods = models.execute_kw(
             ODOO_DB, uid, ODOO_KEY, 'product.product', 'search_read',
             [[('id', 'in', all_prod_ids)]],
-            {'fields': ['id', 'name', 'categ_id', 'standard_price'], 'limit': 5000}
+            {'fields': ['id', 'name', 'categ_id'], 'limit': 5000}
         )
         prod_map = {p['id']: p for p in all_prods}
 
@@ -90,23 +90,19 @@ def _stock_actual_sync():
                 continue
 
             if marca not in result:
-                result[marca] = {'almacenes': {}, 'total_unidades': 0, 'costo_total': 0.0}
+                result[marca] = {'almacenes': {}, 'total_unidades': 0}
             if wh_name not in result[marca]['almacenes']:
                 result[marca]['almacenes'][wh_name] = {'nombre': wh_name, 'productos': [], 'total': 0}
 
             cantidad = int(q['quantity'])
-            costo_u = float(prod_data.get('standard_price', 0)) or 0.0
 
-            if len(result[marca]['almacenes'][wh_name]['productos']) < 50:
-                result[marca]['almacenes'][wh_name]['productos'].append({
-                    'nombre': prod_data['name'],
-                    'cantidad': cantidad,
-                    'costo_unitario': costo_u
-                })
+            result[marca]['almacenes'][wh_name]['productos'].append({
+                'nombre': prod_data['name'],
+                'cantidad': cantidad,
+            })
 
             result[marca]['almacenes'][wh_name]['total'] += cantidad
             result[marca]['total_unidades'] += cantidad
-            result[marca]['costo_total'] += cantidad * costo_u
 
         if result:
             return result
@@ -150,11 +146,8 @@ async def stock_consolidado():
     consolidado = {}
     for marca, data in stock.items():
         total_u = data.get("total_unidades", 0)
-        costo_t = data.get("costo_total", 0)
         consolidado[marca] = {
             "total_unidades": total_u,
-            "costo_total": costo_t,
-            "costo_promedio_unitario": round(costo_t / total_u, 2) if total_u else 0
         }
     return consolidado
 

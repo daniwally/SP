@@ -104,7 +104,10 @@ export default function VentasRetailTab() {
           <div className="retail-kpi">
             <div className="kpi-value" style={{ color: '#f59e0b' }}>{pres.total || 0}</div>
             <div className="kpi-label">Pre Ventas</div>
-            <div style={{ color: '#f59e0b', fontSize: '0.85em', marginTop: '4px', opacity: 0.7 }}>{fmtMoney(pres.monto || 0)}</div>
+          </div>
+          <div className="retail-kpi">
+            <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pres.monto || 0)}</div>
+            <div className="kpi-label">Total Pre Ventas</div>
           </div>
           <div className="retail-kpi">
             <div className="kpi-value cyan">{cl.total_clientes || 0}</div>
@@ -147,8 +150,9 @@ export default function VentasRetailTab() {
             <h3 style={{ color: '#f59e0b' }}>Pre Ventas</h3>
             <div className="period-total">
               <span className="period-amount" style={{ color: '#f59e0b' }}>{fmtMoney(pres.monto || 0)}</span>
-              <span className="period-count">{pres.total || 0} presupuestos</span>
+              <span className="period-count">{pres.total || 0} pre ventas</span>
             </div>
+            <div className="period-range">{pres.total_presupuestos || pres.total || 0} presupuestos</div>
             {pres.top_ordenes?.length > 0 && (
               <div className="period-orders">
                 <div className="period-orders-title">Top 10 presupuestos</div>

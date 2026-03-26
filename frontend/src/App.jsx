@@ -521,29 +521,6 @@ function App() {
           })()}
         </div>
 
-        {/* VALUACIÓN STOCK CRUZADO */}
-        <section className="section">
-          <h2>Valuación Stock Cruzado</h2>
-          <div className="section-2col">
-            <div className="compare-card">
-              <p className="big-number">${((valuationData.TOTAL_GENERAL || 0) / 1e9).toFixed(2)}B</p>
-              <p className="subtitle">Valor Total Inventario</p>
-            </div>
-            <div className="compare-card">
-              {(() => {
-                const marcas = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND']
-                const totalValML = marcas.reduce((s, m) => s + (stockData[m]?.total_unidades || 0) * (mlPreciosData[m]?.precio_promedio || 0), 0)
-                return (
-                  <>
-                    <p className="big-number">${totalValML >= 1e9 ? (totalValML / 1e9).toFixed(2) + 'B' : (totalValML / 1e6).toFixed(1) + 'M'}</p>
-                    <p className="subtitle">Valuación a Precio ML</p>
-                  </>
-                )
-              })()}
-            </div>
-          </div>
-        </section>
-
         {/* VALUACIÓN POR MARCA */}
         <section className="section">
           <h2>Valuación por Marca</h2>

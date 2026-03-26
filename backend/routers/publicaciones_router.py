@@ -546,6 +546,7 @@ async def match_skus_ml(body: dict):
                 "precio": item.get("price", 0) or 0,
                 "permalink": item.get("permalink", ""),
                 "match_type": "SKU",
+                "has_sku": True,
             })
 
     # 2) Si no hay match exacto, buscar por prefijo (primeros 10 chars)
@@ -565,6 +566,7 @@ async def match_skus_ml(body: dict):
                         "precio": item.get("price", 0) or 0,
                         "permalink": item.get("permalink", ""),
                         "match_type": "prefijo",
+                        "has_sku": True,
                     })
             if matched:
                 match_type = "prefijo"
@@ -588,6 +590,7 @@ async def match_skus_ml(body: dict):
                         "precio": item.get("price", 0) or 0,
                         "permalink": item.get("permalink", ""),
                         "match_type": "nombre",
+                        "has_sku": bool(ml_skus),
                     })
             if matched:
                 match_type = "nombre"

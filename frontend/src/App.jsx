@@ -111,7 +111,7 @@ function App() {
       const API = window.location.origin + '/api'
       axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus] }, { timeout: 30000 })
         .then(res => {
-          console.log(`ML match result [${cardKey}]:`, res.data)
+          console.log(`ML match result [${cardKey}]:`, JSON.stringify(res.data?.debug_ml_sample, null, 2))
           setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: res.data?.items || [] } }))
         })
         .catch(e => {

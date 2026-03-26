@@ -602,6 +602,54 @@ async def match_skus_ml(body: dict):
     }
 
 
+@router.get("/debug-skus/{marca}")
+async def debug_skus(marca: str):
+    """Debug: ver qué SKUs extraemos de ML para una marca"""
+    if marca not in MARCAS:
+        raise HTTPException(status_code=400, detail="Marca inválida")
+
+    token = await get_token_by_marca(marca)
+    if not token:
+        raise HTTPException(status_code=401, detail="Sin token")
+
+    uid = MARCAS[marca]
+    item_ids = await get_seller_items(uid, token, "active")
+
+    # Fetch 5 items individuales para debug
+    sample_ids = item_ids[:5]
+    items = await get_items_full(sample_ids, token)
+
+    debug_items = []
+    for item in items:
+        skus = _extract_skus(item)
+        debug_items.append({
+            "item_id": item.get("id"),
+            "title": item.get("title"),
+            "seller_custom_field": item.get("seller_custom_field"),
+            "extracted_skus": skus,
+            "variations_count": len(item.get("variations", [])),
+            "variations_sample": [
+                {
+                    "id": v.get("id"),
+                    "seller_custom_field": v.get("seller_custom_field"),
+                    "attribute_combinations": v.get("attribute_combinations", []),
+                }
+                for v in item.get("variations", [])[:3]
+            ],
+            "attributes_seller_sku": [
+                attr for attr in item.get("attributes", [])
+                if attr.get("id") == "SELLER_SKU"
+            ],
+        })
+
+    return {
+        "marca": marca,
+        "total_items": len(item_ids),
+        "sample_count": len(debug_items),
+        "items": debug_items,
+    }
+
+
 # ── Preguntas sin responder (últimos 15 días) ──────────────────────
 _preguntas_cache: Dict[str, dict] = {}
 _preguntas_cache_ts: float = 0

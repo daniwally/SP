@@ -441,23 +441,46 @@ def _presupuestos_sync(desde: str, hasta: str):
             ODOO_DB, uid, ODOO_KEY, 'sale.order', 'search_read',
             [domain],
             {
-                'fields': ['name', 'partner_id', 'date_order', 'amount_total'],
+                'fields': ['name', 'partner_id', 'date_order', 'amount_total', 'amount_untaxed', 'order_line'],
                 'order': 'amount_total desc',
                 'limit': 500,
             }
         )
 
+        # Para presupuestos con amount_total=0, intentar calcular desde líneas
+        zero_order_ids = [o['id'] for o in orders if not o.get('amount_total') and o.get('order_line')]
+        lines_totals = {}
+        if zero_order_ids:
+            all_line_ids = []
+            for o in orders:
+                if o['id'] in zero_order_ids:
+                    all_line_ids.extend(o.get('order_line', []))
+            if all_line_ids:
+                lines_raw = models.execute_kw(
+                    ODOO_DB, uid, ODOO_KEY, 'sale.order.line', 'read',
+                    [all_line_ids[:2000]],
+                    {'fields': ['order_id', 'price_subtotal', 'price_total']}
+                )
+                for ln in lines_raw:
+                    oid = ln['order_id'][0] if ln.get('order_id') else None
+                    if oid:
+                        lines_totals[oid] = lines_totals.get(oid, 0) + (ln.get('price_total') or ln.get('price_subtotal') or 0)
+
         total = len(orders)
-        monto = round(sum(o.get('amount_total', 0) for o in orders), 2)
+        monto = 0
+        top_ordenes = []
+        for o in orders:
+            amt = o.get('amount_total') or o.get('amount_untaxed') or lines_totals.get(o['id'], 0)
+            monto += amt
+            if len(top_ordenes) < 10:
+                top_ordenes.append({
+                    'numero': o.get('name', ''),
+                    'cliente': o['partner_id'][1] if o.get('partner_id') else 'Sin cliente',
+                    'fecha': o.get('date_order', ''),
+                    'total': amt,
+                })
 
-        top_ordenes = [{
-            'numero': o.get('name', ''),
-            'cliente': o['partner_id'][1] if o.get('partner_id') else 'Sin cliente',
-            'fecha': o.get('date_order', ''),
-            'total': o.get('amount_total', 0),
-        } for o in orders[:10]]
-
-        return {"presupuestos": {"total": total, "monto": monto, "top_ordenes": top_ordenes}}
+        return {"presupuestos": {"total": total, "monto": round(monto, 2), "top_ordenes": top_ordenes}}
 
     except Exception as e:
         print(f"Retail presupuestos error: {e}")

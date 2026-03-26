@@ -610,12 +610,21 @@ function App() {
                                 <div key={gKey} style={{ marginBottom: '2px' }}>
                                   <div
                                     onClick={() => setExpandedWarehouses(prev => ({ ...prev, [gExpandKey]: !prev[gExpandKey] }))}
-                                    style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px 12px', cursor: 'pointer', borderRadius: '6px', background: gOpen ? 'rgba(217, 70, 239, 0.04)' : 'transparent', transition: 'background 0.15s', position: 'relative', flexWrap: 'wrap' }}
-                                    onMouseEnter={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'block' }}
-                                    onMouseLeave={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'none' }}
+                                    style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px 12px', cursor: 'pointer', borderRadius: '6px', background: gOpen ? 'rgba(217, 70, 239, 0.04)' : 'transparent', transition: 'background 0.15s', flexWrap: 'wrap' }}
                                   >
                                     <span className={`expand-icon${gOpen ? ' open' : ''}`} style={{ fontSize: '0.55em', marginTop: '4px' }}>&#9654;</span>
-                                    <span style={{ fontWeight: 600, fontSize: '0.88em', marginRight: '4px' }}>{g.name}</span>
+                                    <span
+                                      style={{ fontWeight: 600, fontSize: '0.88em', marginRight: '4px', position: 'relative' }}
+                                      onMouseEnter={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'block' }}
+                                      onMouseLeave={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'none' }}
+                                    >
+                                      {g.name}
+                                      {g.imagen && (
+                                        <div className="stock-thumb" style={{ display: 'none', position: 'absolute', left: '0', top: '-85px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+                                          <img src={`data:image/png;base64,${g.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
+                                        </div>
+                                      )}
+                                    </span>
                                     <span style={{ fontWeight: 700, fontSize: '0.88em', marginRight: '6px' }}>{g.total.toLocaleString('es-AR')}</span>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                                       {[...g.colores].map(c => (
@@ -625,11 +634,6 @@ function App() {
                                         <span key={t} style={{ background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', padding: '1px 7px', borderRadius: '4px', fontSize: '0.78em', fontWeight: 600 }}>{t}</span>
                                       ))}
                                     </div>
-                                    {g.imagen && (
-                                      <div className="stock-thumb" style={{ display: 'none', position: 'absolute', left: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
-                                        <img src={`data:image/png;base64,${g.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
-                                      </div>
-                                    )}
                                   </div>
                                   {gOpen && (
                                     <table className="retail-table" style={{ fontSize: '0.78em', margin: '0 0 4px 28px', width: 'calc(100% - 28px)' }}>
@@ -648,14 +652,14 @@ function App() {
                                           const pc = pa['Color'] || pa['color'] || ''
                                           const pt = pa['Talle'] || pa['talle'] || pa['Size'] || pa['Tamaño'] || ''
                                           return (
-                                            <tr key={idx}
-                                              style={{ position: 'relative' }}
-                                              onMouseEnter={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb-row'); if (tip) tip.style.display = 'block' }}
-                                              onMouseLeave={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb-row'); if (tip) tip.style.display = 'none' }}
-                                            >
+                                            <tr key={idx}>
                                               <td style={{ textAlign: 'right', fontWeight: 600, minWidth: '50px' }}>{prod.cantidad.toLocaleString('es-AR')}</td>
                                               <td style={{ color: '#888' }}>{prod.sku || '—'}</td>
-                                              <td style={{ whiteSpace: 'normal', position: 'relative' }}>
+                                              <td
+                                                style={{ whiteSpace: 'normal', position: 'relative' }}
+                                                onMouseEnter={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb-row'); if (tip) tip.style.display = 'block' }}
+                                                onMouseLeave={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb-row'); if (tip) tip.style.display = 'none' }}
+                                              >
                                                 {prod.nombre}
                                                 {prod.imagen && (
                                                   <div className="stock-thumb-row" style={{ display: 'none', position: 'absolute', left: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>

@@ -20,85 +20,6 @@ ALMACENES = {
     "A3": "Aduana (Tránsito – Solo interno)",
 }
 
-# Stock por marca/almacén (DATOS REALES EXTRAÍDOS DE ODOO 13/03/2026)
-# Solo cantidades - sin valuación
-STOCK_DATA = {
-    "SHAQ": {
-        "almacenes": {
-            "Artilleros": {
-                "nombre": "Artilleros",
-                "productos": [{"nombre": "SHAQ Products", "cantidad": 873}],
-                "total": 873
-            },
-            "Aduana (Tránsito – Solo interno)": {
-                "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [{"nombre": "SHAQ Products", "cantidad": 21591}],
-                "total": 21591
-            }
-        },
-        "total_unidades": 22464
-    },
-    "STARTER": {
-        "almacenes": {
-            "Artilleros": {
-                "nombre": "Artilleros",
-                "productos": [{"nombre": "STARTER Products", "cantidad": 1348}],
-                "total": 1348
-            },
-            "Aduana (Tránsito – Solo interno)": {
-                "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [{"nombre": "STARTER Products", "cantidad": 40476}],
-                "total": 40476
-            }
-        },
-        "total_unidades": 41824
-    },
-    "HYDRATE": {
-        "almacenes": {
-            "Artilleros": {
-                "nombre": "Artilleros",
-                "productos": [{"nombre": "HYDRATE Products", "cantidad": 3065}],
-                "total": 3065
-            },
-            "Aduana (Tránsito – Solo interno)": {
-                "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [{"nombre": "HYDRATE Products", "cantidad": 6789}],
-                "total": 6789
-            }
-        },
-        "total_unidades": 9854
-    },
-    "TIMBERLAND": {
-        "almacenes": {
-            "Artilleros": {
-                "nombre": "Artilleros",
-                "productos": [{"nombre": "TIMBERLAND Products", "cantidad": 306}],
-                "total": 306
-            },
-            "Aduana (Tránsito – Solo interno)": {
-                "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [{"nombre": "TIMBERLAND Products", "cantidad": 4897}],
-                "total": 4897
-            }
-        },
-        "total_unidades": 5203
-    },
-    "ELSYS": {
-        "almacenes": {
-            "Artilleros": {
-                "nombre": "Artilleros",
-                "productos": [{"nombre": "ELSYS Products", "cantidad": 84}],
-                "total": 84
-            },
-            "Aduana (Tránsito – Solo interno)": {
-                "nombre": "Aduana (Tránsito – Solo interno)",
-                "productos": [{"nombre": "ELSYS Products", "cantidad": 200}],
-                "total": 200
-            }
-        },
-        "total_unidades": 284
-    }
-}
 
 def get_uid():
     """Autentica con Odoo"""
@@ -152,113 +73,13 @@ def get_marca_map():
     
     return {}
 
-def get_stock_real():
-    """Obtiene stock real desde Odoo agrupado por marca y almacén - DESACTIVADA"""
-    # DESACTIVADA - Odoo tiene demasiados registros
-    return {}
-    
-    try:
-        uid = get_uid()
-        if not uid:
-            print("❌ No auth - usando test data")
-            return {}
-        
-        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=15)
-        
-        # Obtener mapeo de marcas
-        marca_map = get_marca_map()
-        
-        # Ubicaciones de stock por almacén (IDs reales de Odoo) - solo Artilleros y Aduana
-        warehouse_locations = {
-            'Artilleros': 5,
-            'Aduana (Tránsito – Solo interno)': 24
-        }
-        
-        result = {}  # {marca -> {almacenes -> {...}, total_unidades, costo_total}}
-        
-        for wh_name, loc_id in warehouse_locations.items():
-            try:
-                print(f"🔍 Buscando stock en {wh_name}...")
-                
-                # Buscar quants en esa ubicación con límite
-                domain = [('location_id', '=', loc_id), ('quantity', '>', 0)]
-                quant_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'search', [domain], {'limit': 500})
-                
-                print(f"  Total quants encontrados: {len(quant_ids)}")
-                
-                if quant_ids:
-                    quants = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.quant', 'read', [quant_ids], ['product_id', 'quantity'])
-                    
-                    # Traer datos de productos en batch (más eficiente)
-                    product_ids = [q['product_id'][0] for q in quants if q['product_id']]
-                    
-                    if product_ids:
-                        products = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.product', 'read', 
-                                                    product_ids, ['name', 'standard_price', 'categ_id'])
-                        
-                        prod_map = {p['id']: p for p in products}
-                        
-                        for q in quants:
-                            product_id = q['product_id'][0] if q['product_id'] else None
-                            if product_id and product_id in prod_map:
-                                prod_data = prod_map[product_id]
-                                
-                                # Extraer marca de la categoría
-                                categ_id = prod_data.get('categ_id')
-                                marca = 'OTROS'
-                                if categ_id:
-                                    marca = marca_map.get(categ_id[0], 'OTROS')
-                                
-                                # Asegurar que marca existe en result
-                                if marca not in result:
-                                    result[marca] = {
-                                        'almacenes': {},
-                                        'total_unidades': 0,
-                                        'costo_total': 0.0
-                                    }
-                                
-                                # Asegurar que almacén existe en marca
-                                if wh_name not in result[marca]['almacenes']:
-                                    result[marca]['almacenes'][wh_name] = {
-                                        'nombre': wh_name,
-                                        'productos': []
-                                    }
-                                
-                                # Agregar producto (limitar a 50 por almacén/marca para no saturar)
-                                if len(result[marca]['almacenes'][wh_name]['productos']) < 50:
-                                    costo_unitario = float(prod_data.get('standard_price', 0)) or 0.0
-                                    cantidad = int(q['quantity'])
-                                    
-                                    result[marca]['almacenes'][wh_name]['productos'].append({
-                                        'nombre': prod_data['name'],
-                                        'cantidad': cantidad,
-                                        'costo_unitario': costo_unitario,
-                                        'metodo': 'FIFO'
-                                    })
-                                
-                                # Actualizar totales (TODOS, no solo los 50 mostrados)
-                                costo_unitario = float(prod_data.get('standard_price', 0)) or 0.0
-                                cantidad = int(q['quantity'])
-                                result[marca]['total_unidades'] += cantidad
-                                result[marca]['costo_total'] += cantidad * costo_unitario
-            
-            except Exception as e:
-                print(f"Error en almacén {wh_name}: {e}")
-                continue
-        
-        return result
-    
-    except Exception as e:
-        print(f"Error fetching stock: {e}")
-        return {}
 
 def _stock_actual_sync():
     """Stock actual desde Odoo (blocking, runs in thread pool)"""
     try:
         uid = get_uid()
         if not uid:
-            print("❌ No auth - retornando test data")
-            return STOCK_DATA
+            return {"error": "Sin conexión a Odoo"}
 
         models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=20)
         marca_map = get_marca_map()
@@ -311,19 +132,16 @@ def _stock_actual_sync():
                     result[marca]['costo_total'] += cantidad * costo_u
 
             except Exception as e:
-                print(f"❌ Error almacén {wh_name}: {e}")
+                print(f"Error almacén {wh_name}: {e}")
                 continue
 
         if result:
-            print(f"✅ Stock real: {list(result.keys())}")
             return result
         else:
-            print("⚠️ No hay datos - retornando test")
-            return STOCK_DATA
+            return {"error": "No se obtuvieron datos de stock desde Odoo"}
 
     except Exception as e:
-        print(f"❌ Error: {e}")
-        return STOCK_DATA
+        return {"error": str(e)}
 
 @router.get("/stock/actual")
 async def stock_actual():
@@ -336,7 +154,7 @@ async def almacenes():
     try:
         uid = get_uid()
         if not uid:
-            return ALMACENES
+            return {"error": "Sin conexión a Odoo"}
         
         models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
         warehouse_ids = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'stock.warehouse', 'search', [])
@@ -347,17 +165,22 @@ async def almacenes():
     
     except Exception as e:
         print(f"Error fetching almacenes: {e}")
-        return ALMACENES
+        return {"error": str(e)}
 
 @router.get("/stock/consolidado")
 async def stock_consolidado():
-    """Stock consolidado por marca"""
+    """Stock consolidado por marca (datos en vivo de Odoo)"""
+    stock = await asyncio.to_thread(_stock_actual_sync)
+    if "error" in stock:
+        return stock
     consolidado = {}
-    for marca, data in STOCK_DATA.items():
+    for marca, data in stock.items():
+        total_u = data.get("total_unidades", 0)
+        costo_t = data.get("costo_total", 0)
         consolidado[marca] = {
-            "total_unidades": data["total_unidades"],
-            "costo_total": data["costo_total"],
-            "costo_promedio_unitario": round(data["costo_total"] / data["total_unidades"], 2)
+            "total_unidades": total_u,
+            "costo_total": costo_t,
+            "costo_promedio_unitario": round(costo_t / total_u, 2) if total_u else 0
         }
     return consolidado
 
@@ -367,11 +190,7 @@ async def facturas_mes():
     try:
         uid = get_uid()
         if not uid:
-            return {
-                "cantidad": 10,
-                "total": 8448494.10,
-                "facturas": []
-            }
+            return {"error": "Sin conexión a Odoo"}
         
         models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
         

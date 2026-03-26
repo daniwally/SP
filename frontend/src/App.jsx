@@ -425,6 +425,7 @@ function App() {
         <div className="stacked-sections">
           <section className="section">
             <h2>Stock por Marca</h2>
+            <p className="section-date">{dateInfo.today}</p>
             <div className="cards-grid">
               {Object.entries(stockData)
                 .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))

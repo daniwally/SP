@@ -444,6 +444,7 @@ function App() {
                         <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{(data.total_unidades || 0).toLocaleString()}</p>
                         <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>unidades</p>
                       </div>
+                      <br />
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
                           <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
@@ -460,19 +461,23 @@ function App() {
             </div>
           </section>
 
-          {/* TOTALES EN LÍNEA */}
-          <div className="totals-row totals-row-small">
-            <div className="total-item">
-              <span>Total Stock:</span>
-              <span className="total-item-value">{Object.values(stockData).reduce((sum, m) => sum + (m.total_unidades || 0), 0).toLocaleString()} uds</span>
-            </div>
-            <div className="total-item">
-              <span>Artilleros:</span>
-              <span className="total-item-value">{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Artilleros']?.total || 0), 0).toLocaleString()} uds</span>
-            </div>
-            <div className="total-item">
-              <span>Aduana:</span>
-              <span className="total-item-value">{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0), 0).toLocaleString()} uds</span>
+          {/* TOTAL STOCK CARD */}
+          <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
+            <div className="card">
+              <div style={{ textAlign: 'center', margin: '4px 0 14px 0' }}>
+                <p className="total-item-ordenes" style={{ fontSize: '2.8em', margin: 0 }}>{Object.values(stockData).reduce((sum, m) => sum + (m.total_unidades || 0), 0).toLocaleString()}</p>
+                <p className="total-item-ordenes" style={{ fontSize: '0.9em', margin: '0 0 4px 0' }}>Total Stock</p>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', maxWidth: '400px', margin: '0 auto' }}>
+                <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
+                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
+                  <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Artilleros']?.total || 0), 0).toLocaleString()}</p>
+                </div>
+                <div style={{ flex: 1, textAlign: 'center', background: 'rgba(62, 127, 255, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
+                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Aduana</p>
+                  <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0), 0).toLocaleString()}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

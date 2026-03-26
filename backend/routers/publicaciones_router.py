@@ -449,3 +449,68 @@ async def precios_promedio_ml():
         "timestamp": datetime.now(ART).isoformat(),
         "precios": {marca: data for marca, data in results if data},
     }
+
+
+@router.post("/match-skus")
+async def match_skus_ml(body: dict):
+    """Buscar publicaciones ML por SKU de Odoo usando la API de búsqueda de ML.
+    Body: { "marca": "SHAQ", "skus": ["STMLS0005000400", "STMLS0005000410"] }
+    Retorna: { "matches": { "STMLS0005000400": [{ item_id, titulo, stock, ... }], ... } }
+    """
+    marca = body.get("marca")
+    skus = body.get("skus", [])
+    if not marca or marca not in MARCAS:
+        raise HTTPException(status_code=400, detail="Marca inválida")
+    if not skus:
+        return {"matches": {}}
+
+    token = await get_token_by_marca(marca)
+    if not token:
+        raise HTTPException(status_code=401, detail="Sin autenticación para " + marca)
+
+    uid = MARCAS[marca]
+    matches = {}
+    seen_item_ids = set()
+
+    async with httpx.AsyncClient() as client:
+        async def search_sku(sku: str):
+            # Buscar en ML por seller_custom_field
+            url = f"https://api.mercadolibre.com/users/{uid}/items/search?seller_custom_field={sku}&status=active&limit=50"
+            data = await api_call(url, token, client)
+            if not data:
+                return sku, []
+            item_ids = data.get("results", [])
+            if not item_ids:
+                return sku, []
+            # Obtener detalles de los items encontrados
+            ids_str = ",".join(item_ids[:20])
+            detail_url = f"https://api.mercadolibre.com/items?ids={ids_str}"
+            items_data = await api_call(detail_url, token, client)
+            results = []
+            if items_data and isinstance(items_data, list):
+                for entry in items_data:
+                    if entry.get("code") == 200 and entry.get("body"):
+                        item = entry["body"]
+                        results.append({
+                            "item_id": item.get("id", ""),
+                            "titulo": item.get("title", ""),
+                            "stock": item.get("available_quantity", 0) or 0,
+                            "precio": item.get("price", 0) or 0,
+                            "permalink": item.get("permalink", ""),
+                            "thumbnail": item.get("thumbnail", ""),
+                        })
+            return sku, results
+
+        sku_results = await asyncio.gather(*[search_sku(s) for s in skus[:20]])
+
+    for sku, items in sku_results:
+        # Deduplicar: un item puede aparecer en múltiples SKUs
+        unique_items = []
+        for item in items:
+            if item["item_id"] not in seen_item_ids:
+                seen_item_ids.add(item["item_id"])
+                unique_items.append(item)
+        if unique_items:
+            matches[sku] = unique_items
+
+    return {"matches": matches}

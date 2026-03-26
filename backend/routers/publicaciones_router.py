@@ -545,25 +545,18 @@ async def match_skus_ml(body: dict):
             if matched:
                 match_type = "prefijo"
 
-    # 3) Si no hay match por prefijo, buscar por nombre del producto
+    # 3) Si no hay match por prefijo, buscar por nombre de modelo en títulos ML
     product_name = body.get("product_name", "").lower().strip()
     if not matched and product_name:
         brand_name = marca.lower()
-        # Palabras genéricas que no identifican al modelo
-        stop_words = {'zapatilla', 'zapatillas', 'botin', 'botines', 'bota', 'botas',
-                      'remera', 'remeras', 'campera', 'camperas', 'pantalon', 'pantalones',
-                      'hombre', 'mujer', 'niño', 'niña', 'unisex', "men's", 'men', 'women', "women's",
-                      'deportiva', 'deportivo', 'deportivas', 'running', 'training', 'casual',
-                      'shoes', 'shoe', 'sneakers', 'sneaker', 'basketball', 'performance', 'activewear',
-                      'high', 'low', 'mid', 'top', 'slip',
-                      'importada', 'importado', 'original', 'nuevo', 'new',
-                      brand_name}
-        # Tomar solo las primeras 2 palabras significativas (nombre del modelo)
-        words = [w for w in product_name.split() if w not in stop_words and len(w) > 1][:2]
-        if words:
+        # El nombre del modelo es la primera palabra que no sea la marca
+        name_words = product_name.split()
+        model_name = next((w for w in name_words if w != brand_name and len(w) > 1), None)
+        if model_name:
             for item, ml_skus in items_with_skus:
                 title = (item.get("title", "") or "").lower()
-                if all(w in title for w in words) and item.get("id") not in seen:
+                # El título debe contener la marca Y el nombre del modelo
+                if model_name in title and brand_name in title and item.get("id") not in seen:
                     seen.add(item.get("id"))
                     matched.append({
                         "item_id": item.get("id", ""),

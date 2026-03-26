@@ -815,7 +815,7 @@ function App() {
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
                       <button
                         onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
-                        style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#ef4444', cursor: 'pointer', fontSize: '0.85em', padding: '2px 8px', borderRadius: '6px' }}
+                        style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff', cursor: 'pointer', fontSize: '0.85em', padding: '2px 8px', borderRadius: '6px' }}
                       >&times;</button>
                     </div>
                     <div className="card">

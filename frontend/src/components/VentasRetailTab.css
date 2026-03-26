@@ -308,6 +308,7 @@
   padding: 18px;
   margin-bottom: 24px;
   max-width: calc(50% - 8px);
+  box-sizing: border-box;
 }
 
 .retail-top-productos h3 {
@@ -352,7 +353,7 @@
 }
 
 .top-prod-bar {
-  width: 80px;
+  flex: 1;
   height: 6px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 3px;

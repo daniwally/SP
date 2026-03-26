@@ -838,6 +838,11 @@ function App() {
                 // Normalizar SKUs: quitar espacios, guiones
                 const normSku = s => s.toUpperCase().replace(/[\s\-_.]/g, '')
                 const skuList = [...skus].map(normSku).filter(Boolean)
+                // Debug: ver qué SKUs tiene Odoo vs ML
+                console.log(`[Comparador] Producto: "${sel.name}", SKUs Odoo:`, skuList)
+                if (mlPubs.length > 0) {
+                  console.log(`[Comparador] ML pubs (${mlPubs.length}):`, mlPubs.slice(0, 5).map(p => ({ titulo: p.titulo, sku: p.seller_sku, skus: p.seller_skus, stock: p.stock })))
+                }
 
                 if (skuList.length > 0) {
                   // Obtener todos los SKUs de cada publicación ML (root + variaciones)

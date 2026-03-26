@@ -747,13 +747,13 @@ function App() {
               : sorted
 
             return (
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ maxWidth: '50%', marginBottom: '20px' }}>
                 <input
                   type="text"
                   value={comparadorSearch}
                   onChange={(e) => setComparadorSearch(e.target.value)}
                   placeholder={`Filtrar productos de ${comparadorMarca}...`}
-                  style={{ width: '100%', maxWidth: '500px', padding: '8px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85em', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }}
+                  style={{ width: '100%', padding: '8px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85em', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }}
                 />
                 <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', background: 'rgba(0,0,0,0.3)' }}>
                   {filtered.map(([gKey, g]) => {
@@ -792,7 +792,7 @@ function App() {
 
           {/* Resultados de comparación */}
           {comparadorSelected.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '50%' }}>
               {comparadorSelected.map((sel, idx) => {
                 const mData = stockData[sel.marca]
                 if (!mData) return null

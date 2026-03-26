@@ -624,7 +624,8 @@ async def match_skus_ml(body: dict):
 
 @router.get("/debug-skus/{marca}")
 async def debug_skus(marca: str):
-    """Debug: ver qué SKUs extraemos de ML para una marca"""
+    """Debug: ver qué SKUs extraemos de ML para una marca.
+    Compara /items/{id} vs /items/{id}/variations para encontrar dónde están los SKUs."""
     if marca not in MARCAS:
         raise HTTPException(status_code=400, detail="Marca inválida")
 
@@ -635,32 +636,48 @@ async def debug_skus(marca: str):
     uid = MARCAS[marca]
     item_ids = await get_seller_items(uid, token, "active")
 
-    # Fetch 5 items individuales para debug
-    sample_ids = item_ids[:5]
+    # Fetch 3 items individuales para debug
+    sample_ids = item_ids[:3]
     items = await get_items_full(sample_ids, token)
 
     debug_items = []
-    for item in items:
-        skus = _extract_skus(item)
-        debug_items.append({
-            "item_id": item.get("id"),
-            "title": item.get("title"),
-            "seller_custom_field": item.get("seller_custom_field"),
-            "extracted_skus": skus,
-            "variations_count": len(item.get("variations", [])),
-            "variations_sample": [
-                {
-                    "id": v.get("id"),
-                    "seller_custom_field": v.get("seller_custom_field"),
-                    "attribute_combinations": v.get("attribute_combinations", []),
-                }
-                for v in item.get("variations", [])[:3]
-            ],
-            "attributes_seller_sku": [
-                attr for attr in item.get("attributes", [])
-                if attr.get("id") == "SELLER_SKU"
-            ],
-        })
+    async with httpx.AsyncClient() as client:
+        for item in items:
+            item_id = item.get("id")
+            skus_from_item = _extract_skus(item)
+
+            # También probar el endpoint /items/{id}/variations
+            variations_endpoint = []
+            skus_from_variations_endpoint = []
+            try:
+                url = f"https://api.mercadolibre.com/items/{item_id}/variations"
+                resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+                resp.raise_for_status()
+                variations_endpoint = resp.json()
+                for v in (variations_endpoint if isinstance(variations_endpoint, list) else []):
+                    vsku = v.get("seller_custom_field")
+                    if vsku and vsku not in skus_from_variations_endpoint:
+                        skus_from_variations_endpoint.append(vsku)
+            except Exception as e:
+                variations_endpoint = [{"error": str(e)}]
+
+            debug_items.append({
+                "item_id": item_id,
+                "title": item.get("title"),
+                "skus_from_items_endpoint": skus_from_item,
+                "skus_from_variations_endpoint": skus_from_variations_endpoint,
+                "variations_endpoint_sample": [
+                    {
+                        "id": v.get("id"),
+                        "seller_custom_field": v.get("seller_custom_field"),
+                        "attribute_combinations": [
+                            {"id": ac.get("id"), "value_name": ac.get("value_name")}
+                            for ac in v.get("attribute_combinations", [])
+                        ],
+                    }
+                    for v in (variations_endpoint if isinstance(variations_endpoint, list) else [])[:3]
+                ],
+            })
 
     return {
         "marca": marca,

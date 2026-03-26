@@ -468,11 +468,10 @@ body {
 
 /* PREGUNTAS */
 .questions-grid {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
   margin-top: 20px;
-  overflow-x: auto;
 }
 
 .question-card {
@@ -481,8 +480,6 @@ body {
   border-radius: 12px;
   padding: 16px;
   transition: all 0.3s;
-  flex: 1 1 0;
-  min-width: 0;
 }
 
 .question-card:hover {

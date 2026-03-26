@@ -206,37 +206,33 @@ export default function VentasRetailTab() {
 
     return (
       <>
-        <h3
+        <h3 style={{ marginBottom: 8 }}>Pedidos</h3>
+        <div className="retail-kpis">
+          <div className="retail-kpi">
+            <div className="kpi-value">{r.total_pedidos || 0}</div>
+            <div className="kpi-label">Pedidos</div>
+          </div>
+          <div className="retail-kpi">
+            <div className="kpi-value cyan">{fmtMoney(r.total_monto || 0)}</div>
+            <div className="kpi-label">Total</div>
+          </div>
+          <div className="retail-kpi">
+            <div className="kpi-value amber">{fmtMoney(r.ticket_promedio || 0)}</div>
+            <div className="kpi-label">Ticket Prom.</div>
+          </div>
+          <div className="retail-kpi">
+            <div className="kpi-value green">{r.total_items || 0}</div>
+            <div className="kpi-label">Items</div>
+          </div>
+        </div>
+        <div
           onClick={() => setPedidosOpen(!pedidosOpen)}
-          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 8 }}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 0', color: '#888', fontSize: '0.85em' }}
         >
-          <span style={{ fontSize: '0.7em', transition: 'transform 0.2s', transform: pedidosOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
-          Pedidos ({r.total_pedidos || 0})
-          <span style={{ fontSize: '0.75em', color: '#06b6d4', fontWeight: 400, marginLeft: '8px' }}>{fmtMoney(r.total_monto || 0)}</span>
-        </h3>
-        {pedidosOpen && (
-          <>
-            <div className="retail-kpis">
-              <div className="retail-kpi">
-                <div className="kpi-value">{r.total_pedidos || 0}</div>
-                <div className="kpi-label">Pedidos</div>
-              </div>
-              <div className="retail-kpi">
-                <div className="kpi-value cyan">{fmtMoney(r.total_monto || 0)}</div>
-                <div className="kpi-label">Total</div>
-              </div>
-              <div className="retail-kpi">
-                <div className="kpi-value amber">{fmtMoney(r.ticket_promedio || 0)}</div>
-                <div className="kpi-label">Ticket Prom.</div>
-              </div>
-              <div className="retail-kpi">
-                <div className="kpi-value green">{r.total_items || 0}</div>
-                <div className="kpi-label">Items</div>
-              </div>
-            </div>
-            {renderOrderTable(list)}
-          </>
-        )}
+          <span style={{ transition: 'transform 0.2s', transform: pedidosOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+          {pedidosOpen ? 'Ocultar detalle' : `Ver detalle (${list.length} pedidos)`}
+        </div>
+        {pedidosOpen && renderOrderTable(list)}
 
         {/* PRE VENTAS */}
         {preVentas && (() => {
@@ -244,37 +240,33 @@ export default function VentasRetailTab() {
           const pvList = preVentas.pedidos || []
           return (
             <>
-              <h3
+              <h3 style={{ color: '#f59e0b', marginTop: 24, marginBottom: 8 }}>Pre Ventas</h3>
+              <div className="retail-kpis">
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{pv.total_pedidos || 0}</div>
+                  <div className="kpi-label">Pre Ventas</div>
+                </div>
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pv.total_monto || 0)}</div>
+                  <div className="kpi-label">Total</div>
+                </div>
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pv.ticket_promedio || 0)}</div>
+                  <div className="kpi-label">Ticket Prom.</div>
+                </div>
+                <div className="retail-kpi">
+                  <div className="kpi-value" style={{ color: '#f59e0b' }}>{pv.total_items || 0}</div>
+                  <div className="kpi-label">Items</div>
+                </div>
+              </div>
+              <div
                 onClick={() => setPreVentasOpen(!preVentasOpen)}
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b', marginTop: 24, marginBottom: 8 }}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 0', color: '#f59e0b', fontSize: '0.85em', opacity: 0.7 }}
               >
-                <span style={{ fontSize: '0.7em', transition: 'transform 0.2s', transform: preVentasOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
-                Pre Ventas ({pv.total_pedidos || 0})
-                <span style={{ fontSize: '0.75em', fontWeight: 400, marginLeft: '8px' }}>{fmtMoney(pv.total_monto || 0)}</span>
-              </h3>
-              {preVentasOpen && (
-                <>
-                  <div className="retail-kpis">
-                    <div className="retail-kpi">
-                      <div className="kpi-value" style={{ color: '#f59e0b' }}>{pv.total_pedidos || 0}</div>
-                      <div className="kpi-label">Pre Ventas</div>
-                    </div>
-                    <div className="retail-kpi">
-                      <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pv.total_monto || 0)}</div>
-                      <div className="kpi-label">Total</div>
-                    </div>
-                    <div className="retail-kpi">
-                      <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pv.ticket_promedio || 0)}</div>
-                      <div className="kpi-label">Ticket Prom.</div>
-                    </div>
-                    <div className="retail-kpi">
-                      <div className="kpi-value" style={{ color: '#f59e0b' }}>{pv.total_items || 0}</div>
-                      <div className="kpi-label">Items</div>
-                    </div>
-                  </div>
-                  {renderOrderTable(pvList)}
-                </>
-              )}
+                <span style={{ transition: 'transform 0.2s', transform: preVentasOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+                {preVentasOpen ? 'Ocultar detalle' : `Ver detalle (${pvList.length} pre ventas)`}
+              </div>
+              {preVentasOpen && renderOrderTable(pvList)}
             </>
           )
         })()}

@@ -66,6 +66,7 @@ function App() {
   const [testData, setTestData] = useState({})
   const [tokenStatus, setTokenStatus] = useState({})
   const [mlPreciosData, setMlPreciosData] = useState({})
+  const [mlPublicaciones, setMlPublicaciones] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
@@ -103,7 +104,8 @@ function App() {
         axios.get(API + '/odoo/valuacion', axiosConfig),
         axios.get(API + '/test/ventas-detallado', axiosConfig),
         axios.get(API + '/debug/all-accounts', axiosConfig),
-        axios.get(API + '/publicaciones/precios-promedio', axiosConfig)
+        axios.get(API + '/publicaciones/precios-promedio', axiosConfig),
+        axios.get(API + '/publicaciones/reporte-todas', axiosConfig)
       ])
       
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
@@ -116,6 +118,7 @@ function App() {
       const test = results[5].status === 'fulfilled' ? results[5].value.data : {}
       const tokens = results[6].status === 'fulfilled' ? results[6].value.data : {}
       const mlPrecios = results[7].status === 'fulfilled' ? results[7].value.data : {}
+      const mlPubsRaw = results[8].status === 'fulfilled' ? results[8].value.data : {}
       
       console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
@@ -132,6 +135,12 @@ function App() {
       setTestData(test)
       setTokenStatus(tokens)
       setMlPreciosData(mlPrecios.precios || {})
+      // Extraer publicaciones ML agrupadas por marca
+      const pubsByMarca = {}
+      for (const [marca, mData] of Object.entries(mlPubsRaw.datos || {})) {
+        pubsByMarca[marca] = (mData.publicaciones || []).filter(p => p.stock > 0)
+      }
+      setMlPublicaciones(pubsByMarca)
       
       // Debug: verificar valuacion
       console.log('📊 Valuacion data loaded:', {
@@ -810,8 +819,19 @@ function App() {
                     }
                   }
                 }
-                const total = artTotal + aduTotal
-                const maxBar = Math.max(artTotal, aduTotal) || 1
+
+                // Buscar match en ML por nombre similar
+                const mlPubs = mlPublicaciones[sel.marca] || []
+                const searchName = (sel.name || '').toLowerCase()
+                const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
+                const mlMatches = mlPubs.filter(pub => {
+                  const t = (pub.titulo || '').toLowerCase()
+                  return searchWords.filter(w => t.includes(w)).length >= Math.min(2, searchWords.length)
+                })
+                const mlTotal = mlMatches.reduce((s, p) => s + (p.stock || 0), 0)
+
+                const total = artTotal + aduTotal + mlTotal
+                const maxBar = Math.max(artTotal, aduTotal, mlTotal) || 1
 
                 return (
                   <div key={idx}>
@@ -829,8 +849,9 @@ function App() {
                       <span style={{ color: '#d946ef', fontWeight: 700, marginLeft: 'auto' }}>{total.toLocaleString('es-AR')} total</span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
-                      <div style={{ flex: 1, background: 'rgba(6, 182, 212, 0.06)', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'stretch', flexWrap: 'wrap' }}>
+                      {/* Artilleros */}
+                      <div style={{ flex: 1, minWidth: '120px', background: 'rgba(6, 182, 212, 0.06)', borderRadius: '10px', padding: '14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                           <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '0.9em' }}>Artilleros</span>
                           <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '1.4em' }}>{artTotal.toLocaleString('es-AR')}</span>
@@ -838,9 +859,10 @@ function App() {
                         <div style={{ height: '8px', background: 'rgba(6, 182, 212, 0.15)', borderRadius: '4px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${(artTotal / maxBar) * 100}%`, background: '#06b6d4', borderRadius: '4px', transition: 'width 0.4s ease' }} />
                         </div>
-                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((artTotal / total) * 100).toFixed(1)}% del total</p>}
+                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((artTotal / total) * 100).toFixed(1)}%</p>}
                       </div>
-                      <div style={{ flex: 1, background: 'rgba(62, 127, 255, 0.06)', borderRadius: '10px', padding: '14px' }}>
+                      {/* Aduana */}
+                      <div style={{ flex: 1, minWidth: '120px', background: 'rgba(62, 127, 255, 0.06)', borderRadius: '10px', padding: '14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                           <span style={{ color: '#3e7fff', fontWeight: 700, fontSize: '0.9em' }}>Aduana</span>
                           <span style={{ color: '#3e7fff', fontWeight: 700, fontSize: '1.4em' }}>{aduTotal.toLocaleString('es-AR')}</span>
@@ -848,7 +870,24 @@ function App() {
                         <div style={{ height: '8px', background: 'rgba(62, 127, 255, 0.15)', borderRadius: '4px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${(aduTotal / maxBar) * 100}%`, background: '#3e7fff', borderRadius: '4px', transition: 'width 0.4s ease' }} />
                         </div>
-                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((aduTotal / total) * 100).toFixed(1)}% del total</p>}
+                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((aduTotal / total) * 100).toFixed(1)}%</p>}
+                      </div>
+                      {/* Mercado Libre */}
+                      <div style={{ flex: 1, minWidth: '120px', background: 'rgba(251, 191, 36, 0.06)', borderRadius: '10px', padding: '14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.9em' }}>ML</span>
+                          <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '1.4em' }}>{mlTotal.toLocaleString('es-AR')}</span>
+                        </div>
+                        <div style={{ height: '8px', background: 'rgba(251, 191, 36, 0.15)', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${(mlTotal / maxBar) * 100}%`, background: '#fbbf24', borderRadius: '4px', transition: 'width 0.4s ease' }} />
+                        </div>
+                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((mlTotal / total) * 100).toFixed(1)}%</p>}
+                        {mlMatches.length > 0 && (
+                          <p style={{ color: '#666', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlMatches.length} publicacion{mlMatches.length !== 1 ? 'es' : ''}</p>
+                        )}
+                        {mlMatches.length === 0 && (
+                          <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin publicaciones</p>
+                        )}
                       </div>
                     </div>
                     </div>

@@ -604,7 +604,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
               const preguntas = brandData.preguntas || [];
               const count = brandData.sin_responder || 0;
               return (
-                <div key={brandKey} className="question-card" style={{ minWidth: '280px', maxWidth: '350px' }}>
+                <div key={brandKey} className="question-card">
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     {BRAND_LOGOS[brandKey]
                       ? <img src={BRAND_LOGOS[brandKey]} alt={brandKey} style={{ height: '28px', objectFit: 'contain' }} />

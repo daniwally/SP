@@ -14,6 +14,7 @@ ODOO_KEY = os.getenv("ODOO_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
 EMPTY_PEDIDOS = {"pedidos": [], "resumen": {"total_pedidos": 0, "total_monto": 0, "total_items": 0, "ticket_promedio": 0, "top_productos": []}}
 EMPTY_COMPRAS = {"compras": [], "resumen": {"total_compras": 0, "total_monto": 0, "compra_promedio": 0}}
 EMPTY_CLIENTES = {"clientes": [], "resumen": {"total_clientes": 0, "monto_total": 0, "recurrentes": 0, "ticket_promedio": 0}}
+EMPTY_PRESUPUESTOS = {"presupuestos": {"total": 0, "monto": 0}}
 
 
 def _get_uid():
@@ -404,6 +405,42 @@ async def clientes(
 
 
 # ---------------------------------------------------------------------------
+# Presupuestos (sale.order draft / sent)
+# ---------------------------------------------------------------------------
+def _presupuestos_sync(desde: str, hasta: str):
+    uid = _get_uid()
+    if not uid:
+        return {**EMPTY_PRESUPUESTOS, "error": "Sin conexión a Odoo"}
+
+    try:
+        models = _get_models()
+
+        domain = [
+            ('date_order', '>=', f'{desde} 00:00:00'),
+            ('date_order', '<=', f'{hasta} 23:59:59'),
+            ('state', 'in', ['draft', 'sent']),
+        ]
+
+        orders = models.execute_kw(
+            ODOO_DB, uid, ODOO_KEY, 'sale.order', 'search_read',
+            [domain],
+            {
+                'fields': ['amount_total'],
+                'limit': 500,
+            }
+        )
+
+        total = len(orders)
+        monto = round(sum(o.get('amount_total', 0) for o in orders), 2)
+
+        return {"presupuestos": {"total": total, "monto": monto}}
+
+    except Exception as e:
+        print(f"Retail presupuestos error: {e}")
+        return {**EMPTY_PRESUPUESTOS, "error": str(e)}
+
+
+# ---------------------------------------------------------------------------
 # Dashboard resumen (combines all three)
 # ---------------------------------------------------------------------------
 def _resumen_periodo(pedidos_list, desde_str, hasta_str):
@@ -444,6 +481,7 @@ def _dashboard_sync(desde: str, hasta: str):
     pedidos = _pedidos_sync(fetch_desde, hasta)
     compras_data = _compras_sync(desde, hasta)
     clientes_data = _clientes_sync(desde, hasta)
+    presupuestos_data = _presupuestos_sync(desde, hasta)
 
     all_pedidos = pedidos.get("pedidos", [])
 
@@ -464,6 +502,7 @@ def _dashboard_sync(desde: str, hasta: str):
         "top_marcas": pedidos.get("resumen", {}).get("top_marcas", []),
         "compras": compras_data.get("resumen", {}),
         "clientes": clientes_data.get("resumen", {}),
+        "presupuestos": presupuestos_data.get("presupuestos", {}),
         "ventas_semana": {
             **_resumen_periodo(all_pedidos, semana_desde, hoy),
             "desde": semana_desde,
@@ -477,7 +516,7 @@ def _dashboard_sync(desde: str, hasta: str):
     }
 
     # Propagate error if any endpoint failed
-    errors = [d.get("error") for d in [pedidos, compras_data, clientes_data] if d.get("error")]
+    errors = [d.get("error") for d in [pedidos, compras_data, clientes_data, presupuestos_data] if d.get("error")]
     if errors:
         result["error"] = errors[0]
 

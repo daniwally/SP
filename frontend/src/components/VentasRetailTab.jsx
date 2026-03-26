@@ -77,6 +77,7 @@ export default function VentasRetailTab() {
     const v = dashboard.ventas || {}
     const c = dashboard.compras || {}
     const cl = dashboard.clientes || {}
+    const pres = dashboard.presupuestos || {}
 
     return (
       <>
@@ -115,6 +116,17 @@ export default function VentasRetailTab() {
           <div className="retail-kpi">
             <div className="kpi-value green">{cl.recurrentes || 0}</div>
             <div className="kpi-label">Recurrentes</div>
+          </div>
+        </div>
+
+        <div className="retail-kpis" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <div className="retail-kpi">
+            <div className="kpi-value" style={{ color: '#f59e0b' }}>{pres.total || 0}</div>
+            <div className="kpi-label">Presupuestos</div>
+          </div>
+          <div className="retail-kpi">
+            <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pres.monto || 0)}</div>
+            <div className="kpi-label">Monto Presupuestos</div>
           </div>
         </div>
 

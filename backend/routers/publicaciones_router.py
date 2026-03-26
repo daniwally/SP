@@ -504,4 +504,17 @@ async def match_skus_ml(body: dict):
                 "matched_skus": matched_skus,
             })
 
-    return {"items": matched, "total_items_marca": len(items), "skus_buscados": list(skus_upper)}
+    # Debug: mostrar muestra de SKUs encontrados en ML
+    debug_sample = []
+    for item in items[:10]:
+        item_skus = _extract_skus(item)
+        debug_sample.append({
+            "item_id": item.get("id", ""),
+            "title": (item.get("title", "") or "")[:50],
+            "seller_custom_field": item.get("seller_custom_field"),
+            "extracted_skus": item_skus,
+            "has_variations": len(item.get("variations", [])),
+            "var_sample": [{"id": v.get("id"), "scf": v.get("seller_custom_field")} for v in item.get("variations", [])[:3]],
+        })
+
+    return {"items": matched, "total_items_marca": len(items), "skus_buscados": list(skus_upper), "debug_ml_sample": debug_sample}

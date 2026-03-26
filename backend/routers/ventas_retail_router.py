@@ -570,6 +570,45 @@ def _dashboard_sync(desde: str, hasta: str):
     return result
 
 
+@router.get("/debug-presupuestos")
+async def debug_presupuestos():
+    """Debug: ver datos crudos de presupuestos en Odoo"""
+    uid = _get_uid()
+    if not uid:
+        return {"error": "Sin conexión"}
+    models = _get_models()
+    today = datetime.now()
+    desde = today.replace(day=1).strftime('%Y-%m-%d')
+    hasta = today.strftime('%Y-%m-%d')
+
+    orders = models.execute_kw(
+        ODOO_DB, uid, ODOO_KEY, 'sale.order', 'search_read',
+        [[
+            ('date_order', '>=', f'{desde} 00:00:00'),
+            ('date_order', '<=', f'{hasta} 23:59:59'),
+            ('state', 'in', ['draft', 'sent']),
+        ]],
+        {'fields': ['name', 'partner_id', 'date_order', 'amount_total', 'amount_untaxed', 'amount_tax', 'state', 'order_line'], 'limit': 5}
+    )
+    # Para cada orden, traer líneas
+    result = []
+    for o in orders:
+        lines = []
+        if o.get('order_line'):
+            lines_raw = models.execute_kw(
+                ODOO_DB, uid, ODOO_KEY, 'sale.order.line', 'read',
+                [o['order_line'][:5]],
+                {'fields': ['name', 'product_uom_qty', 'price_unit', 'price_subtotal', 'price_total']}
+            )
+            lines = lines_raw
+        result.append({
+            "raw_order": {k: v for k, v in o.items() if k != 'order_line'},
+            "order_line_count": len(o.get('order_line', [])),
+            "lines_sample": lines,
+        })
+    return {"orders": result}
+
+
 @router.get("/dashboard")
 async def dashboard(
     desde: str = Query(None),

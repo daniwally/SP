@@ -571,17 +571,19 @@ async def match_skus_ml(body: dict):
             if matched:
                 match_type = "prefijo"
 
-    # 3) Si no hay match por prefijo, buscar por nombre de modelo en títulos ML
+    # 3) Si no hay match por SKU/prefijo, buscar por nombre de modelo en títulos ML
     if not matched and product_name:
         brand_name = marca.lower()
-        # El nombre del modelo es la primera palabra que no sea la marca
-        name_words = product_name.split()
-        model_name = next((w for w in name_words if w != brand_name and len(w) > 1), None)
-        if model_name:
+        # Extraer palabras del modelo (todas las que no sean la marca ni muy cortas)
+        model_words = [w for w in product_name.split() if w != brand_name and len(w) > 1]
+
+        if model_words:
             for item, ml_skus in items_with_skus:
                 title = (item.get("title", "") or "").lower()
-                # El título debe contener la marca Y el nombre del modelo
-                if model_name in title and brand_name in title and item.get("id") not in seen:
+                if brand_name not in title:
+                    continue
+                # Verificar que TODAS las palabras del modelo estén en el título
+                if all(w in title for w in model_words) and item.get("id") not in seen:
                     seen.add(item.get("id"))
                     matched.append({
                         "item_id": item.get("id", ""),
@@ -592,6 +594,24 @@ async def match_skus_ml(body: dict):
                         "match_type": "nombre",
                         "has_sku": bool(ml_skus),
                     })
+
+            # Si no matchea con todas las palabras, intentar solo con la primera (más flexible)
+            if not matched:
+                main_word = model_words[0]
+                for item, ml_skus in items_with_skus:
+                    title = (item.get("title", "") or "").lower()
+                    if main_word in title and brand_name in title and item.get("id") not in seen:
+                        seen.add(item.get("id"))
+                        matched.append({
+                            "item_id": item.get("id", ""),
+                            "titulo": item.get("title", ""),
+                            "stock": item.get("available_quantity", 0) or 0,
+                            "precio": item.get("price", 0) or 0,
+                            "permalink": item.get("permalink", ""),
+                            "match_type": "nombre",
+                            "has_sku": bool(ml_skus),
+                        })
+
             if matched:
                 match_type = "nombre"
 

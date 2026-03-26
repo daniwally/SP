@@ -727,6 +727,7 @@ function App() {
           </div>
 
           {/* Paso 2: Lista de productos de la marca seleccionada */}
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
           {comparadorMarca && stockData[comparadorMarca] && (() => {
             const mData = stockData[comparadorMarca]
             // Agrupar por template
@@ -747,7 +748,7 @@ function App() {
               : sorted
 
             return (
-              <div style={{ maxWidth: '50%', marginBottom: '20px' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <input
                   type="text"
                   value={comparadorSearch}
@@ -792,7 +793,7 @@ function App() {
 
           {/* Resultados de comparación */}
           {comparadorSelected.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
               {comparadorSelected.map((sel, idx) => {
                 const mData = stockData[sel.marca]
                 if (!mData) return null
@@ -810,7 +811,7 @@ function App() {
                 const maxBar = Math.max(artTotal, aduTotal) || 1
 
                 return (
-                  <div key={idx} className="card" style={{ position: 'relative', width: 'calc(50% - 6px)', boxSizing: 'border-box' }}>
+                  <div key={idx} className="card" style={{ position: 'relative' }}>
                     <button
                       onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
                       style={{ position: 'absolute', top: '8px', right: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.2em', padding: '4px' }}
@@ -858,6 +859,7 @@ function App() {
               )}
             </div>
           )}
+          </div>
         </section>
 
         </>

@@ -61,6 +61,7 @@ function App() {
   const [expandedWarehouses, setExpandedWarehouses] = useState({})
   const [comparadorSearch, setComparadorSearch] = useState('')
   const [comparadorSelected, setComparadorSelected] = useState([])
+  const [comparadorMarca, setComparadorMarca] = useState(null)
   const [valuationData, setValuationData] = useState({})
   const [testData, setTestData] = useState({})
   const [tokenStatus, setTokenStatus] = useState({})
@@ -694,78 +695,112 @@ function App() {
         {/* COMPARADOR DE STOCKS */}
         <section className="section">
           <h2>Comparador de Stock</h2>
-          <p style={{ color: '#888', fontSize: '0.85em', margin: '-4px 0 16px 0' }}>Artilleros vs Aduana — Buscá un producto y compará stock entre depósitos</p>
+          <p style={{ color: '#888', fontSize: '0.85em', margin: '-4px 0 16px 0' }}>Artilleros vs Aduana — Seleccioná marca y producto para comparar</p>
 
-          {/* Buscador */}
-          <div style={{ position: 'relative', maxWidth: '500px', marginBottom: '20px' }}>
-            <input
-              type="text"
-              value={comparadorSearch}
-              onChange={(e) => setComparadorSearch(e.target.value)}
-              placeholder="Buscar producto..."
-              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.9em', outline: 'none', boxSizing: 'border-box' }}
-            />
-            {comparadorSearch.length >= 2 && (() => {
-              const term = comparadorSearch.toLowerCase()
-              const results = []
-              for (const [marca, mData] of Object.entries(stockData)) {
-                if (!['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca)) continue
-                const seen = new Set()
-                for (const [, whData] of Object.entries(mData.almacenes || {})) {
-                  for (const prod of (whData.productos || [])) {
-                    const key = prod.template_id || prod.nombre
-                    if (seen.has(key)) continue
-                    if (prod.nombre.toLowerCase().includes(term) || (prod.sku || '').toLowerCase().includes(term) || (prod.template_name || '').toLowerCase().includes(term)) {
-                      seen.add(key)
-                      results.push({ ...prod, marca })
-                    }
-                  }
+          {/* Paso 1: Selector de marca con logos */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+            {Object.entries(stockData)
+              .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
+              .sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))
+              .map(([marca]) => {
+                const isActive = comparadorMarca === marca
+                return (
+                  <div
+                    key={marca}
+                    onClick={() => { setComparadorMarca(isActive ? null : marca); setComparadorSearch('') }}
+                    style={{
+                      cursor: 'pointer', padding: '10px 18px', borderRadius: '10px',
+                      border: isActive ? '2px solid #d946ef' : '1px solid rgba(255,255,255,0.1)',
+                      background: isActive ? 'rgba(217, 70, 239, 0.12)' : 'rgba(0,0,0,0.4)',
+                      transition: 'all 0.2s',
+                      opacity: comparadorMarca && !isActive ? 0.4 : 1,
+                    }}
+                  >
+                    {BRAND_LOGOS[marca] ? (
+                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '110px', objectFit: 'contain', display: 'block' }} />
+                    ) : (
+                      <span style={{ color: '#fff', fontWeight: 700 }}>{marca}</span>
+                    )}
+                  </div>
+                )
+              })}
+          </div>
+
+          {/* Paso 2: Lista de productos de la marca seleccionada */}
+          {comparadorMarca && stockData[comparadorMarca] && (() => {
+            const mData = stockData[comparadorMarca]
+            // Agrupar por template
+            const groups = {}
+            for (const [, whData] of Object.entries(mData.almacenes || {})) {
+              for (const prod of (whData.productos || [])) {
+                const key = prod.template_id || prod.nombre
+                if (!groups[key]) {
+                  groups[key] = { name: prod.template_name || prod.nombre, sku: prod.sku, imagen: prod.imagen, total: 0 }
                 }
+                groups[key].total += prod.cantidad
+                if (!groups[key].imagen && prod.imagen) groups[key].imagen = prod.imagen
               }
-              if (results.length === 0) return null
-              return (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, maxHeight: '250px', overflowY: 'auto', background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', marginTop: '4px', zIndex: 30 }}>
-                  {results.slice(0, 20).map((r, idx) => {
-                    const alreadySelected = comparadorSelected.some(s => (s.template_id || s.nombre) === (r.template_id || r.nombre) && s.marca === r.marca)
+            }
+            const sorted = Object.entries(groups).sort((a, b) => b[1].total - a[1].total)
+            const filtered = comparadorSearch
+              ? sorted.filter(([, g]) => g.name.toLowerCase().includes(comparadorSearch.toLowerCase()) || (g.sku || '').toLowerCase().includes(comparadorSearch.toLowerCase()))
+              : sorted
+
+            return (
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  type="text"
+                  value={comparadorSearch}
+                  onChange={(e) => setComparadorSearch(e.target.value)}
+                  placeholder={`Filtrar productos de ${comparadorMarca}...`}
+                  style={{ width: '100%', maxWidth: '500px', padding: '8px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85em', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }}
+                />
+                <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', background: 'rgba(0,0,0,0.3)' }}>
+                  {filtered.map(([gKey, g]) => {
+                    const alreadySelected = comparadorSelected.some(s => String(s.key) === String(gKey) && s.marca === comparadorMarca)
                     return (
                       <div
-                        key={idx}
+                        key={gKey}
                         onClick={() => {
                           if (!alreadySelected) {
-                            setComparadorSelected(prev => [...prev, r])
+                            setComparadorSelected(prev => [...prev, { key: gKey, marca: comparadorMarca, name: g.name, sku: g.sku, imagen: g.imagen }])
                           }
-                          setComparadorSearch('')
                         }}
-                        style={{ padding: '8px 14px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px', opacity: alreadySelected ? 0.4 : 1 }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(217, 70, 239, 0.08)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 14px', cursor: alreadySelected ? 'default' : 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: alreadySelected ? 0.35 : 1, transition: 'background 0.15s' }}
+                        onMouseEnter={(e) => { if (!alreadySelected) e.currentTarget.style.background = 'rgba(217, 70, 239, 0.08)'; const tip = e.currentTarget.querySelector('.cmp-thumb'); if (tip) tip.style.display = 'block' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; const tip = e.currentTarget.querySelector('.cmp-thumb'); if (tip) tip.style.display = 'none' }}
                       >
-                        {BRAND_LOGOS[r.marca] && <img src={BRAND_LOGOS[r.marca]} alt="" style={{ height: '16px', objectFit: 'contain' }} />}
-                        <span style={{ fontSize: '0.85em' }}>{r.template_name || r.nombre}</span>
-                        {r.sku && <span style={{ color: '#888', fontSize: '0.75em' }}>{r.sku}</span>}
+                        <span style={{ color: '#d946ef', fontWeight: 700, fontSize: '0.85em', minWidth: '55px', textAlign: 'right' }}>{g.total.toLocaleString('es-AR')}</span>
+                        <span style={{ fontSize: '0.88em', flex: 1, position: 'relative' }}>
+                          {g.name}
+                          {g.imagen && (
+                            <div className="cmp-thumb" style={{ display: 'none', position: 'absolute', left: '0', top: '-85px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+                              <img src={`data:image/png;base64,${g.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
+                            </div>
+                          )}
+                        </span>
+                        {g.sku && <span style={{ color: '#666', fontSize: '0.75em' }}>{g.sku}</span>}
+                        {alreadySelected && <span style={{ color: '#22c55e', fontSize: '0.8em', fontWeight: 600 }}>&#10003;</span>}
                       </div>
                     )
                   })}
+                  {filtered.length === 0 && <p style={{ color: '#666', padding: '14px', textAlign: 'center', fontSize: '0.85em' }}>Sin resultados</p>}
                 </div>
-              )
-            })()}
-          </div>
+              </div>
+            )
+          })()}
 
-          {/* Productos seleccionados - Comparación */}
+          {/* Resultados de comparación */}
           {comparadorSelected.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {comparadorSelected.map((sel, idx) => {
-                const key = sel.template_id || sel.nombre
-                const marca = sel.marca
-                const mData = stockData[marca]
+                const mData = stockData[sel.marca]
                 if (!mData) return null
-
-                // Sumar cantidades por almacén para este template
                 let artTotal = 0, aduTotal = 0
                 for (const [whName, whData] of Object.entries(mData.almacenes || {})) {
                   for (const prod of (whData.productos || [])) {
                     const pKey = prod.template_id || prod.nombre
-                    if (pKey === key) {
+                    if (String(pKey) === String(sel.key)) {
                       if (whName.includes('Aduana')) aduTotal += prod.cantidad
                       else artTotal += prod.cantidad
                     }
@@ -778,17 +813,16 @@ function App() {
                   <div key={idx} className="card" style={{ position: 'relative' }}>
                     <button
                       onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
-                      style={{ position: 'absolute', top: '8px', right: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.1em', padding: '4px' }}
+                      style={{ position: 'absolute', top: '8px', right: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.2em', padding: '4px' }}
                     >&times;</button>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                      {BRAND_LOGOS[marca] && <img src={BRAND_LOGOS[marca]} alt="" style={{ height: '22px', objectFit: 'contain' }} />}
-                      <span style={{ fontWeight: 700, fontSize: '0.95em' }}>{sel.template_name || sel.nombre}</span>
+                      {BRAND_LOGOS[sel.marca] && <img src={BRAND_LOGOS[sel.marca]} alt="" style={{ height: '22px', objectFit: 'contain' }} />}
+                      <span style={{ fontWeight: 700, fontSize: '0.95em' }}>{sel.name}</span>
                       {sel.sku && <span style={{ color: '#888', fontSize: '0.8em' }}>{sel.sku}</span>}
                       <span style={{ color: '#d946ef', fontWeight: 700, marginLeft: 'auto' }}>{total.toLocaleString('es-AR')} total</span>
                     </div>
 
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
-                      {/* Artilleros */}
                       <div style={{ flex: 1, background: 'rgba(6, 182, 212, 0.06)', borderRadius: '10px', padding: '14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                           <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '0.9em' }}>Artilleros</span>
@@ -799,8 +833,6 @@ function App() {
                         </div>
                         {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((artTotal / total) * 100).toFixed(1)}% del total</p>}
                       </div>
-
-                      {/* Aduana */}
                       <div style={{ flex: 1, background: 'rgba(62, 127, 255, 0.06)', borderRadius: '10px', padding: '14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                           <span style={{ color: '#3e7fff', fontWeight: 700, fontSize: '0.9em' }}>Aduana</span>

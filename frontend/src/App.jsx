@@ -935,7 +935,7 @@ function App() {
                 <div style={{ textAlign: 'right' }}>
                   <button
                     onClick={() => setComparadorSelected([])}
-                    style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '6px', padding: '6px 16px', cursor: 'pointer', fontSize: '0.82em' }}
+                    style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '6px', padding: '6px 16px', cursor: 'pointer', fontSize: '0.82em' }}
                   >Limpiar todo</button>
                 </div>
               )}

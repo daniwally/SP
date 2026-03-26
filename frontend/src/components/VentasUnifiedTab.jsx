@@ -11,7 +11,7 @@ const BRAND_LOGOS = {
   'ELSYS': `${LOGO_BASE}/elsys-logo.png`,
 }
 
-const fmtMoney = (n) => '$' + Math.round(n).toLocaleString()
+const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('es-AR')
 
 export default function VentasUnifiedTab({ testData }) {
   const [retailData, setRetailData] = useState(null)

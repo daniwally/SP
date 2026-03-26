@@ -11,7 +11,7 @@ const BRAND_LOGOS = {
   'ELSYS': `${LOGO_BASE}/elsys.png`,
 }
 
-const fmtMoney = (n) => '$' + Math.round(n).toLocaleString()
+const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('es-AR')
 const fmtDate = (d) => {
   if (!d) return '-'
   const parts = String(d).slice(0, 10).split('-')

@@ -33,7 +33,7 @@ export default function StockTab({ data }) {
               onClick={() => toggleExpand(deposito, marca)}
             >
               <span className="marca-name">{marca}</span>
-              <span className="marca-qty">{info.total.toLocaleString()} unid.</span>
+              <span className="marca-qty">{info.total.toLocaleString('es-AR')} unid.</span>
             </div>
             
             {expandedDepositoMarca === `${deposito}-${marca}` && (
@@ -43,7 +43,7 @@ export default function StockTab({ data }) {
                     <div key={idx} className="producto-item">
                       <p><strong>{prod.nombre}</strong></p>
                       <p>📍 {prod.ubicacion}</p>
-                      <p>📦 {prod.cantidad.toLocaleString()} unidades</p>
+                      <p>📦 {prod.cantidad.toLocaleString('es-AR')} unidades</p>
                     </div>
                   ))
                 ) : (
@@ -64,7 +64,7 @@ export default function StockTab({ data }) {
         {kpis.map(kpi => (
           <div key={kpi.label} className="kpi-item">
             <div className="kpi-number">
-              {kpi.value.toLocaleString()}
+              {kpi.value.toLocaleString('es-AR')}
             </div>
             <div className="kpi-label">{kpi.label}</div>
             <div className="kpi-bar">

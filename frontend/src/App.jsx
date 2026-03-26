@@ -22,7 +22,7 @@ const BRAND_LOGOS = {
 import './App.css'
 
 // Función para formatear montos sin centavos
-const fmtMoney = (n) => Math.round(n).toLocaleString()
+const fmtMoney = (n) => Math.round(n).toLocaleString('es-AR')
 
 // Función para formatear fecha en español
 const formatDateSpanish = (date) => {
@@ -443,18 +443,18 @@ function App() {
                         <h3>{marca}</h3>
                       )}
                       <div style={{ textAlign: 'center', margin: '8px 0 12px 0' }}>
-                        <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{(data.total_unidades || 0).toLocaleString()}</p>
+                        <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{(data.total_unidades || 0).toLocaleString('es-AR')}</p>
                         <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>unidades</p>
                       </div>
                       <br />
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
                           <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
-                          <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{artilleros.toLocaleString()}</p>
+                          <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{artilleros.toLocaleString('es-AR')}</p>
                         </div>
                         <div style={{ flex: 1, textAlign: 'center', background: 'rgba(62, 127, 255, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
                           <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Aduana</p>
-                          <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{aduana.toLocaleString()}</p>
+                          <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{aduana.toLocaleString('es-AR')}</p>
                         </div>
                       </div>
                     </div>
@@ -478,17 +478,17 @@ function App() {
               <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
                 <div className="card">
                   <div style={{ textAlign: 'center', margin: '4px 0 14px 0' }}>
-                    <p style={{ fontSize: '2.8em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{totalStock.toLocaleString()}</p>
+                    <p style={{ fontSize: '2.8em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{totalStock.toLocaleString('es-AR')}</p>
                     <p className="total-item-ordenes" style={{ fontSize: '0.9em', margin: '0 0 4px 0' }}>unidades — Total Stock</p>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', maxWidth: '400px', margin: '0 auto 20px auto' }}>
                     <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
                       <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
-                      <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{totalArt.toLocaleString()}</p>
+                      <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{totalArt.toLocaleString('es-AR')}</p>
                     </div>
                     <div style={{ flex: 1, textAlign: 'center', background: 'rgba(62, 127, 255, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
                       <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Aduana</p>
-                      <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{totalAdu.toLocaleString()}</p>
+                      <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{totalAdu.toLocaleString('es-AR')}</p>
                     </div>
                   </div>
 
@@ -509,7 +509,7 @@ function App() {
                           <div className="top-prod-bar">
                             <div className="top-prod-bar-fill" style={{ width: `${(m.total / maxStock) * 100}%` }} />
                           </div>
-                          <span className="top-prod-amount">{m.total.toLocaleString()}</span>
+                          <span className="top-prod-amount">{m.total.toLocaleString('es-AR')}</span>
                           <span style={{ color: '#fbbf24', fontWeight: 600, fontSize: '0.85em', minWidth: '50px', textAlign: 'right' }}>{pct}%</span>
                         </div>
                       )
@@ -574,17 +574,17 @@ function App() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75em' }}>
                       <span style={{ color: '#7f8c8d' }}>Artilleros</span>
-                      <span style={{ color: '#06b6d4', fontWeight: 600 }}>{(artData.unidades || 0).toLocaleString()} u · ${((artData.valor || 0) / 1e6).toFixed(1)}M</span>
+                      <span style={{ color: '#06b6d4', fontWeight: 600 }}>{(artData.unidades || 0).toLocaleString('es-AR')} u · ${((artData.valor || 0) / 1e6).toFixed(1)}M</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75em' }}>
                       <span style={{ color: '#7f8c8d' }}>Zona Franca</span>
-                      <span style={{ color: '#3e7fff', fontWeight: 600 }}>{(zfData.unidades || 0).toLocaleString()} u · ${((zfData.valor || 0) / 1e6).toFixed(1)}M</span>
+                      <span style={{ color: '#3e7fff', fontWeight: 600 }}>{(zfData.unidades || 0).toLocaleString('es-AR')} u · ${((zfData.valor || 0) / 1e6).toFixed(1)}M</span>
                     </div>
                     {precioML > 0 && (
                       <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px', marginTop: '6px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', marginBottom: '4px' }}>
                           <span style={{ color: '#7f8c8d' }}>Precio ML prom.</span>
-                          <span style={{ color: '#fbbf24', fontWeight: 700 }}>${precioML.toLocaleString()}</span>
+                          <span style={{ color: '#fbbf24', fontWeight: 700 }}>${precioML.toLocaleString('es-AR')}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em' }}>
                           <span style={{ color: '#7f8c8d' }}>Valuación ML</span>

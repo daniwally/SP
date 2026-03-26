@@ -61,9 +61,9 @@ function KpisSection({ kpis }) {
   return (
     <div className="kpis-grid">
       <KpiCard label="Publicaciones" value={kpis.total_publicaciones} sub={`${kpis.activas} activas`} />
-      <KpiCard label="Stock Total" value={kpis.stock_total?.toLocaleString()} color="#d946ef" />
-      <KpiCard label="Vendidas Total" value={kpis.vendidas_total?.toLocaleString()} color="#f59e0b" />
-      <KpiCard label="Precio Promedio" value={`$${kpis.precio_promedio?.toLocaleString()}`} color="#86efac" />
+      <KpiCard label="Stock Total" value={kpis.stock_total?.toLocaleString('es-AR')} color="#d946ef" />
+      <KpiCard label="Vendidas Total" value={kpis.vendidas_total?.toLocaleString('es-AR')} color="#f59e0b" />
+      <KpiCard label="Precio Promedio" value={`$${kpis.precio_promedio?.toLocaleString('es-AR')}`} color="#86efac" />
       <KpiCard label="Envío Gratis" value={`${kpis.con_envio_gratis}`} sub={`${kpis.pct_envio_gratis}%`} color="#22c55e" />
       <KpiCard label="Valor Stock" value={`$${(kpis.valor_stock_estimado / 1000000).toFixed(1)}M`} color="#d946ef" />
     </div>
@@ -426,9 +426,9 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
               <div className="marca-kpi-stats">
                 <span>{mk.total_publicaciones} pub</span>
                 <span className="sep">|</span>
-                <span style={{ color: '#d946ef' }}>{mk.stock_total?.toLocaleString()} stock</span>
+                <span style={{ color: '#d946ef' }}>{mk.stock_total?.toLocaleString('es-AR')} stock</span>
                 <span className="sep">|</span>
-                <span style={{ color: '#f59e0b' }}>{mk.vendidas_total?.toLocaleString()} vendidas</span>
+                <span style={{ color: '#f59e0b' }}>{mk.vendidas_total?.toLocaleString('es-AR')} vendidas</span>
                 <span className="sep">|</span>
                 <span style={{ color: '#86efac' }}>${(mk.valor_stock_estimado / 1000000).toFixed(1)}M</span>
               </div>
@@ -517,7 +517,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                     </span>
                   </td>
                   <td className="precio">
-                    ${pub.precio?.toLocaleString()}
+                    ${pub.precio?.toLocaleString('es-AR')}
                   </td>
                   <td className="health-cell">
                     {pub.health != null ? (
@@ -702,7 +702,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                                       </a>
                                     ) : sug.item_id}
                                   </div>
-                                  <div style={{ color: '#7f8c8d', fontSize: '0.75em' }}>${sug.precio?.toLocaleString()} · {sug.vendidas} vendidas</div>
+                                  <div style={{ color: '#7f8c8d', fontSize: '0.75em' }}>${sug.precio?.toLocaleString('es-AR')} · {sug.vendidas} vendidas</div>
                                 </div>
                               </div>
                             </td>

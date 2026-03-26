@@ -56,6 +56,7 @@ const formatDateShort = (date) => {
 function App() {
   const [salesData, setSalesData] = useState({})
   const [stockData, setStockData] = useState({})
+  const [expandedBrand, setExpandedBrand] = useState(null)
   const [valuationData, setValuationData] = useState({})
   const [testData, setTestData] = useState({})
   const [tokenStatus, setTokenStatus] = useState({})
@@ -505,6 +506,88 @@ function App() {
                 )
               })}
             </div>
+          </section>
+
+          {/* DETALLE PRODUCTOS POR MARCA Y DEPÓSITO */}
+          <section className="section">
+            <h2>📋 Detalle Productos por Marca & Depósito</h2>
+            {Object.entries(stockData)
+              .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
+              .sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))
+              .map(([marca, data]) => {
+                const isOpen = expandedBrand === marca
+                return (
+                  <div key={marca} style={{
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(217, 70, 239, 0.15)',
+                    borderRadius: '12px',
+                    marginBottom: '12px',
+                    overflow: 'hidden'
+                  }}>
+                    <div
+                      onClick={() => setExpandedBrand(isOpen ? null : marca)}
+                      style={{
+                        padding: '14px 18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: 'pointer',
+                        userSelect: 'none'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ color: '#d946ef', fontSize: '0.85em', transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}>&#9654;</span>
+                        {BRAND_LOGOS[marca] ? (
+                          <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '26px', maxWidth: '120px', objectFit: 'contain' }} />
+                        ) : (
+                          <span style={{ color: '#fff', fontWeight: 700 }}>{marca}</span>
+                        )}
+                      </div>
+                      <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '1.1em' }}>
+                        {(data.total_unidades || 0).toLocaleString()} uds
+                      </span>
+                    </div>
+
+                    {isOpen && data.almacenes && Object.entries(data.almacenes).map(([almNombre, almData]) => (
+                      <div key={almNombre} style={{ padding: '0 18px 14px' }}>
+                        <div style={{
+                          background: 'rgba(217, 70, 239, 0.06)',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          marginBottom: '8px'
+                        }}>
+                          <div style={{ color: '#d946ef', fontWeight: 700, fontSize: '0.85em', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                            <span>{almNombre}</span>
+                            <span style={{ color: '#06b6d4' }}>{(almData.total || 0).toLocaleString()} uds</span>
+                          </div>
+                          {almData.productos && almData.productos.length > 0 ? (
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8em' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid rgba(217, 70, 239, 0.15)' }}>
+                                  <th style={{ textAlign: 'left', padding: '4px 8px', color: '#7f8c8d', fontWeight: 600 }}>Producto</th>
+                                  <th style={{ textAlign: 'right', padding: '4px 8px', color: '#7f8c8d', fontWeight: 600 }}>Cantidad</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {almData.productos
+                                  .sort((a, b) => (b.cantidad || 0) - (a.cantidad || 0))
+                                  .map((prod, j) => (
+                                  <tr key={j} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                    <td style={{ padding: '5px 8px', color: '#ccc' }}>{prod.nombre}</td>
+                                    <td style={{ padding: '5px 8px', color: '#06b6d4', fontWeight: 600, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{(prod.cantidad || 0).toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          ) : (
+                            <p style={{ color: '#666', fontSize: '0.85em', margin: 0 }}>Sin productos</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })}
           </section>
 
           {/* DISTRIBUCIÓN POR MARCA - Valuación Stock Cruzado */}

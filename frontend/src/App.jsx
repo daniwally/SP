@@ -62,13 +62,11 @@ function App() {
   const [comparadorSearch, setComparadorSearch] = useState('')
   const [comparadorSelected, setComparadorSelected] = useState([])
   const [comparadorMarca, setComparadorMarca] = useState(null)
-  const [comparadorMlLinks, setComparadorMlLinks] = useState({})
-  const [comparadorMlSearch, setComparadorMlSearch] = useState({})
+  const [comparadorMlData, setComparadorMlData] = useState({}) // { cardKey: { loading, items: [] } }
   const [valuationData, setValuationData] = useState({})
   const [testData, setTestData] = useState({})
   const [tokenStatus, setTokenStatus] = useState({})
   const [mlPreciosData, setMlPreciosData] = useState({})
-  const [mlPublicaciones, setMlPublicaciones] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
   const [activeTab, setActiveTab] = useState('mercadolibre')
@@ -89,17 +87,18 @@ function App() {
     fetchAllData()
   }, [])
 
-  // Fetch ML publicaciones por marca bajo demanda (para comparador)
-  const fetchMlMarca = async (marca) => {
-    if (mlPublicaciones[marca]) return // ya cargado
+  // Buscar matches ML para un producto por SKUs de Odoo
+  const fetchMlMatch = async (cardKey, marca, skus) => {
+    if (comparadorMlData[cardKey]) return // ya cargado o en curso
+    setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [] } }))
     try {
       const API = window.location.origin + '/api'
-      const res = await axios.get(`${API}/publicaciones/reporte/${marca}`, { timeout: 30000 })
-      const pubs = (res.data?.publicaciones || []).filter(p => p.stock > 0)
-      setMlPublicaciones(prev => ({ ...prev, [marca]: pubs }))
+      const res = await axios.post(`${API}/publicaciones/match-skus`, { marca, skus: [...skus] }, { timeout: 30000 })
+      const allItems = Object.values(res.data?.matches || {}).flat()
+      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: allItems } }))
     } catch (e) {
-      console.log(`ML fetch ${marca} error:`, e)
-      setMlPublicaciones(prev => ({ ...prev, [marca]: [] }))
+      console.log(`ML match ${marca} error:`, e)
+      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: [] } }))
     }
   }
 
@@ -727,7 +726,7 @@ function App() {
                 return (
                   <div
                     key={marca}
-                    onClick={() => { setComparadorMarca(isActive ? null : marca); setComparadorSearch(''); if (!isActive) fetchMlMarca(marca) }}
+                    onClick={() => { setComparadorMarca(isActive ? null : marca); setComparadorSearch('') }}
                     style={{
                       cursor: 'pointer', padding: '10px 18px', borderRadius: '10px',
                       border: isActive ? '2px solid #d946ef' : '1px solid rgba(255,255,255,0.1)',
@@ -830,25 +829,12 @@ function App() {
                   }
                 }
 
-                // ML: auto-match por SKU, fallback a vinculación manual
-                const mlLoaded = sel.marca in mlPublicaciones
-                if (!mlLoaded) fetchMlMarca(sel.marca)
-                const mlPubs = mlPublicaciones[sel.marca] || []
+                // ML: buscar por SKU via backend
                 const cardKey = `${sel.marca}-${sel.key}`
-
-                // Auto-match: buscar publicaciones ML que contengan alguno de los SKUs de Odoo
-                const skuMatches = mlLoaded && skus.size > 0
-                  ? mlPubs.filter(p => (p.seller_skus || []).some(s => skus.has(s.toUpperCase())))
-                  : []
-
-                // Combinar auto-match + manual links
-                const manualLinked = (comparadorMlLinks[cardKey] || []).map(id => mlPubs.find(p => p.item_id === id)).filter(Boolean)
-                const allLinked = [...skuMatches]
-                manualLinked.forEach(m => { if (!allLinked.find(a => a.item_id === m.item_id)) allLinked.push(m) })
-
-                const mlTotal = allLinked.reduce((s, p) => s + (p.stock || 0), 0)
-                const mlSearchTerm = comparadorMlSearch[cardKey] || ''
-                const matchType = skuMatches.length > 0 ? 'SKU' : (manualLinked.length > 0 ? 'manual' : null)
+                if (skus.size > 0) fetchMlMatch(cardKey, sel.marca, skus)
+                const mlInfo = comparadorMlData[cardKey] || { loading: false, items: [] }
+                const mlItems = mlInfo.items || []
+                const mlTotal = mlItems.reduce((s, p) => s + (p.stock || 0), 0)
 
                 const total = artTotal + aduTotal + mlTotal
                 const maxBar = Math.max(artTotal, aduTotal, mlTotal) || 1
@@ -902,55 +888,23 @@ function App() {
                           <div style={{ height: '100%', width: `${(mlTotal / maxBar) * 100}%`, background: '#fbbf24', borderRadius: '4px', transition: 'width 0.4s ease' }} />
                         </div>
                         {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((mlTotal / total) * 100).toFixed(1)}%</p>}
-                        {allLinked.length > 0 && (
+                        {mlInfo.loading && <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Buscando en ML...</p>}
+                        {!mlInfo.loading && mlItems.length > 0 && (
                           <div style={{ marginTop: '6px' }}>
-                            <p style={{ color: '#666', fontSize: '0.72em', margin: '0 0 4px 0' }}>{allLinked.length} pub. ({matchType})</p>
-                            {allLinked.map((mp, mi) => (
-                              <div key={mi} style={{ fontSize: '0.68em', color: '#888', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4px' }}>
+                            <p style={{ color: '#666', fontSize: '0.72em', margin: '0 0 4px 0' }}>{mlItems.length} pub. (SKU)</p>
+                            {mlItems.map((mp, mi) => (
+                              <div key={mi} style={{ fontSize: '0.68em', color: '#888', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
                                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mp.titulo}</span>
                                 <span style={{ color: '#fbbf24', fontWeight: 600, whiteSpace: 'nowrap' }}>{mp.stock}</span>
-                                {!skuMatches.find(s => s.item_id === mp.item_id) && (
-                                  <button onClick={() => setComparadorMlLinks(prev => ({ ...prev, [cardKey]: (prev[cardKey] || []).filter(id => id !== mp.item_id) }))} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1em', padding: '0 2px' }}>&times;</button>
-                                )}
                               </div>
                             ))}
                           </div>
                         )}
-                        {!mlLoaded && <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Cargando ML...</p>}
-                        {mlLoaded && (
-                          <div style={{ marginTop: '8px' }}>
-                            <input
-                              type="text"
-                              placeholder="Buscar pub. ML..."
-                              value={mlSearchTerm}
-                              onChange={(e) => setComparadorMlSearch(prev => ({ ...prev, [cardKey]: e.target.value }))}
-                              style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '6px', padding: '5px 8px', color: '#fff', fontSize: '0.75em', outline: 'none', boxSizing: 'border-box' }}
-                            />
-                            {mlSearchTerm.length >= 2 && (() => {
-                              const term = mlSearchTerm.toLowerCase()
-                              const results = mlPubs.filter(p =>
-                                !allLinked.find(a => a.item_id === p.item_id) &&
-                                ((p.titulo || '').toLowerCase().includes(term) || (p.seller_skus || []).some(s => s.toLowerCase().includes(term)) || (p.seller_sku || '').toLowerCase().includes(term))
-                              ).slice(0, 8)
-                              return results.length > 0 ? (
-                                <div style={{ marginTop: '4px', maxHeight: '120px', overflowY: 'auto' }}>
-                                  {results.map((r, ri) => (
-                                    <div
-                                      key={ri}
-                                      onClick={() => { setComparadorMlLinks(prev => ({ ...prev, [cardKey]: [...(prev[cardKey] || []), r.item_id] })); setComparadorMlSearch(prev => ({ ...prev, [cardKey]: '' })) }}
-                                      style={{ fontSize: '0.68em', color: '#aaa', padding: '4px 6px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', gap: '4px' }}
-                                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(251,191,36,0.1)'}
-                                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                    >
-                                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.titulo}</span>
-                                      <span style={{ color: '#888', fontSize: '0.9em', whiteSpace: 'nowrap' }}>{r.seller_sku || ''}</span>
-                                      <span style={{ color: '#fbbf24', fontWeight: 600, whiteSpace: 'nowrap' }}>{r.stock}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : <p style={{ color: '#555', fontSize: '0.68em', margin: '4px 0 0 0' }}>Sin resultados</p>
-                            })()}
-                          </div>
+                        {!mlInfo.loading && mlItems.length === 0 && skus.size > 0 && (
+                          <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin match en ML</p>
+                        )}
+                        {skus.size === 0 && (
+                          <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin SKU en Odoo</p>
                         )}
                       </div>
                     </div>

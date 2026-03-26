@@ -810,24 +810,40 @@ function App() {
                 const mData = stockData[sel.marca]
                 if (!mData) return null
                 let artTotal = 0, aduTotal = 0
+                const skus = new Set()
                 for (const [whName, whData] of Object.entries(mData.almacenes || {})) {
                   for (const prod of (whData.productos || [])) {
                     const pKey = prod.template_id || prod.nombre
                     if (String(pKey) === String(sel.key)) {
                       if (whName.includes('Aduana')) aduTotal += prod.cantidad
                       else artTotal += prod.cantidad
+                      if (prod.sku) skus.add(prod.sku.toUpperCase())
                     }
                   }
                 }
 
-                // Buscar match en ML por nombre similar
+                // Buscar match en ML: primero por SKU (seller_sku), luego por nombre
                 const mlPubs = mlPublicaciones[sel.marca] || []
-                const searchName = (sel.name || '').toLowerCase()
-                const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
-                const mlMatches = mlPubs.filter(pub => {
-                  const t = (pub.titulo || '').toLowerCase()
-                  return searchWords.filter(w => t.includes(w)).length >= Math.min(2, searchWords.length)
-                })
+                let mlMatches = []
+                let mlMatchType = ''
+                if (skus.size > 0) {
+                  mlMatches = mlPubs.filter(pub => {
+                    const pubSku = (pub.seller_sku || '').toUpperCase()
+                    if (!pubSku) return false
+                    return [...skus].some(sku => pubSku.includes(sku) || sku.includes(pubSku))
+                  })
+                  if (mlMatches.length > 0) mlMatchType = 'SKU'
+                }
+                // Fallback a nombre si no hay match por SKU
+                if (mlMatches.length === 0) {
+                  const searchName = (sel.name || '').toLowerCase()
+                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
+                  mlMatches = mlPubs.filter(pub => {
+                    const t = (pub.titulo || '').toLowerCase()
+                    return searchWords.filter(w => t.includes(w)).length >= Math.min(2, searchWords.length)
+                  })
+                  if (mlMatches.length > 0) mlMatchType = 'nombre'
+                }
                 const mlTotal = mlMatches.reduce((s, p) => s + (p.stock || 0), 0)
 
                 const total = artTotal + aduTotal + mlTotal
@@ -883,7 +899,7 @@ function App() {
                         </div>
                         {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((mlTotal / total) * 100).toFixed(1)}%</p>}
                         {mlMatches.length > 0 && (
-                          <p style={{ color: '#666', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlMatches.length} publicacion{mlMatches.length !== 1 ? 'es' : ''}</p>
+                          <p style={{ color: '#666', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlMatches.length} pub. <span style={{ color: '#555' }}>({mlMatchType})</span></p>
                         )}
                         {mlMatches.length === 0 && (
                           <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin publicaciones</p>

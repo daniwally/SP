@@ -832,11 +832,17 @@ function App() {
                 const skuList = [...skus].map(normSku).filter(Boolean)
 
                 if (skuList.length > 0) {
+                  // Obtener todos los SKUs de cada publicación ML (root + variaciones)
+                  const getPubSkus = (pub) => {
+                    const all = [...(pub.seller_skus || [])]
+                    if (pub.seller_sku && !all.includes(pub.seller_sku)) all.push(pub.seller_sku)
+                    return all.map(normSku).filter(Boolean)
+                  }
+
                   // 1) Match exacto de SKU
                   mlMatches = mlPubs.filter(pub => {
-                    const pubSku = normSku(pub.seller_sku || '')
-                    if (!pubSku) return false
-                    return skuList.some(sku => pubSku === sku)
+                    const pubSkus = getPubSkus(pub)
+                    return pubSkus.some(ps => skuList.some(sku => ps === sku))
                   })
                   if (mlMatches.length > 0) mlMatchType = 'SKU exacto'
 
@@ -844,9 +850,8 @@ function App() {
                   if (mlMatches.length === 0) {
                     const basePrefixes = skuList.map(sku => sku.length > 6 ? sku.slice(0, -4) : sku).filter(Boolean)
                     mlMatches = mlPubs.filter(pub => {
-                      const pubSku = normSku(pub.seller_sku || '')
-                      if (!pubSku) return false
-                      return basePrefixes.some(prefix => pubSku.startsWith(prefix))
+                      const pubSkus = getPubSkus(pub)
+                      return pubSkus.some(ps => basePrefixes.some(prefix => ps.startsWith(prefix)))
                     })
                     if (mlMatches.length > 0) mlMatchType = 'SKU prefijo'
                   }

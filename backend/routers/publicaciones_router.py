@@ -451,66 +451,57 @@ async def precios_promedio_ml():
     }
 
 
+_marca_cache: Dict[str, Dict] = {}
+_marca_cache_ts: Dict[str, float] = {}
+
 @router.post("/match-skus")
 async def match_skus_ml(body: dict):
-    """Buscar publicaciones ML por SKU de Odoo usando la API de búsqueda de ML.
+    """Buscar publicaciones ML por SKU de Odoo comparando contra todas las publicaciones.
     Body: { "marca": "SHAQ", "skus": ["STMLS0005000400", "STMLS0005000410"] }
-    Retorna: { "matches": { "STMLS0005000400": [{ item_id, titulo, stock, ... }], ... } }
+    Retorna: { "items": [{ item_id, titulo, stock, skus_matched }] }
     """
     marca = body.get("marca")
     skus = body.get("skus", [])
     if not marca or marca not in MARCAS:
         raise HTTPException(status_code=400, detail="Marca inválida")
     if not skus:
-        return {"matches": {}}
+        return {"items": []}
 
-    token = await get_token_by_marca(marca)
-    if not token:
-        raise HTTPException(status_code=401, detail="Sin autenticación para " + marca)
+    # Normalizar SKUs buscados
+    skus_upper = set(s.upper().strip() for s in skus if s)
 
-    uid = MARCAS[marca]
-    matches = {}
-    seen_item_ids = set()
+    # Cache de items raw por marca (5 min)
+    now = time.time()
+    if marca not in _marca_cache or (now - _marca_cache_ts.get(marca, 0)) > 300:
+        token = await get_token_by_marca(marca)
+        if not token:
+            raise HTTPException(status_code=401, detail="Sin autenticación para " + marca)
+        uid = MARCAS[marca]
+        item_ids = await get_seller_items(uid, token, "active")
+        items = await get_items_batch(item_ids, token)
+        _marca_cache[marca] = items
+        _marca_cache_ts[marca] = now
+    else:
+        items = _marca_cache[marca]
 
-    async with httpx.AsyncClient() as client:
-        async def search_sku(sku: str):
-            # Buscar en ML por seller_custom_field
-            url = f"https://api.mercadolibre.com/users/{uid}/items/search?seller_custom_field={sku}&status=active&limit=50"
-            data = await api_call(url, token, client)
-            if not data:
-                return sku, []
-            item_ids = data.get("results", [])
-            if not item_ids:
-                return sku, []
-            # Obtener detalles de los items encontrados
-            ids_str = ",".join(item_ids[:20])
-            detail_url = f"https://api.mercadolibre.com/items?ids={ids_str}"
-            items_data = await api_call(detail_url, token, client)
-            results = []
-            if items_data and isinstance(items_data, list):
-                for entry in items_data:
-                    if entry.get("code") == 200 and entry.get("body"):
-                        item = entry["body"]
-                        results.append({
-                            "item_id": item.get("id", ""),
-                            "titulo": item.get("title", ""),
-                            "stock": item.get("available_quantity", 0) or 0,
-                            "precio": item.get("price", 0) or 0,
-                            "permalink": item.get("permalink", ""),
-                            "thumbnail": item.get("thumbnail", ""),
-                        })
-            return sku, results
+    # Matchear: buscar items cuyo seller_custom_field (root o variación) coincida con algún SKU
+    matched = []
+    seen = set()
+    for item in items:
+        item_skus = _extract_skus(item)
+        item_skus_upper = [s.upper() for s in item_skus]
+        matched_skus = [s for s in item_skus_upper if s in skus_upper]
+        if matched_skus and item.get("id") not in seen:
+            seen.add(item.get("id"))
+            matched.append({
+                "item_id": item.get("id", ""),
+                "titulo": item.get("title", ""),
+                "stock": item.get("available_quantity", 0) or 0,
+                "precio": item.get("price", 0) or 0,
+                "permalink": item.get("permalink", ""),
+                "thumbnail": item.get("thumbnail", ""),
+                "ml_skus": item_skus,
+                "matched_skus": matched_skus,
+            })
 
-        sku_results = await asyncio.gather(*[search_sku(s) for s in skus[:20]])
-
-    for sku, items in sku_results:
-        # Deduplicar: un item puede aparecer en múltiples SKUs
-        unique_items = []
-        for item in items:
-            if item["item_id"] not in seen_item_ids:
-                seen_item_ids.add(item["item_id"])
-                unique_items.append(item)
-        if unique_items:
-            matches[sku] = unique_items
-
-    return {"matches": matches}
+    return {"items": matched, "total_items_marca": len(items), "skus_buscados": list(skus_upper)}

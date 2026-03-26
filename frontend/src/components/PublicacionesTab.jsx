@@ -93,10 +93,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
   const [optLimit, setOptLimit] = useState(10);
   const [optShowSection, setOptShowSection] = useState(false);
 
-  // --- Estado para Historial de Títulos ---
-  const [historial, setHistorial] = useState([]);
-  const [historialLoading, setHistorialLoading] = useState(false);
-  const [historialShow, setHistorialShow] = useState(false);
+
 
   // --- Estado para Preguntas sin responder ---
   const [preguntasData, setPreguntasData] = useState({});
@@ -182,18 +179,6 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
 
   const aprobadosCount = Object.values(optAprobados).filter(Boolean).length;
 
-  const fetchHistorial = async () => {
-    setHistorialLoading(true);
-    try {
-      const resp = await fetch('/api/titulos/historial?limit=100');
-      const data = await resp.json();
-      setHistorial(data.historial || []);
-    } catch (err) {
-      console.error('Error cargando historial:', err);
-    } finally {
-      setHistorialLoading(false);
-    }
-  };
 
   useEffect(() => {
     if (viewMode === 'marca') {
@@ -836,89 +821,6 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
         )}
       </section>
 
-      {/* ========== HISTORIAL DE TÍTULOS APLICADOS ========== */}
-      <section style={{ marginTop: '30px' }}>
-        <button
-          onClick={() => { setHistorialShow(!historialShow); if (!historialShow && historial.length === 0) fetchHistorial(); }}
-          style={{
-            background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.4)',
-            color: '#a855f7', borderRadius: '8px', padding: '10px 24px', cursor: 'pointer',
-            fontWeight: 700, fontSize: '1em', width: '100%',
-          }}
-        >
-          {historialShow ? 'Ocultar' : 'Ver'} Historial de Títulos Aplicados
-        </button>
-
-        {historialShow && (
-          <div style={{ marginTop: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ color: '#a855f7', fontWeight: 700 }}>
-                {historial.length} cambios registrados
-              </span>
-              <button
-                onClick={fetchHistorial}
-                disabled={historialLoading}
-                style={{
-                  background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)',
-                  color: '#a855f7', borderRadius: '6px', padding: '4px 14px', cursor: 'pointer', fontSize: '0.85em',
-                }}
-              >
-                {historialLoading ? 'Cargando...' : 'Actualizar'}
-              </button>
-            </div>
-
-            {historial.length > 0 && (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85em' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #333' }}>
-                      <th style={{ padding: '8px', textAlign: 'left', color: '#7f8c8d' }}>Fecha</th>
-                      <th style={{ padding: '8px', textAlign: 'left', color: '#7f8c8d' }}>Marca</th>
-                      <th style={{ padding: '8px', textAlign: 'left', color: '#7f8c8d' }}>Item</th>
-                      <th style={{ padding: '8px', textAlign: 'left', color: '#7f8c8d' }}>Título Anterior</th>
-                      <th style={{ padding: '8px', textAlign: 'left', color: '#7f8c8d' }}>Título Nuevo</th>
-                      <th style={{ padding: '8px', textAlign: 'center', color: '#7f8c8d' }}>Chars</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historial.map((h, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid #222', opacity: 0.95 }}>
-                        <td style={{ padding: '8px', color: '#7f8c8d', whiteSpace: 'nowrap', fontSize: '0.85em' }}>
-                          {new Date(h.timestamp).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}
-                          {' '}
-                          {new Date(h.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-                        </td>
-                        <td style={{ padding: '8px', color: '#06b6d4', fontWeight: 600 }}>{h.marca}</td>
-                        <td style={{ padding: '8px', color: '#06b6d4', fontSize: '0.8em' }}>{h.item_id}</td>
-                        <td style={{ padding: '8px', color: '#ef4444', maxWidth: '220px' }}>
-                          <span>{h.titulo_anterior}</span>
-                          <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{h.chars_anterior} chars</span>
-                        </td>
-                        <td style={{ padding: '8px', color: '#86efac', fontWeight: 600, maxWidth: '220px' }}>
-                          <span>{h.titulo_nuevo}</span>
-                          <span style={{ display: 'block', color: '#555', fontSize: '0.75em' }}>{h.chars_nuevo} chars</span>
-                        </td>
-                        <td style={{ padding: '8px', textAlign: 'center' }}>
-                          {h.chars_nuevo > h.chars_anterior
-                            ? <span style={{ color: '#22c55e' }}>+{h.chars_nuevo - h.chars_anterior}</span>
-                            : h.chars_nuevo < h.chars_anterior
-                            ? <span style={{ color: '#ef4444' }}>{h.chars_nuevo - h.chars_anterior}</span>
-                            : <span style={{ color: '#555' }}>0</span>
-                          }
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {historial.length === 0 && !historialLoading && (
-              <p style={{ color: '#555', textAlign: 'center', padding: '20px' }}>No hay cambios registrados aún</p>
-            )}
-          </div>
-        )}
-      </section>
     </div>
   );
 }

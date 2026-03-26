@@ -606,7 +606,7 @@ function App() {
                         const sorted = Object.entries(groups).sort((a, b) => b[1].total - a[1].total)
                         return (
                           <div style={{ padding: '4px 0 8px 0' }}>
-                            {sorted.map(([gKey, g]) => {
+                            {sorted.map(([gKey, g], gIdx) => {
                               const gExpandKey = `${whKey}-${gKey}`
                               const gOpen = !!expandedWarehouses[gExpandKey]
                               return (
@@ -623,7 +623,7 @@ function App() {
                                     >
                                       {g.name}
                                       {g.imagen && (
-                                        <div className="stock-thumb" style={{ display: 'none', position: 'absolute', left: '0', top: '-85px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+                                        <div className="stock-thumb" style={{ display: 'none', position: 'absolute', left: '0', ...(gIdx < 2 ? { top: '30px' } : { top: '-85px' }), zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
                                           <img src={`data:image/png;base64,${g.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
                                         </div>
                                       )}
@@ -665,7 +665,7 @@ function App() {
                                               >
                                                 {prod.nombre}
                                                 {prod.imagen && (
-                                                  <div className="stock-thumb-row" style={{ display: 'none', position: 'absolute', left: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+                                                  <div className="stock-thumb-row" style={{ display: 'none', position: 'absolute', left: '0', ...(idx < 2 ? { top: '25px' } : { top: '-80px' }), zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
                                                     <img src={`data:image/png;base64,${prod.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
                                                   </div>
                                                 )}
@@ -757,7 +757,7 @@ function App() {
                   style={{ width: '100%', padding: '8px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85em', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }}
                 />
                 <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', background: 'rgba(0,0,0,0.3)' }}>
-                  {filtered.map(([gKey, g]) => {
+                  {filtered.map(([gKey, g], fIdx) => {
                     const alreadySelected = comparadorSelected.some(s => String(s.key) === String(gKey) && s.marca === comparadorMarca)
                     return (
                       <div
@@ -775,7 +775,7 @@ function App() {
                         <span style={{ fontSize: '0.88em', flex: 1, position: 'relative' }}>
                           {g.name}
                           {g.imagen && (
-                            <div className="cmp-thumb" style={{ display: 'none', position: 'absolute', left: '0', top: '-85px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+                            <div className="cmp-thumb" style={{ display: 'none', position: 'absolute', left: '0', ...(fIdx < 2 ? { top: '25px' } : { top: '-85px' }), zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
                               <img src={`data:image/png;base64,${g.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
                             </div>
                           )}

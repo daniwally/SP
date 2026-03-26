@@ -792,7 +792,7 @@ function App() {
 
           {/* Resultados de comparación */}
           {comparadorSelected.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '50%' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
               {comparadorSelected.map((sel, idx) => {
                 const mData = stockData[sel.marca]
                 if (!mData) return null
@@ -810,7 +810,7 @@ function App() {
                 const maxBar = Math.max(artTotal, aduTotal) || 1
 
                 return (
-                  <div key={idx} className="card" style={{ position: 'relative' }}>
+                  <div key={idx} className="card" style={{ position: 'relative', width: 'calc(50% - 6px)', boxSizing: 'border-box' }}>
                     <button
                       onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
                       style={{ position: 'absolute', top: '8px', right: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.2em', padding: '4px' }}

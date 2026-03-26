@@ -501,40 +501,77 @@ async def match_skus_ml(body: dict):
     else:
         items = _marca_cache[marca]
 
-    # Matchear: buscar items cuyo seller_custom_field (root o variación) coincida con algún SKU
+    # Preparar SKUs ML
+    items_with_skus = []
+    for item in items:
+        extracted = _extract_skus(item)
+        items_with_skus.append((item, [s.upper() for s in extracted]))
+
+    # 1) Match exacto por SKU
     matched = []
     seen = set()
-    for item in items:
-        item_skus = _extract_skus(item)
-        item_skus_upper = [s.upper() for s in item_skus]
-        matched_skus = [s for s in item_skus_upper if s in skus_upper]
-        if matched_skus and item.get("id") not in seen:
+    match_type = "SKU"
+    for item, ml_skus in items_with_skus:
+        if not ml_skus:
+            continue
+        exact = [s for s in ml_skus if s in skus_upper]
+        if exact and item.get("id") not in seen:
             seen.add(item.get("id"))
             matched.append({
                 "item_id": item.get("id", ""),
                 "titulo": item.get("title", ""),
                 "stock": item.get("available_quantity", 0) or 0,
                 "precio": item.get("price", 0) or 0,
-                "permalink": item.get("permalink", ""),
-                "thumbnail": item.get("thumbnail", ""),
-                "ml_skus": item_skus,
-                "matched_skus": matched_skus,
+                "match_type": "SKU",
             })
 
-    # Debug: todos los SKUs extraídos de ML
-    all_ml_skus = {}
-    for item in items:
-        extracted = _extract_skus(item)
-        if extracted:
-            all_ml_skus[item.get("id", "")] = {
-                "title": (item.get("title", "") or "")[:40],
-                "skus": extracted
-            }
+    # 2) Si no hay match exacto, buscar por prefijo (primeros 10 chars)
+    if not matched:
+        prefixes = set(s[:10] for s in skus_upper if len(s) >= 10)
+        if prefixes:
+            for item, ml_skus in items_with_skus:
+                if not ml_skus:
+                    continue
+                prefix_match = any(s[:10] in prefixes for s in ml_skus if len(s) >= 10)
+                if prefix_match and item.get("id") not in seen:
+                    seen.add(item.get("id"))
+                    matched.append({
+                        "item_id": item.get("id", ""),
+                        "titulo": item.get("title", ""),
+                        "stock": item.get("available_quantity", 0) or 0,
+                        "precio": item.get("price", 0) or 0,
+                        "match_type": "prefijo",
+                    })
+            if matched:
+                match_type = "prefijo"
+
+    # 3) Si no hay match por prefijo, buscar por nombre del producto
+    product_name = body.get("product_name", "").lower().strip()
+    if not matched and product_name:
+        brand_name = marca.lower()
+        # Extraer palabras significativas (sin marca ni genéricos)
+        stop_words = {'zapatilla', 'zapatillas', 'botin', 'botines', 'hombre', 'mujer', 'niño',
+                      'deportiva', 'deportivo', 'running', 'training', 'shoes', 'importada', 'importado',
+                      brand_name}
+        words = [w for w in product_name.split() if len(w) > 2 and w not in stop_words]
+        if words:
+            for item, ml_skus in items_with_skus:
+                title = (item.get("title", "") or "").lower()
+                # Todas las palabras deben estar en el título
+                if all(w in title for w in words) and item.get("id") not in seen:
+                    seen.add(item.get("id"))
+                    matched.append({
+                        "item_id": item.get("id", ""),
+                        "titulo": item.get("title", ""),
+                        "stock": item.get("available_quantity", 0) or 0,
+                        "precio": item.get("price", 0) or 0,
+                        "match_type": "nombre",
+                    })
+            if matched:
+                match_type = "nombre"
 
     return {
         "items": matched,
+        "match_type": match_type if matched else None,
         "total_items_marca": len(items),
-        "items_con_sku": len(all_ml_skus),
-        "skus_buscados": len(skus_upper),
-        "all_ml_skus": all_ml_skus,
     }

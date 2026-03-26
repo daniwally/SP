@@ -106,14 +106,13 @@ function App() {
         }
       }
       if (skus.size === 0) return
-      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [] } }))
+      setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [], matchType: null } }))
       const API = window.location.origin + '/api'
-      axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus] }, { timeout: 30000 })
+      axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus], product_name: sel.name }, { timeout: 30000 })
         .then(res => {
           const d = res.data || {}
-          console.log(`ML [${sel.name}]: ${d.items?.length || 0} match de ${d.total_items_marca} items (${d.items_con_sku} con SKU)`)
-          if (d.all_ml_skus) console.log('SKUs en ML:', JSON.stringify(d.all_ml_skus, null, 2))
-          setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: d.items || [] } }))
+          console.log(`ML [${sel.name}]: ${d.items?.length || 0} match (${d.match_type || 'none'}) de ${d.total_items_marca} items`)
+          setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: d.items || [], matchType: d.match_type } }))
         })
         .catch(e => {
           console.log(`ML match error [${cardKey}]:`, e)
@@ -910,7 +909,7 @@ function App() {
                         {mlInfo.loading && <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Buscando en ML...</p>}
                         {!mlInfo.loading && mlItems.length > 0 && (
                           <div style={{ marginTop: '6px' }}>
-                            <p style={{ color: '#666', fontSize: '0.72em', margin: '0 0 4px 0' }}>{mlItems.length} pub. (SKU)</p>
+                            <p style={{ color: '#666', fontSize: '0.72em', margin: '0 0 4px 0' }}>{mlItems.length} pub. ({mlInfo.matchType || 'SKU'})</p>
                             {mlItems.map((mp, mi) => (
                               <div key={mi} style={{ fontSize: '0.68em', color: '#888', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
                                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mp.titulo}</span>

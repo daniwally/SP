@@ -623,8 +623,8 @@ async def match_skus_ml(body: dict):
 
 
 @router.get("/debug-skus/{marca}")
-async def debug_skus(marca: str):
-    """Debug: buscar SKUs en TODOS los items de una marca, revisando todos los campos posibles."""
+async def debug_skus(marca: str, item_id: str = None):
+    """Debug: probar múltiples endpoints de ML para encontrar dónde están los SKUs."""
     if marca not in MARCAS:
         raise HTTPException(status_code=400, detail="Marca inválida")
 
@@ -633,69 +633,95 @@ async def debug_skus(marca: str):
         raise HTTPException(status_code=401, detail="Sin token")
 
     uid = MARCAS[marca]
-    item_ids = await get_seller_items(uid, token, "active")
 
-    # Fetch ALL items
-    items = await get_items_full(item_ids, token)
+    # Si no pasan item_id, usar el primero
+    if not item_id:
+        item_ids = await get_seller_items(uid, token, "active")
+        if not item_ids:
+            return {"error": "No items found"}
+        item_id = item_ids[0]
 
-    items_con_sku = []
-    items_sin_sku = []
+    results = {}
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {token}"}
 
-    for item in items:
-        item_id = item.get("id")
-        skus = _extract_skus(item)
+        # 1) /items/{id} estándar
+        try:
+            resp = await client.get(f"https://api.mercadolibre.com/items/{item_id}", headers=headers, timeout=10)
+            data = resp.json()
+            results["items_standard"] = {
+                "seller_custom_field": data.get("seller_custom_field"),
+                "variations_count": len(data.get("variations", [])),
+                "var_sample": [{
+                    "id": v.get("id"),
+                    "seller_custom_field": v.get("seller_custom_field"),
+                    "all_keys": list(v.keys()),
+                } for v in data.get("variations", [])[:2]],
+            }
+        except Exception as e:
+            results["items_standard"] = {"error": str(e)}
 
-        # Buscar en TODOS los campos posibles donde ML podría guardar SKU
-        extra_fields = {}
-        for key in ["seller_custom_field", "seller_sku", "internal_code", "code", "sku"]:
-            val = item.get(key)
-            if val:
-                extra_fields[key] = val
+        # 2) /items/{id}?include_internal_attributes=true
+        try:
+            resp = await client.get(f"https://api.mercadolibre.com/items/{item_id}?include_internal_attributes=true", headers=headers, timeout=10)
+            data = resp.json()
+            results["items_internal_attrs"] = {
+                "seller_custom_field": data.get("seller_custom_field"),
+                "var_sample_scf": [v.get("seller_custom_field") for v in data.get("variations", [])[:3]],
+            }
+        except Exception as e:
+            results["items_internal_attrs"] = {"error": str(e)}
 
-        # Revisar variations a fondo
-        var_info = []
-        for v in item.get("variations", []):
-            var_data = {"id": v.get("id")}
-            for key in ["seller_custom_field", "seller_sku", "internal_code", "code", "sku"]:
-                val = v.get(key)
-                if val:
-                    var_data[key] = val
-            # Revisar todos los attribute_combinations (no solo SELLER_SKU)
-            for ac in v.get("attribute_combinations", []):
-                ac_id = ac.get("id", "")
-                if "SKU" in ac_id.upper() or "CODE" in ac_id.upper() or "CUSTOM" in ac_id.upper():
-                    var_data[f"attr_{ac_id}"] = ac.get("value_name") or ac.get("name")
-            # Revisar attributes de la variación
-            for attr in v.get("attributes", []):
-                attr_id = attr.get("id", "")
-                if "SKU" in attr_id.upper() or "CODE" in attr_id.upper():
-                    var_data[f"vattr_{attr_id}"] = attr.get("value_name") or attr.get("name")
-            if len(var_data) > 1:  # más que solo "id"
-                var_info.append(var_data)
+        # 3) /items/{id}?caller.id={uid}
+        try:
+            resp = await client.get(f"https://api.mercadolibre.com/items/{item_id}?caller.id={uid}", headers=headers, timeout=10)
+            data = resp.json()
+            results["items_caller_id"] = {
+                "seller_custom_field": data.get("seller_custom_field"),
+                "var_sample_scf": [v.get("seller_custom_field") for v in data.get("variations", [])[:3]],
+            }
+        except Exception as e:
+            results["items_caller_id"] = {"error": str(e)}
 
-        entry = {
-            "item_id": item_id,
-            "title": item.get("title"),
-            "extracted_skus": skus,
-        }
-        if extra_fields:
-            entry["extra_root_fields"] = extra_fields
-        if var_info:
-            entry["variations_with_data"] = var_info[:3]
+        # 4) /items/{id}/variations (lista)
+        try:
+            resp = await client.get(f"https://api.mercadolibre.com/items/{item_id}/variations", headers=headers, timeout=10)
+            data = resp.json()
+            if isinstance(data, list) and len(data) > 0:
+                results["variations_list"] = {
+                    "count": len(data),
+                    "sample": [{
+                        "id": v.get("id"),
+                        "seller_custom_field": v.get("seller_custom_field"),
+                        "all_keys": list(v.keys()),
+                    } for v in data[:2]],
+                }
+            else:
+                results["variations_list"] = {"raw": str(data)[:500]}
+        except Exception as e:
+            results["variations_list"] = {"error": str(e)}
 
-        if skus or extra_fields or var_info:
-            items_con_sku.append(entry)
-        else:
-            items_sin_sku.append({"item_id": item_id, "title": item.get("title")})
+        # 5) /items/{id}/variations/{var_id} (individual)
+        try:
+            # Primero obtener un variation_id
+            resp = await client.get(f"https://api.mercadolibre.com/items/{item_id}", headers=headers, timeout=10)
+            data = resp.json()
+            var_id = data.get("variations", [{}])[0].get("id") if data.get("variations") else None
+            if var_id:
+                resp2 = await client.get(f"https://api.mercadolibre.com/items/{item_id}/variations/{var_id}", headers=headers, timeout=10)
+                vdata = resp2.json()
+                results["single_variation"] = {
+                    "variation_id": var_id,
+                    "seller_custom_field": vdata.get("seller_custom_field"),
+                    "all_keys": list(vdata.keys()),
+                    "full_data": {k: v for k, v in vdata.items() if k not in ["picture_ids"]},
+                }
+            else:
+                results["single_variation"] = {"error": "no variations"}
+        except Exception as e:
+            results["single_variation"] = {"error": str(e)}
 
-    return {
-        "marca": marca,
-        "total_items": len(items),
-        "con_sku": len(items_con_sku),
-        "sin_sku": len(items_sin_sku),
-        "items_con_sku": items_con_sku,
-        "items_sin_sku": items_sin_sku,
-    }
+    return {"item_id": item_id, "marca": marca, "endpoints": results}
 
 
 # ── Preguntas sin responder (últimos 15 días) ──────────────────────

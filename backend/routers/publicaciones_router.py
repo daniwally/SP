@@ -551,9 +551,11 @@ async def match_skus_ml(body: dict):
         brand_name = marca.lower()
         # Palabras genéricas que no identifican al modelo
         stop_words = {'zapatilla', 'zapatillas', 'botin', 'botines', 'bota', 'botas',
-                      'hombre', 'mujer', 'niño', 'niña', 'unisex', "men's", 'men', 'women',
+                      'remera', 'remeras', 'campera', 'camperas', 'pantalon', 'pantalones',
+                      'hombre', 'mujer', 'niño', 'niña', 'unisex', "men's", 'men', 'women', "women's",
                       'deportiva', 'deportivo', 'deportivas', 'running', 'training', 'casual',
-                      'shoes', 'shoe', 'basketball', 'performance', 'activewear',
+                      'shoes', 'shoe', 'sneakers', 'sneaker', 'basketball', 'performance', 'activewear',
+                      'high', 'low', 'mid', 'top', 'slip',
                       'importada', 'importado', 'original', 'nuevo', 'new',
                       brand_name}
         # Tomar solo las primeras 2 palabras significativas (nombre del modelo)

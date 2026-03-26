@@ -26,7 +26,7 @@ def get_uid():
     try:
         if not ODOO_KEY:
             return None
-        common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common', timeout=5)
+        common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common', timeout=15)
         uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
         return uid
     except Exception as e:

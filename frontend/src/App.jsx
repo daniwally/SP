@@ -88,7 +88,7 @@ function App() {
       
       console.log('🔄 Fetching data from:', API)
       
-      const axiosConfig = { timeout: 10000 }
+      const axiosConfig = { timeout: 30000 }
       
       const results = await Promise.allSettled([
         axios.get(API + '/ml/ventas/hoy', axiosConfig),
@@ -104,8 +104,10 @@ function App() {
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
       const ventas7dias = results[1].status === 'fulfilled' ? results[1].value.data : {}
       const ventasMes = results[2].status === 'fulfilled' ? results[2].value.data : {}
-      const stock = results[3].status === 'fulfilled' ? results[3].value.data : {}
-      const valuacion = results[4].status === 'fulfilled' ? results[4].value.data : {}
+      const stockRaw = results[3].status === 'fulfilled' ? results[3].value.data : {}
+      const stock = stockRaw.error ? {} : stockRaw
+      const valuacionRaw = results[4].status === 'fulfilled' ? results[4].value.data : {}
+      const valuacion = valuacionRaw.error ? {} : valuacionRaw
       const test = results[5].status === 'fulfilled' ? results[5].value.data : {}
       const tokens = results[6].status === 'fulfilled' ? results[6].value.data : {}
       const mlPrecios = results[7].status === 'fulfilled' ? results[7].value.data : {}
@@ -164,7 +166,7 @@ function App() {
             <div className="ring-segment" />
           </div>
           <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
-          <p className="loading-subtitle">Trayendo datos de Mercado Libre</p>
+          <p className="loading-subtitle">Trayendo datos de Mercado Libre y Odoo</p>
         </div>
       </div>
     )

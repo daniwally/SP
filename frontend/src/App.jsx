@@ -912,7 +912,7 @@ function App() {
                             <p style={{ color: '#666', fontSize: '0.72em', margin: '0 0 4px 0' }}>{mlItems.length} pub. ({mlInfo.matchType || 'SKU'})</p>
                             {mlItems.map((mp, mi) => (
                               <div key={mi} style={{ fontSize: '0.68em', color: '#888', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
-                                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mp.titulo}</span>
+                                <a href={mp.permalink || `https://www.mercadolibre.com.ar/p/${mp.item_id}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#888', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = '#fbbf24'} onMouseLeave={(e) => e.currentTarget.style.color = '#888'}>{mp.titulo}</a>
                                 <span style={{ color: '#fbbf24', fontWeight: 600, whiteSpace: 'nowrap' }}>{mp.stock}</span>
                               </div>
                             ))}

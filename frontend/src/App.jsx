@@ -887,17 +887,6 @@ function App() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'stretch', flexWrap: 'wrap' }}>
-                      {/* Artilleros */}
-                      <div style={{ flex: 1, minWidth: '120px', background: 'rgba(6, 182, 212, 0.06)', borderRadius: '10px', padding: '14px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                          <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '0.9em' }}>Artilleros</span>
-                          <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '1.4em' }}>{artTotal.toLocaleString('es-AR')}</span>
-                        </div>
-                        <div style={{ height: '8px', background: 'rgba(6, 182, 212, 0.15)', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${(artTotal / maxBar) * 100}%`, background: '#06b6d4', borderRadius: '4px', transition: 'width 0.4s ease' }} />
-                        </div>
-                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((artTotal / total) * 100).toFixed(1)}%</p>}
-                      </div>
                       {/* Aduana */}
                       <div style={{ flex: 1, minWidth: '120px', background: 'rgba(62, 127, 255, 0.06)', borderRadius: '10px', padding: '14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -908,6 +897,17 @@ function App() {
                           <div style={{ height: '100%', width: `${(aduTotal / maxBar) * 100}%`, background: '#3e7fff', borderRadius: '4px', transition: 'width 0.4s ease' }} />
                         </div>
                         {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((aduTotal / total) * 100).toFixed(1)}%</p>}
+                      </div>
+                      {/* Artilleros */}
+                      <div style={{ flex: 1, minWidth: '120px', background: 'rgba(6, 182, 212, 0.06)', borderRadius: '10px', padding: '14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '0.9em' }}>Artilleros</span>
+                          <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '1.4em' }}>{artTotal.toLocaleString('es-AR')}</span>
+                        </div>
+                        <div style={{ height: '8px', background: 'rgba(6, 182, 212, 0.15)', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${(artTotal / maxBar) * 100}%`, background: '#06b6d4', borderRadius: '4px', transition: 'width 0.4s ease' }} />
+                        </div>
+                        {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((artTotal / total) * 100).toFixed(1)}%</p>}
                       </div>
                       {/* Mercado Libre */}
                       <div style={{ flex: 1, minWidth: '120px', background: 'rgba(251, 191, 36, 0.06)', borderRadius: '10px', padding: '14px' }}>

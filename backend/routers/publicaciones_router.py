@@ -118,6 +118,27 @@ async def get_items_batch(item_ids: List[str], token: str) -> List[Dict]:
     return all_items
 
 
+async def get_items_full(item_ids: List[str], token: str) -> List[Dict]:
+    """Obtener items individualmente para tener variaciones completas con seller_custom_field"""
+    if not item_ids:
+        return []
+
+    async def fetch_single(item_id, client):
+        url = f"https://api.mercadolibre.com/items/{item_id}"
+        return await api_call(url, token, client)
+
+    async with httpx.AsyncClient() as client:
+        # Fetch en paralelo, máx 10 concurrentes para no saturar la API
+        sem = asyncio.Semaphore(10)
+        async def fetch_with_sem(item_id):
+            async with sem:
+                return await fetch_single(item_id, client)
+
+        results = await asyncio.gather(*[fetch_with_sem(iid) for iid in item_ids])
+
+    return [r for r in results if r]
+
+
 def _extract_skus(item: Dict) -> List[str]:
     """Extraer todos los SKUs de un item: seller_custom_field, attributes SELLER_SKU, variations"""
     skus = []
@@ -487,15 +508,15 @@ async def match_skus_ml(body: dict):
     # Normalizar SKUs buscados
     skus_upper = set(s.upper().strip() for s in skus if s)
 
-    # Cache de items raw por marca (3 min)
+    # Cache de items raw por marca (5 min) — fetch individual para tener variaciones completas
     now = time.time()
-    if marca not in _marca_cache or (now - _marca_cache_ts.get(marca, 0)) > 180:
+    if marca not in _marca_cache or (now - _marca_cache_ts.get(marca, 0)) > 300:
         token = await get_token_by_marca(marca)
         if not token:
             raise HTTPException(status_code=401, detail="Sin autenticación para " + marca)
         uid = MARCAS[marca]
         item_ids = await get_seller_items(uid, token, "active")
-        items = await get_items_batch(item_ids, token)
+        items = await get_items_full(item_ids, token)
         _marca_cache[marca] = items
         _marca_cache_ts[marca] = now
     else:

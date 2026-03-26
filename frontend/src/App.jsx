@@ -610,21 +610,23 @@ function App() {
                                 <div key={gKey} style={{ marginBottom: '2px' }}>
                                   <div
                                     onClick={() => setExpandedWarehouses(prev => ({ ...prev, [gExpandKey]: !prev[gExpandKey] }))}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', cursor: 'pointer', borderRadius: '6px', background: gOpen ? 'rgba(217, 70, 239, 0.04)' : 'transparent', transition: 'background 0.15s', position: 'relative' }}
+                                    style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px 12px', cursor: 'pointer', borderRadius: '6px', background: gOpen ? 'rgba(217, 70, 239, 0.04)' : 'transparent', transition: 'background 0.15s', position: 'relative', flexWrap: 'wrap' }}
                                     onMouseEnter={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'block' }}
                                     onMouseLeave={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'none' }}
                                   >
-                                    <span className={`expand-icon${gOpen ? ' open' : ''}`} style={{ fontSize: '0.55em' }}>&#9654;</span>
-                                    <span style={{ fontWeight: 600, fontSize: '0.88em', flex: 1, textAlign: 'right' }}>{g.name}</span>
-                                    {[...g.colores].map(c => (
-                                      <span key={c} style={{ background: 'rgba(217, 70, 239, 0.12)', color: '#d946ef', padding: '1px 7px', borderRadius: '4px', fontSize: '0.78em', fontWeight: 600 }}>{c}</span>
-                                    ))}
-                                    {[...g.talles].map(t => (
-                                      <span key={t} style={{ background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', padding: '1px 7px', borderRadius: '4px', fontSize: '0.78em', fontWeight: 600 }}>{t}</span>
-                                    ))}
-                                    <span style={{ fontWeight: 700, minWidth: '50px', textAlign: 'right', fontSize: '0.88em' }}>{g.total.toLocaleString('es-AR')}</span>
+                                    <span className={`expand-icon${gOpen ? ' open' : ''}`} style={{ fontSize: '0.55em', marginTop: '4px' }}>&#9654;</span>
+                                    <span style={{ fontWeight: 600, fontSize: '0.88em', marginRight: '4px' }}>{g.name}</span>
+                                    <span style={{ fontWeight: 700, fontSize: '0.88em', marginRight: '6px' }}>{g.total.toLocaleString('es-AR')}</span>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                      {[...g.colores].map(c => (
+                                        <span key={c} style={{ background: 'rgba(217, 70, 239, 0.12)', color: '#d946ef', padding: '1px 7px', borderRadius: '4px', fontSize: '0.78em', fontWeight: 600 }}>{c}</span>
+                                      ))}
+                                      {[...g.talles].map(t => (
+                                        <span key={t} style={{ background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', padding: '1px 7px', borderRadius: '4px', fontSize: '0.78em', fontWeight: 600 }}>{t}</span>
+                                      ))}
+                                    </div>
                                     {g.imagen && (
-                                      <div className="stock-thumb" style={{ display: 'none', position: 'absolute', right: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+                                      <div className="stock-thumb" style={{ display: 'none', position: 'absolute', left: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
                                         <img src={`data:image/png;base64,${g.imagen}`} alt="" style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '6px' }} />
                                       </div>
                                     )}
@@ -635,7 +637,7 @@ function App() {
                                         <tr>
                                           <th style={{ textAlign: 'right' }}>Cant.</th>
                                           <th>SKU</th>
-                                          <th style={{ textAlign: 'right' }}>Producto</th>
+                                          <th>Producto</th>
                                           <th>Color</th>
                                           <th>Talle</th>
                                         </tr>
@@ -653,7 +655,7 @@ function App() {
                                             >
                                               <td style={{ textAlign: 'right', fontWeight: 600, minWidth: '50px' }}>{prod.cantidad.toLocaleString('es-AR')}</td>
                                               <td style={{ color: '#888' }}>{prod.sku || '—'}</td>
-                                              <td style={{ whiteSpace: 'normal', position: 'relative', textAlign: 'right' }}>
+                                              <td style={{ whiteSpace: 'normal', position: 'relative' }}>
                                                 {prod.nombre}
                                                 {prod.imagen && (
                                                   <div className="stock-thumb-row" style={{ display: 'none', position: 'absolute', left: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>

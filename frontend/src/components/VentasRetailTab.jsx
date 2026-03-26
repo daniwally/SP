@@ -102,12 +102,12 @@ export default function VentasRetailTab() {
 
         <div className="retail-kpis">
           <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#ef4444' }}>{c.total_compras || 0}</div>
-            <div className="kpi-label">Ord. Compra</div>
+            <div className="kpi-value" style={{ color: '#f59e0b' }}>{pres.total || 0}</div>
+            <div className="kpi-label">Pre Ventas</div>
           </div>
           <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#f59e0b' }}>{pres.total || 0} — {fmtMoney(pres.monto || 0)}</div>
-            <div className="kpi-label">Pre Ventas</div>
+            <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pres.monto || 0)}</div>
+            <div className="kpi-label">Total Pre Ventas</div>
           </div>
           <div className="retail-kpi">
             <div className="kpi-value cyan">{cl.total_clientes || 0}</div>

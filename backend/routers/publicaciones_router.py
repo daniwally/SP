@@ -521,14 +521,20 @@ async def match_skus_ml(body: dict):
                 "matched_skus": matched_skus,
             })
 
-    # Debug ligero: cuántos items tienen SKU extraído
-    items_con_sku = sum(1 for item in items if _extract_skus(item))
-    skus_no_encontrados = skus_upper - set(s.upper() for m in matched for s in m.get("ml_skus", []))
+    # Debug: todos los SKUs extraídos de ML
+    all_ml_skus = {}
+    for item in items:
+        extracted = _extract_skus(item)
+        if extracted:
+            all_ml_skus[item.get("id", "")] = {
+                "title": (item.get("title", "") or "")[:40],
+                "skus": extracted
+            }
 
     return {
         "items": matched,
         "total_items_marca": len(items),
-        "items_con_sku": items_con_sku,
+        "items_con_sku": len(all_ml_skus),
         "skus_buscados": len(skus_upper),
-        "skus_sin_match": list(skus_no_encontrados)[:10],
+        "all_ml_skus": all_ml_skus,
     }

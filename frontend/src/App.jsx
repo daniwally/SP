@@ -811,11 +811,14 @@ function App() {
                 const maxBar = Math.max(artTotal, aduTotal) || 1
 
                 return (
-                  <div key={idx} className="card" style={{ position: 'relative' }}>
-                    <button
-                      onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
-                      style={{ position: 'absolute', top: '8px', right: '10px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#ef4444', cursor: 'pointer', fontSize: '0.85em', padding: '2px 8px', borderRadius: '6px' }}
-                    >&times;</button>
+                  <div key={idx}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
+                      <button
+                        onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
+                        style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#ef4444', cursor: 'pointer', fontSize: '0.85em', padding: '2px 8px', borderRadius: '6px' }}
+                      >&times;</button>
+                    </div>
+                    <div className="card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                       {BRAND_LOGOS[sel.marca] && <img src={BRAND_LOGOS[sel.marca]} alt="" style={{ height: '22px', objectFit: 'contain' }} />}
                       <span style={{ fontWeight: 700, fontSize: '0.95em' }}>{sel.name}</span>
@@ -844,6 +847,7 @@ function App() {
                         </div>
                         {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((aduTotal / total) * 100).toFixed(1)}% del total</p>}
                       </div>
+                    </div>
                     </div>
                   </div>
                 )

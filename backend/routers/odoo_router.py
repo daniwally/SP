@@ -66,7 +66,7 @@ def _stock_actual_sync():
         all_prods = models.execute_kw(
             ODOO_DB, uid, ODOO_KEY, 'product.product', 'search_read',
             [[('id', 'in', all_prod_ids)]],
-            {'fields': ['id', 'name', 'categ_id', 'default_code', 'product_template_attribute_value_ids'], 'limit': 5000}
+            {'fields': ['id', 'name', 'categ_id', 'default_code', 'product_template_attribute_value_ids', 'product_tmpl_id', 'image_128'], 'limit': 5000}
         )
 
         # 2b) Traer valores de atributos de variante (color, talle, etc.)
@@ -122,11 +122,17 @@ def _stock_actual_sync():
             cantidad = int(q['quantity'])
 
             attrs = prod_data.get('_attrs', {})
+            tmpl = prod_data.get('product_tmpl_id')
             prod_entry = {
                 'nombre': prod_data['name'],
                 'cantidad': cantidad,
                 'sku': prod_data.get('default_code') or '',
+                'template_id': tmpl[0] if tmpl else 0,
+                'template_name': tmpl[1] if tmpl else prod_data['name'],
             }
+            img = prod_data.get('image_128')
+            if img:
+                prod_entry['imagen'] = img
             if attrs:
                 prod_entry['atributos'] = attrs
             result[marca]['almacenes'][wh_name]['productos'].append(prod_entry)

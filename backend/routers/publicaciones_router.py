@@ -118,6 +118,19 @@ async def get_items_batch(item_ids: List[str], token: str) -> List[Dict]:
     return all_items
 
 
+def _extract_skus(item: Dict) -> List[str]:
+    """Extraer todos los SKUs de un item: seller_custom_field + variations"""
+    skus = []
+    root_sku = item.get("seller_custom_field")
+    if root_sku:
+        skus.append(root_sku)
+    for var in item.get("variations", []):
+        var_sku = var.get("seller_custom_field")
+        if var_sku and var_sku not in skus:
+            skus.append(var_sku)
+    return skus
+
+
 def format_item(item: Dict, marca: str) -> Dict:
     """Formatear item de ML a estructura de reporte"""
     status_raw = item.get("status", "unknown")
@@ -181,6 +194,7 @@ def format_item(item: Dict, marca: str) -> Dict:
         "dias_publicado": dias_publicado,
         "category_id": item.get("category_id", ""),
         "seller_sku": item.get("seller_custom_field") or "",
+        "seller_skus": _extract_skus(item),
     }
 
 

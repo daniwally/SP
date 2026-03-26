@@ -615,7 +615,7 @@ function App() {
                                     onMouseLeave={(e) => { const tip = e.currentTarget.querySelector('.stock-thumb'); if (tip) tip.style.display = 'none' }}
                                   >
                                     <span className={`expand-icon${gOpen ? ' open' : ''}`} style={{ fontSize: '0.55em' }}>&#9654;</span>
-                                    <span style={{ fontWeight: 600, fontSize: '0.88em', flex: 1 }}>{g.name}</span>
+                                    <span style={{ fontWeight: 600, fontSize: '0.88em', flex: 1, textAlign: 'right' }}>{g.name}</span>
                                     {[...g.colores].map(c => (
                                       <span key={c} style={{ background: 'rgba(217, 70, 239, 0.12)', color: '#d946ef', padding: '1px 7px', borderRadius: '4px', fontSize: '0.78em', fontWeight: 600 }}>{c}</span>
                                     ))}
@@ -635,7 +635,7 @@ function App() {
                                         <tr>
                                           <th style={{ textAlign: 'right' }}>Cant.</th>
                                           <th>SKU</th>
-                                          <th>Producto</th>
+                                          <th style={{ textAlign: 'right' }}>Producto</th>
                                           <th>Color</th>
                                           <th>Talle</th>
                                         </tr>
@@ -653,7 +653,7 @@ function App() {
                                             >
                                               <td style={{ textAlign: 'right', fontWeight: 600, minWidth: '50px' }}>{prod.cantidad.toLocaleString('es-AR')}</td>
                                               <td style={{ color: '#888' }}>{prod.sku || '—'}</td>
-                                              <td style={{ whiteSpace: 'normal', position: 'relative' }}>
+                                              <td style={{ whiteSpace: 'normal', position: 'relative', textAlign: 'right' }}>
                                                 {prod.nombre}
                                                 {prod.imagen && (
                                                   <div className="stock-thumb-row" style={{ display: 'none', position: 'absolute', left: '0', top: '-80px', zIndex: 20, background: '#1a1a2e', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '8px', padding: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>

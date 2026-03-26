@@ -87,6 +87,20 @@ function App() {
     fetchAllData()
   }, [])
 
+  // Fetch ML publicaciones por marca bajo demanda (para comparador)
+  const fetchMlMarca = async (marca) => {
+    if (mlPublicaciones[marca]) return // ya cargado
+    try {
+      const API = window.location.origin + '/api'
+      const res = await axios.get(`${API}/publicaciones/reporte/${marca}`, { timeout: 30000 })
+      const pubs = (res.data?.publicaciones || []).filter(p => p.stock > 0)
+      setMlPublicaciones(prev => ({ ...prev, [marca]: pubs }))
+    } catch (e) {
+      console.log(`ML fetch ${marca} error:`, e)
+      setMlPublicaciones(prev => ({ ...prev, [marca]: [] }))
+    }
+  }
+
   const fetchAllData = async () => {
     try {
       setLoading(true)
@@ -104,8 +118,7 @@ function App() {
         axios.get(API + '/odoo/valuacion', axiosConfig),
         axios.get(API + '/test/ventas-detallado', axiosConfig),
         axios.get(API + '/debug/all-accounts', axiosConfig),
-        axios.get(API + '/publicaciones/precios-promedio', axiosConfig),
-        axios.get(API + '/publicaciones/reporte-todas', axiosConfig)
+        axios.get(API + '/publicaciones/precios-promedio', axiosConfig)
       ])
       
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
@@ -118,7 +131,6 @@ function App() {
       const test = results[5].status === 'fulfilled' ? results[5].value.data : {}
       const tokens = results[6].status === 'fulfilled' ? results[6].value.data : {}
       const mlPrecios = results[7].status === 'fulfilled' ? results[7].value.data : {}
-      const mlPubsRaw = results[8].status === 'fulfilled' ? results[8].value.data : {}
       
       console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
@@ -135,12 +147,6 @@ function App() {
       setTestData(test)
       setTokenStatus(tokens)
       setMlPreciosData(mlPrecios.precios || {})
-      // Extraer publicaciones ML agrupadas por marca
-      const pubsByMarca = {}
-      for (const [marca, mData] of Object.entries(mlPubsRaw.datos || {})) {
-        pubsByMarca[marca] = (mData.publicaciones || []).filter(p => p.stock > 0)
-      }
-      setMlPublicaciones(pubsByMarca)
       
       // Debug: verificar valuacion
       console.log('📊 Valuacion data loaded:', {
@@ -719,7 +725,7 @@ function App() {
                 return (
                   <div
                     key={marca}
-                    onClick={() => { setComparadorMarca(isActive ? null : marca); setComparadorSearch('') }}
+                    onClick={() => { setComparadorMarca(isActive ? null : marca); setComparadorSearch(''); if (!isActive) fetchMlMarca(marca) }}
                     style={{
                       cursor: 'pointer', padding: '10px 18px', borderRadius: '10px',
                       border: isActive ? '2px solid #d946ef' : '1px solid rgba(255,255,255,0.1)',
@@ -823,6 +829,8 @@ function App() {
                 }
 
                 // Buscar match en ML: por SKU exacto, luego prefijo SKU, luego nombre
+                const mlLoaded = sel.marca in mlPublicaciones
+                if (!mlLoaded) fetchMlMarca(sel.marca)
                 const mlPubs = mlPublicaciones[sel.marca] || []
                 let mlMatches = []
                 let mlMatchType = ''
@@ -928,7 +936,7 @@ function App() {
                           <p style={{ color: '#666', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlMatches.length} pub. <span style={{ color: '#555' }}>({mlMatchType})</span></p>
                         )}
                         {mlMatches.length === 0 && (
-                          <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin publicaciones</p>
+                          <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlLoaded ? 'Sin match' : 'Cargando ML...'}</p>
                         )}
                       </div>
                     </div>

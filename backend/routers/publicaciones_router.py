@@ -624,8 +624,7 @@ async def match_skus_ml(body: dict):
 
 @router.get("/debug-skus/{marca}")
 async def debug_skus(marca: str):
-    """Debug: ver qué SKUs extraemos de ML para una marca.
-    Compara /items/{id} vs /items/{id}/variations para encontrar dónde están los SKUs."""
+    """Debug: buscar SKUs en TODOS los items de una marca, revisando todos los campos posibles."""
     if marca not in MARCAS:
         raise HTTPException(status_code=400, detail="Marca inválida")
 
@@ -636,54 +635,66 @@ async def debug_skus(marca: str):
     uid = MARCAS[marca]
     item_ids = await get_seller_items(uid, token, "active")
 
-    # Fetch 3 items individuales para debug
-    sample_ids = item_ids[:3]
-    items = await get_items_full(sample_ids, token)
+    # Fetch ALL items
+    items = await get_items_full(item_ids, token)
 
-    debug_items = []
-    async with httpx.AsyncClient() as client:
-        for item in items:
-            item_id = item.get("id")
-            skus_from_item = _extract_skus(item)
+    items_con_sku = []
+    items_sin_sku = []
 
-            # También probar el endpoint /items/{id}/variations
-            variations_endpoint = []
-            skus_from_variations_endpoint = []
-            try:
-                url = f"https://api.mercadolibre.com/items/{item_id}/variations"
-                resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
-                resp.raise_for_status()
-                variations_endpoint = resp.json()
-                for v in (variations_endpoint if isinstance(variations_endpoint, list) else []):
-                    vsku = v.get("seller_custom_field")
-                    if vsku and vsku not in skus_from_variations_endpoint:
-                        skus_from_variations_endpoint.append(vsku)
-            except Exception as e:
-                variations_endpoint = [{"error": str(e)}]
+    for item in items:
+        item_id = item.get("id")
+        skus = _extract_skus(item)
 
-            debug_items.append({
-                "item_id": item_id,
-                "title": item.get("title"),
-                "skus_from_items_endpoint": skus_from_item,
-                "skus_from_variations_endpoint": skus_from_variations_endpoint,
-                "variations_endpoint_sample": [
-                    {
-                        "id": v.get("id"),
-                        "seller_custom_field": v.get("seller_custom_field"),
-                        "attribute_combinations": [
-                            {"id": ac.get("id"), "value_name": ac.get("value_name")}
-                            for ac in v.get("attribute_combinations", [])
-                        ],
-                    }
-                    for v in (variations_endpoint if isinstance(variations_endpoint, list) else [])[:3]
-                ],
-            })
+        # Buscar en TODOS los campos posibles donde ML podría guardar SKU
+        extra_fields = {}
+        for key in ["seller_custom_field", "seller_sku", "internal_code", "code", "sku"]:
+            val = item.get(key)
+            if val:
+                extra_fields[key] = val
+
+        # Revisar variations a fondo
+        var_info = []
+        for v in item.get("variations", []):
+            var_data = {"id": v.get("id")}
+            for key in ["seller_custom_field", "seller_sku", "internal_code", "code", "sku"]:
+                val = v.get(key)
+                if val:
+                    var_data[key] = val
+            # Revisar todos los attribute_combinations (no solo SELLER_SKU)
+            for ac in v.get("attribute_combinations", []):
+                ac_id = ac.get("id", "")
+                if "SKU" in ac_id.upper() or "CODE" in ac_id.upper() or "CUSTOM" in ac_id.upper():
+                    var_data[f"attr_{ac_id}"] = ac.get("value_name") or ac.get("name")
+            # Revisar attributes de la variación
+            for attr in v.get("attributes", []):
+                attr_id = attr.get("id", "")
+                if "SKU" in attr_id.upper() or "CODE" in attr_id.upper():
+                    var_data[f"vattr_{attr_id}"] = attr.get("value_name") or attr.get("name")
+            if len(var_data) > 1:  # más que solo "id"
+                var_info.append(var_data)
+
+        entry = {
+            "item_id": item_id,
+            "title": item.get("title"),
+            "extracted_skus": skus,
+        }
+        if extra_fields:
+            entry["extra_root_fields"] = extra_fields
+        if var_info:
+            entry["variations_with_data"] = var_info[:3]
+
+        if skus or extra_fields or var_info:
+            items_con_sku.append(entry)
+        else:
+            items_sin_sku.append({"item_id": item_id, "title": item.get("title")})
 
     return {
         "marca": marca,
-        "total_items": len(item_ids),
-        "sample_count": len(debug_items),
-        "items": debug_items,
+        "total_items": len(items),
+        "con_sku": len(items_con_sku),
+        "sin_sku": len(items_sin_sku),
+        "items_con_sku": items_con_sku,
+        "items_sin_sku": items_sin_sku,
     }
 
 

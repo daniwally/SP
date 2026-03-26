@@ -521,60 +521,83 @@ function App() {
           })()}
         </div>
 
-        {/* VALUACIÓN POR MARCA */}
+        {/* SELECTOR DE MARCA - DETALLE STOCK */}
         <section className="section">
-          <h2>Valuación por Marca</h2>
-          <div className="cards-grid">
-            {Object.entries(valuationData)
-              .filter(([key]) => key !== 'TOTAL_GENERAL' && ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(key))
-              .sort((a, b) => (b[1].total_valor || 0) - (a[1].total_valor || 0))
-              .map(([marca, data]) => {
-                const percentage = ((data.total_valor || 0) / (valuationData.TOTAL_GENERAL || 1)) * 100
-                const artData = data.almacenes?.['ARTILLEROS'] || {}
-                const zfData = data.almacenes?.['ZONA FRANCA'] || {}
-                const stock = stockData[marca]?.total_unidades || 0
-                const precioML = mlPreciosData[marca]?.precio_promedio || 0
-                const valuacionML = stock * precioML
-
+          <h2>Detalle Stock por Marca</h2>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
+            {Object.entries(stockData)
+              .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
+              .sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))
+              .map(([marca]) => {
+                const isActive = expandedBrand === marca
                 return (
-                  <div key={marca} className="card">
+                  <div
+                    key={marca}
+                    onClick={() => setExpandedBrand(isActive ? null : marca)}
+                    style={{
+                      cursor: 'pointer',
+                      padding: '10px 18px',
+                      borderRadius: '10px',
+                      border: isActive ? '2px solid #d946ef' : '1px solid rgba(255,255,255,0.1)',
+                      background: isActive ? 'rgba(217, 70, 239, 0.12)' : 'rgba(0,0,0,0.4)',
+                      transition: 'all 0.2s',
+                      opacity: expandedBrand && !isActive ? 0.5 : 1,
+                    }}
+                  >
                     {BRAND_LOGOS[marca] ? (
-                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain', marginBottom: '12px' }} />
+                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '110px', objectFit: 'contain', display: 'block' }} />
                     ) : (
-                      <h3 style={{ marginBottom: '12px' }}>{marca}</h3>
-                    )}
-                    <div style={{ textAlign: 'center', margin: '0 0 10px 0' }}>
-                      <p style={{ color: '#d946ef', fontSize: '1.6em', fontWeight: 700, margin: 0 }}>
-                        ${(data.total_valor / 1e9).toFixed(2)}B
-                      </p>
-                      <p style={{ color: '#fbbf24', fontSize: '0.75em', fontWeight: 600, margin: '2px 0 0 0' }}>{percentage.toFixed(1)}%</p>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75em' }}>
-                      <span style={{ color: '#7f8c8d' }}>Artilleros</span>
-                      <span style={{ color: '#06b6d4', fontWeight: 600 }}>{(artData.unidades || 0).toLocaleString('es-AR')} u · ${((artData.valor || 0) / 1e6).toFixed(1)}M</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75em' }}>
-                      <span style={{ color: '#7f8c8d' }}>Zona Franca</span>
-                      <span style={{ color: '#3e7fff', fontWeight: 600 }}>{(zfData.unidades || 0).toLocaleString('es-AR')} u · ${((zfData.valor || 0) / 1e6).toFixed(1)}M</span>
-                    </div>
-                    {precioML > 0 && (
-                      <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px', marginTop: '6px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', marginBottom: '4px' }}>
-                          <span style={{ color: '#7f8c8d' }}>Precio ML prom.</span>
-                          <span style={{ color: '#fbbf24', fontWeight: 700 }}>${precioML.toLocaleString('es-AR')}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em' }}>
-                          <span style={{ color: '#7f8c8d' }}>Valuación ML</span>
-                          <span style={{ color: '#06b6d4', fontWeight: 700 }}>
-                            ${valuacionML >= 1e9 ? (valuacionML / 1e9).toFixed(2) + 'B' : (valuacionML / 1e6).toFixed(1) + 'M'}
-                          </span>
-                        </div>
-                      </div>
+                      <span style={{ color: '#fff', fontWeight: 700 }}>{marca}</span>
                     )}
                   </div>
                 )
               })}
           </div>
+
+          {expandedBrand && stockData[expandedBrand] && (() => {
+            const data = stockData[expandedBrand]
+            const almacenes = data.almacenes || {}
+            return (
+              <div className="card" style={{ animation: 'fadeIn 0.3s ease' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                  {BRAND_LOGOS[expandedBrand] ? (
+                    <img src={BRAND_LOGOS[expandedBrand]} alt={expandedBrand} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain' }} />
+                  ) : (
+                    <h3 style={{ margin: 0 }}>{expandedBrand}</h3>
+                  )}
+                  <span style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.2em' }}>{(data.total_unidades || 0).toLocaleString('es-AR')} unidades</span>
+                </div>
+                {Object.entries(almacenes).map(([whName, whData]) => (
+                  <div key={whName} style={{ marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', paddingBottom: '6px', borderBottom: '1px solid rgba(217, 70, 239, 0.15)' }}>
+                      <span style={{ color: whName.includes('Aduana') ? '#3e7fff' : '#06b6d4', fontWeight: 700, fontSize: '0.95em' }}>{whName}</span>
+                      <span style={{ color: '#888', fontSize: '0.85em' }}>{(whData.total || 0).toLocaleString('es-AR')} unidades</span>
+                    </div>
+                    <table className="retail-table" style={{ fontSize: '0.82em' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ width: '50%' }}>Producto</th>
+                          <th style={{ textAlign: 'right' }}>Cantidad</th>
+                          <th style={{ textAlign: 'right' }}>Costo Unit.</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(whData.productos || [])
+                          .sort((a, b) => b.cantidad - a.cantidad)
+                          .map((prod, idx) => (
+                          <tr key={idx}>
+                            <td style={{ whiteSpace: 'normal', maxWidth: '400px' }}>{prod.nombre}</td>
+                            <td style={{ textAlign: 'right', fontWeight: 600 }}>{prod.cantidad.toLocaleString('es-AR')}</td>
+                            <td style={{ textAlign: 'right', color: '#22c55e' }}>${prod.costo_unitario?.toLocaleString('es-AR')}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </section>
 
         </>

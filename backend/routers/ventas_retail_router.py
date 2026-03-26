@@ -35,8 +35,10 @@ def _get_models():
 # ---------------------------------------------------------------------------
 # sale.order
 # ---------------------------------------------------------------------------
-def _pedidos_sync(desde: str, hasta: str):
+def _pedidos_sync(desde: str, hasta: str, states=None):
     """Pedidos de venta en rango de fechas"""
+    if states is None:
+        states = ['sale', 'done']
     uid = _get_uid()
     if not uid:
         return {**EMPTY_PEDIDOS, "error": "Sin conexión a Odoo"}
@@ -47,7 +49,7 @@ def _pedidos_sync(desde: str, hasta: str):
         domain = [
             ('date_order', '>=', f'{desde} 00:00:00'),
             ('date_order', '<=', f'{hasta} 23:59:59'),
-            ('state', 'in', ['sale', 'done']),
+            ('state', 'in', states),
         ]
 
         orders = models.execute_kw(
@@ -200,6 +202,20 @@ async def pedidos(
         hasta = today.strftime('%Y-%m-%d')
 
     return await asyncio.to_thread(_pedidos_sync, desde, hasta)
+
+
+@router.get("/presupuestos-detalle")
+async def presupuestos_detalle(
+    desde: str = Query(None),
+    hasta: str = Query(None),
+):
+    today = datetime.now()
+    if not desde:
+        desde = today.replace(day=1).strftime('%Y-%m-%d')
+    if not hasta:
+        hasta = today.strftime('%Y-%m-%d')
+
+    return await asyncio.to_thread(_pedidos_sync, desde, hasta, ['draft', 'sent'])
 
 
 # ---------------------------------------------------------------------------

@@ -468,11 +468,11 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
           {/* Toggle listado */}
           <div
             onClick={() => setListadoOpen(!listadoOpen)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', margin: '12px 0 8px', padding: '8px', background: 'rgba(6,182,212,0.08)', borderRadius: '8px' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', margin: '12px 0 8px', padding: '10px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px' }}
           >
-            <span style={{ color: '#06b6d4', fontSize: '0.9em' }}>
+            <h2 style={{ margin: 0, fontSize: '1em', fontWeight: 400, color: '#fff' }}>
               {listadoOpen ? '▼' : '▶'} Listado de Publicaciones ({publicaciones.length})
-            </span>
+            </h2>
           </div>
 
           {listadoOpen && (

@@ -398,7 +398,7 @@ export default function VentasRetailTab() {
       </div>
 
       <div className="retail-subtabs">
-        {['dashboard', 'pedidos', 'compras', 'clientes'].map(t => (
+        {['dashboard', 'pedidos', 'clientes'].map(t => (
           <button
             key={t}
             className={`retail-subtab ${subTab === t ? 'active' : ''}`}

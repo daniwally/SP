@@ -868,7 +868,7 @@ function App() {
                 // 3) Fallback a nombre si no hay match por SKU
                 if (mlMatches.length === 0) {
                   const searchName = (sel.name || '').toLowerCase()
-                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 3)
+                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
                   if (searchWords.length > 0) {
                     // Para nombres cortos (1-2 palabras), buscar como palabra completa con regex
                     const minMatch = Math.max(1, Math.ceil(searchWords.length * 0.5))

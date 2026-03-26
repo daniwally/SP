@@ -619,6 +619,8 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
             {Object.entries(preguntasData).map(([brandKey, brandData]) => {
               const preguntas = brandData.preguntas || [];
               const count = brandData.sin_responder || 0;
+              const brandMl = ventasMesMl[brandKey] || {};
+              const tiempoPromedio = brandMl.preguntas?.tiempo_promedio_horas;
               return (
                 <div key={brandKey} className="question-card">
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -663,6 +665,11 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                  {tiempoPromedio != null && (
+                    <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82em', textAlign: 'center', color: '#888' }}>
+                      Tiempo promedio de respuesta: <span style={{ color: tiempoPromedio <= 2 ? '#86efac' : tiempoPromedio <= 5 ? '#fbbf24' : '#ef4444', fontWeight: 600 }}>{tiempoPromedio.toFixed(1)}h</span>
                     </div>
                   )}
                 </div>

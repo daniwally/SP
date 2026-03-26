@@ -549,15 +549,18 @@ async def match_skus_ml(body: dict):
     product_name = body.get("product_name", "").lower().strip()
     if not matched and product_name:
         brand_name = marca.lower()
-        # Extraer palabras significativas (sin marca ni genéricos)
-        stop_words = {'zapatilla', 'zapatillas', 'botin', 'botines', 'hombre', 'mujer', 'niño',
-                      'deportiva', 'deportivo', 'running', 'training', 'shoes', 'importada', 'importado',
+        # Palabras genéricas que no identifican al modelo
+        stop_words = {'zapatilla', 'zapatillas', 'botin', 'botines', 'bota', 'botas',
+                      'hombre', 'mujer', 'niño', 'niña', 'unisex', "men's", 'men', 'women',
+                      'deportiva', 'deportivo', 'deportivas', 'running', 'training', 'casual',
+                      'shoes', 'shoe', 'basketball', 'performance', 'activewear',
+                      'importada', 'importado', 'original', 'nuevo', 'new',
                       brand_name}
-        words = [w for w in product_name.split() if len(w) > 2 and w not in stop_words]
+        # Tomar solo las primeras 2 palabras significativas (nombre del modelo)
+        words = [w for w in product_name.split() if w not in stop_words and len(w) > 1][:2]
         if words:
             for item, ml_skus in items_with_skus:
                 title = (item.get("title", "") or "").lower()
-                # Todas las palabras deben estar en el título
                 if all(w in title for w in words) and item.get("id") not in seen:
                     seen.add(item.get("id"))
                     matched.append({

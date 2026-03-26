@@ -198,6 +198,35 @@ export default function VentasRetailTab() {
     )
   }
 
+  // ---- TOP MARCAS ----
+  const renderTopMarcas = (marcas, title, color) => {
+    const filtered = (marcas || []).filter(m => m.marca && m.marca !== 'Sin marca')
+    if (!filtered.length) return null
+    const maxMonto = filtered[0]?.monto || 1
+    return (
+      <div className="retail-top-productos">
+        <h3 style={color ? { color } : {}}>{title}</h3>
+        {filtered.map((m, i) => {
+          const logo = BRAND_LOGOS[m.marca?.toUpperCase()]
+          return (
+            <div key={i} className="top-prod-item">
+              <span className="top-prod-rank">#{i + 1}</span>
+              {logo ? (
+                <img src={logo} alt={m.marca} className="top-marca-logo" />
+              ) : (
+                <span className="top-prod-name" title={m.marca}>{m.marca}</span>
+              )}
+              <div className="top-prod-bar">
+                <div className="top-prod-bar-fill" style={{ width: `${(m.monto / maxMonto) * 100}%` }} />
+              </div>
+              <span className="top-prod-amount">{fmtMoney(m.monto)}</span>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   // ---- PEDIDOS ----
   const renderPedidos = () => {
     if (!pedidos) return null
@@ -225,6 +254,7 @@ export default function VentasRetailTab() {
             <div className="kpi-label">Items</div>
           </div>
         </div>
+        {renderTopMarcas(r.top_marcas, 'Top Marcas - Pedidos')}
         <div
           onClick={() => setPedidosOpen(!pedidosOpen)}
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 0', color: '#888', fontSize: '0.85em' }}
@@ -259,6 +289,7 @@ export default function VentasRetailTab() {
                   <div className="kpi-label">Items</div>
                 </div>
               </div>
+              {renderTopMarcas(pv.top_marcas, 'Top Marcas - Pre Ventas', '#f59e0b')}
               <div
                 onClick={() => setPreVentasOpen(!preVentasOpen)}
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 0', color: '#f59e0b', fontSize: '0.85em', opacity: 0.7 }}

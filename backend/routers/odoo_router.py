@@ -33,45 +33,8 @@ def get_uid():
         print(f"Auth error: {e}")
         return None
 
-def get_marca_map():
-    """Mapea IDs de categoría a nombres de marca"""
-    try:
-        uid = get_uid()
-        if not uid:
-            return {}
-        
-        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
-        
-        # Obtener subcategorías de "Marcas"
-        marca_categ = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.category', 'search', [[('name', '=', 'Marcas')]])
-        if marca_categ:
-            subcats = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.category', 'search', [[('parent_id', '=', marca_categ[0])]])
-            marcas = models.execute_kw(ODOO_DB, uid, ODOO_KEY, 'product.category', 'read', [subcats])
-            
-            # Mapear: ID categoría -> Nombre marca (normalizado)
-            marca_map = {}
-            for m in marcas:
-                name = m['name']
-                # Normalizar nombres
-                if 'SHAQUILLE' in name or 'SHAQ' in name:
-                    marca_map[m['id']] = 'SHAQ'
-                elif 'STARTER' in name:
-                    marca_map[m['id']] = 'STARTER'
-                elif 'HYDRATE' in name:
-                    marca_map[m['id']] = 'HYDRATE'
-                elif 'TIMBERLAND' in name:
-                    marca_map[m['id']] = 'TIMBERLAND'
-                elif 'ELSYS' in name:
-                    marca_map[m['id']] = 'ELSYS'
-                else:
-                    marca_map[m['id']] = name
-            
-            return marca_map
-    
-    except Exception as e:
-        print(f"Error getting marca map: {e}")
-    
-    return {}
+# Mapeo fijo de categoría -> marca (mismo que valuation_router y ventas_retail_router)
+CATEG_MARCA_MAP = {8: 'SHAQ', 7: 'STARTER', 11: 'HYDRATE', 6: 'TIMBERLAND', 10: 'ELSYS'}
 
 
 def _stock_actual_sync():
@@ -82,7 +45,6 @@ def _stock_actual_sync():
             return {"error": "Sin conexión a Odoo"}
 
         models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
-        marca_map = get_marca_map()
 
         result = {}
         warehouse_locs = {'Artilleros': 5, 'Aduana (Tránsito – Solo interno)': 24}
@@ -107,7 +69,7 @@ def _stock_actual_sync():
 
                     prod_data = prod_map[prod_id]
                     categ_id = prod_data.get('categ_id')
-                    marca = marca_map.get(categ_id[0] if categ_id else None, 'OTROS')
+                    marca = CATEG_MARCA_MAP.get(categ_id[0] if categ_id else None, 'OTROS')
 
                     if marca not in ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS']:
                         continue

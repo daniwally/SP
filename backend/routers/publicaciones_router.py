@@ -180,6 +180,7 @@ def format_item(item: Dict, marca: str) -> Dict:
         "ultima_actualizacion": last_updated,
         "dias_publicado": dias_publicado,
         "category_id": item.get("category_id", ""),
+        "seller_sku": item.get("seller_custom_field") or "",
     }
 
 

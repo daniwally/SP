@@ -587,19 +587,30 @@ function App() {
                         <table className="retail-table" style={{ fontSize: '0.82em', margin: '0 0 8px 0' }}>
                           <thead>
                             <tr>
-                              <th style={{ textAlign: 'right' }}>Cantidad</th>
+                              <th style={{ textAlign: 'right' }}>Cant.</th>
+                              <th>SKU</th>
                               <th>Producto</th>
+                              <th>Color</th>
+                              <th>Talle</th>
                             </tr>
                           </thead>
                           <tbody>
                             {(whData.productos || [])
                               .sort((a, b) => b.cantidad - a.cantidad)
-                              .map((prod, idx) => (
-                              <tr key={idx}>
-                                <td style={{ textAlign: 'right', fontWeight: 600, minWidth: '70px' }}>{prod.cantidad.toLocaleString('es-AR')}</td>
-                                <td style={{ whiteSpace: 'normal' }}>{prod.nombre}</td>
-                              </tr>
-                            ))}
+                              .map((prod, idx) => {
+                                const attrs = prod.atributos || {}
+                                const color = attrs['Color'] || attrs['color'] || ''
+                                const talle = attrs['Talle'] || attrs['talle'] || attrs['Size'] || attrs['Tamaño'] || ''
+                                return (
+                                  <tr key={idx}>
+                                    <td style={{ textAlign: 'right', fontWeight: 600, minWidth: '50px' }}>{prod.cantidad.toLocaleString('es-AR')}</td>
+                                    <td style={{ color: '#888', fontSize: '0.9em' }}>{prod.sku || '—'}</td>
+                                    <td style={{ whiteSpace: 'normal' }}>{prod.nombre}</td>
+                                    <td>{color && <span style={{ background: 'rgba(217, 70, 239, 0.12)', color: '#d946ef', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85em', fontWeight: 600 }}>{color}</span>}</td>
+                                    <td>{talle && <span style={{ background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85em', fontWeight: 600 }}>{talle}</span>}</td>
+                                  </tr>
+                                )
+                              })}
                           </tbody>
                         </table>
                       )}

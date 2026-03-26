@@ -478,8 +478,8 @@ function App() {
               <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
                 <div className="card">
                   <div style={{ textAlign: 'center', margin: '4px 0 14px 0' }}>
-                    <p className="total-item-ordenes" style={{ fontSize: '2.8em', margin: 0 }}>{totalStock.toLocaleString()}</p>
-                    <p className="total-item-ordenes" style={{ fontSize: '0.9em', margin: '0 0 4px 0' }}>Total Stock</p>
+                    <p style={{ fontSize: '2.8em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{totalStock.toLocaleString()}</p>
+                    <p className="total-item-ordenes" style={{ fontSize: '0.9em', margin: '0 0 4px 0' }}>unidades — Total Stock</p>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', maxWidth: '400px', margin: '0 auto 20px auto' }}>
                     <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>

@@ -868,12 +868,17 @@ function App() {
                 // 3) Fallback a nombre si no hay match por SKU
                 if (mlMatches.length === 0) {
                   const searchName = (sel.name || '').toLowerCase()
-                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
+                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 3)
                   if (searchWords.length > 0) {
+                    // Para nombres cortos (1-2 palabras), buscar como palabra completa con regex
                     const minMatch = Math.max(1, Math.ceil(searchWords.length * 0.5))
                     mlMatches = mlPubs.filter(pub => {
                       const t = (pub.titulo || '').toLowerCase()
-                      const matched = searchWords.filter(w => t.includes(w)).length
+                      const matched = searchWords.filter(w => {
+                        // Buscar como palabra completa (no substring parcial)
+                        const regex = new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i')
+                        return regex.test(t)
+                      }).length
                       return matched >= minMatch
                     })
                     if (mlMatches.length > 0) mlMatchType = 'nombre'
@@ -934,7 +939,20 @@ function App() {
                         </div>
                         {total > 0 && <p style={{ color: '#888', fontSize: '0.78em', margin: '6px 0 0 0' }}>{((mlTotal / total) * 100).toFixed(1)}%</p>}
                         {mlMatches.length > 0 && (
-                          <p style={{ color: '#666', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlMatches.length} pub. <span style={{ color: '#555' }}>({mlMatchType})</span></p>
+                          <div style={{ marginTop: '6px' }}>
+                            <p
+                              style={{ color: '#666', fontSize: '0.72em', margin: 0, cursor: 'pointer' }}
+                              onClick={(e) => { e.stopPropagation(); const el = e.currentTarget.nextElementSibling; el.style.display = el.style.display === 'none' ? 'block' : 'none' }}
+                            >{mlMatches.length} pub. ({mlMatchType}) ▾</p>
+                            <div style={{ display: 'none', marginTop: '6px', maxHeight: '120px', overflowY: 'auto' }}>
+                              {mlMatches.map((mp, mi) => (
+                                <div key={mi} style={{ fontSize: '0.68em', color: '#888', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
+                                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mp.titulo}</span>
+                                  <span style={{ color: '#fbbf24', fontWeight: 600, whiteSpace: 'nowrap' }}>{mp.stock}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
                         {mlMatches.length === 0 && (
                           <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>{mlLoaded ? 'Sin match' : 'Cargando ML...'}</p>

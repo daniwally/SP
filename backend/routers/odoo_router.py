@@ -26,7 +26,7 @@ def get_uid():
     try:
         if not ODOO_KEY:
             return None
-        common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common', timeout=15)
+        common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
         uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
         return uid
     except Exception as e:
@@ -81,7 +81,7 @@ def _stock_actual_sync():
         if not uid:
             return {"error": "Sin conexión a Odoo"}
 
-        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', timeout=20)
+        models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
         marca_map = get_marca_map()
 
         result = {}

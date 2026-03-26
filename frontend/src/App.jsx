@@ -16,7 +16,7 @@ const BRAND_LOGOS = {
   'STARTER': `${LOGO_BASE}/starter.png`,
   'HYDRATE': `${LOGO_BASE}/hydrate-logo.png`,
   'TIMBERLAND': `${LOGO_BASE}/TBL-logo.png`,
-  'ELSYS': `${LOGO_BASE}/elsys-logo.png`,
+  'ELSYS': `${LOGO_BASE}/elsys.png`,
   'URBAN_FLOW': `${LOGO_BASE}/urban-flow-logo.png`,
 }
 import './App.css'

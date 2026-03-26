@@ -8,7 +8,7 @@ const BRAND_LOGOS = {
   'STARTER': `${LOGO_BASE}/starter.png`,
   'HYDRATE': `${LOGO_BASE}/hydrate-logo.png`,
   'TIMBERLAND': `${LOGO_BASE}/TBL-logo.png`,
-  'ELSYS': `${LOGO_BASE}/elsys-logo.png`,
+  'ELSYS': `${LOGO_BASE}/elsys.png`,
 }
 
 const fmtMoney = (n) => '$' + Math.round(n).toLocaleString()

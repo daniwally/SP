@@ -543,6 +543,7 @@ async def match_skus_ml(body: dict):
                 "titulo": item.get("title", ""),
                 "stock": item.get("available_quantity", 0) or 0,
                 "precio": item.get("price", 0) or 0,
+                "permalink": item.get("permalink", ""),
                 "match_type": "SKU",
             })
 
@@ -561,6 +562,7 @@ async def match_skus_ml(body: dict):
                         "titulo": item.get("title", ""),
                         "stock": item.get("available_quantity", 0) or 0,
                         "precio": item.get("price", 0) or 0,
+                        "permalink": item.get("permalink", ""),
                         "match_type": "prefijo",
                     })
             if matched:
@@ -584,6 +586,7 @@ async def match_skus_ml(body: dict):
                         "titulo": item.get("title", ""),
                         "stock": item.get("available_quantity", 0) or 0,
                         "precio": item.get("price", 0) or 0,
+                        "permalink": item.get("permalink", ""),
                         "match_type": "nombre",
                     })
             if matched:

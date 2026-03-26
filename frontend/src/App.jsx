@@ -748,7 +748,7 @@ function App() {
               : sorted
 
             return (
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ width: '50%', minWidth: 0 }}>
                 <input
                   type="text"
                   value={comparadorSearch}
@@ -814,7 +814,7 @@ function App() {
                   <div key={idx} className="card" style={{ position: 'relative' }}>
                     <button
                       onClick={() => setComparadorSelected(prev => prev.filter((_, i) => i !== idx))}
-                      style={{ position: 'absolute', top: '8px', right: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.2em', padding: '4px' }}
+                      style={{ position: 'absolute', top: '8px', right: '10px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#ef4444', cursor: 'pointer', fontSize: '0.85em', padding: '2px 8px', borderRadius: '6px' }}
                     >&times;</button>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                       {BRAND_LOGOS[sel.marca] && <img src={BRAND_LOGOS[sel.marca]} alt="" style={{ height: '22px', objectFit: 'contain' }} />}

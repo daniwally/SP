@@ -506,15 +506,25 @@ async def match_skus_ml(body: dict):
 
     # Debug: mostrar muestra de SKUs encontrados en ML
     debug_sample = []
-    for item in items[:10]:
+    for item in items[:5]:
         item_skus = _extract_skus(item)
+        # Buscar SKU en attributes también
+        attrs_sku = [a for a in item.get("attributes", []) if "sku" in (a.get("id", "") or "").lower() or "seller" in (a.get("id", "") or "").lower()]
+        var_attrs_sku = []
+        for v in item.get("variations", [])[:2]:
+            for a in v.get("attribute_combinations", []):
+                if "sku" in (a.get("id", "") or "").lower():
+                    var_attrs_sku.append(a)
         debug_sample.append({
             "item_id": item.get("id", ""),
-            "title": (item.get("title", "") or "")[:50],
+            "title": (item.get("title", "") or "")[:60],
             "seller_custom_field": item.get("seller_custom_field"),
             "extracted_skus": item_skus,
-            "has_variations": len(item.get("variations", [])),
-            "var_sample": [{"id": v.get("id"), "scf": v.get("seller_custom_field")} for v in item.get("variations", [])[:3]],
+            "variations_count": len(item.get("variations", [])),
+            "var_scf": [v.get("seller_custom_field") for v in item.get("variations", [])[:5]],
+            "attrs_sku": attrs_sku,
+            "var_attrs_sku": var_attrs_sku,
+            "all_root_keys": [k for k in item.keys() if "sku" in k.lower() or "seller" in k.lower() or "custom" in k.lower() or "code" in k.lower()],
         })
 
     return {"items": matched, "total_items_marca": len(items), "skus_buscados": list(skus_upper), "debug_ml_sample": debug_sample}

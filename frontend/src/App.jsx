@@ -421,319 +421,145 @@ function App() {
 
         {activeTab === 'stock' && (
         <>
-          {/* KPI CARDS - TOTAL INVENTARIO + POR MARCA */}
+        {/* STOCK POR MARCA - Estilo e-commerce */}
+        <div className="stacked-sections">
           <section className="section">
-            {/* KPI - Solo Cantidades - Una línea */}
-            <div style={{ marginBottom: '25px', textAlign: 'center' }}>
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.5)',
-                border: '1px solid rgba(217, 70, 239, 0.2)',
-                borderRadius: '12px',
-                padding: '20px 26px',
-                display: 'flex',
-                justifyContent: 'space-around',
-                alignItems: 'center',
-                gap: '20px'
-              }}>
-                {/* Total */}
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: '#7f8c8d', fontSize: '0.91em', fontWeight: 600, marginBottom: '6px' }}>TOTAL UNIDADES</p>
-                  <p style={{ fontSize: '3.16em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    {Object.values(stockData).reduce((sum, marca) => sum + (marca.total_unidades || 0), 0).toLocaleString()}
-                  </p>
-                </div>
-
-                {/* Separador */}
-                <div style={{ width: '1px', height: '65px', background: 'rgba(217, 70, 239, 0.2)' }}></div>
-
-                {/* Artilleros */}
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: '#7f8c8d', fontSize: '0.91em', fontWeight: 600, marginBottom: '6px' }}>Artilleros</p>
-                  <p style={{ fontSize: '3.16em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    {Object.values(stockData).reduce((sum, marca) => {
-                      return sum + (marca.almacenes?.['Artilleros']?.total || 0)
-                    }, 0).toLocaleString()}
-                  </p>
-                </div>
-
-                {/* Separador */}
-                <div style={{ width: '1px', height: '65px', background: 'rgba(217, 70, 239, 0.2)' }}></div>
-
-                {/* Aduana */}
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: '#7f8c8d', fontSize: '0.91em', fontWeight: 600, marginBottom: '6px' }}>Aduana</p>
-                  <p style={{ fontSize: '3.16em', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #d946ef, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    {Object.values(stockData).reduce((sum, marca) => {
-                      return sum + (marca.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0)
-                    }, 0).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-
-          </section>
-
-          {/* INVENTARIO POR MARCA Y DEPÓSITO - PRIMER CARD */}
-          <section className="section">
-            <h2>📦 Inventario por Marca & Depósito — Total Unidades</h2>
+            <h2>Stock por Marca</h2>
             <div className="cards-grid">
               {Object.entries(stockData)
-                .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(marca))
+                .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
+                .sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))
                 .map(([marca, data]) => {
-                const artilleros = data.almacenes?.['Artilleros']?.total || 0
-                const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0
-                
-                return (
-                  <div key={marca} className="card">
-                    {BRAND_LOGOS[marca] ? (
-                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
-                    ) : (
-                      <h3>{marca}</h3>
-                    )}
-                    <div style={{ display: 'flex', gap: '15px', marginTop: '12px' }}>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Artilleros</p>
-                        <p style={{ color: '#06b6d4', fontSize: '1.3em', fontWeight: 700 }}>{artilleros.toLocaleString()}</p>
+                  const artilleros = data.almacenes?.['Artilleros'] || { total: 0, productos: [] }
+                  const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)'] || { total: 0, productos: [] }
+                  const allProds = [...(artilleros.productos || []), ...(aduana.productos || [])]
+                    .sort((a, b) => (b.cantidad || 0) - (a.cantidad || 0))
+
+                  return (
+                    <div key={marca} className="card">
+                      {BRAND_LOGOS[marca] ? (
+                        <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                      ) : (
+                        <h3>{marca}</h3>
+                      )}
+                      <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
+                        <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{(data.total_unidades || 0).toLocaleString()}</p>
+                        <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>unidades</p>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '6px' }}>Aduana</p>
-                        <p style={{ color: '#3e7fff', fontSize: '1.3em', fontWeight: 700 }}>{aduana.toLocaleString()}</p>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '0.68em', marginBottom: '8px' }}>
+                        <span style={{ color: '#06b6d4' }}>Artilleros: <b>{(artilleros.total || 0).toLocaleString()}</b></span>
+                        <span style={{ color: '#3e7fff' }}>Aduana: <b>{(aduana.total || 0).toLocaleString()}</b></span>
                       </div>
+                      {allProds.length > 0 && (
+                        <div className="productos-list">
+                          {allProds.slice(0, 10).map((prod, idx) => (
+                            <p key={idx} className="producto-item">
+                              {prod.nombre} <span className="cantidad">x{(prod.cantidad || 0).toLocaleString()}</span>
+                            </p>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                      <p style={{ color: '#d946ef', fontSize: '0.85em', fontWeight: 600 }}>Total unidades: {(artilleros + aduana).toLocaleString()}</p>
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
             </div>
           </section>
 
-          {/* DETALLE PRODUCTOS POR MARCA Y DEPÓSITO */}
-          <section className="section">
-            <h2>📋 Detalle Productos por Marca & Depósito</h2>
-            {Object.entries(stockData)
-              .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
-              .sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))
+          {/* TOTALES EN LÍNEA */}
+          <div className="totals-row totals-row-small">
+            <div className="total-item">
+              <span>Total Stock:</span>
+              <span className="total-item-value">{Object.values(stockData).reduce((sum, m) => sum + (m.total_unidades || 0), 0).toLocaleString()} uds</span>
+            </div>
+            <div className="total-item">
+              <span>Artilleros:</span>
+              <span className="total-item-value">{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Artilleros']?.total || 0), 0).toLocaleString()} uds</span>
+            </div>
+            <div className="total-item">
+              <span>Aduana:</span>
+              <span className="total-item-value">{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0), 0).toLocaleString()} uds</span>
+            </div>
+          </div>
+        </div>
+
+        {/* VALUACIÓN STOCK CRUZADO */}
+        <section className="section">
+          <h2>Valuación Stock Cruzado</h2>
+          <div className="section-2col">
+            <div className="compare-card">
+              <p className="big-number">${((valuationData.TOTAL_GENERAL || 0) / 1e9).toFixed(2)}B</p>
+              <p className="subtitle">Valor Total Inventario</p>
+            </div>
+            <div className="compare-card">
+              {(() => {
+                const marcas = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND']
+                const totalValML = marcas.reduce((s, m) => s + (stockData[m]?.total_unidades || 0) * (mlPreciosData[m]?.precio_promedio || 0), 0)
+                return (
+                  <>
+                    <p className="big-number">${totalValML >= 1e9 ? (totalValML / 1e9).toFixed(2) + 'B' : (totalValML / 1e6).toFixed(1) + 'M'}</p>
+                    <p className="subtitle">Valuación a Precio ML</p>
+                  </>
+                )
+              })()}
+            </div>
+          </div>
+        </section>
+
+        {/* VALUACIÓN POR MARCA */}
+        <section className="section">
+          <h2>Valuación por Marca</h2>
+          <div className="cards-grid">
+            {Object.entries(valuationData)
+              .filter(([key]) => key !== 'TOTAL_GENERAL' && ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(key))
+              .sort((a, b) => (b[1].total_valor || 0) - (a[1].total_valor || 0))
               .map(([marca, data]) => {
-                const isOpen = expandedBrand === marca
-                return (
-                  <div key={marca} style={{
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    border: '1px solid rgba(217, 70, 239, 0.15)',
-                    borderRadius: '12px',
-                    marginBottom: '12px',
-                    overflow: 'hidden'
-                  }}>
-                    <div
-                      onClick={() => setExpandedBrand(isOpen ? null : marca)}
-                      style={{
-                        padding: '14px 18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer',
-                        userSelect: 'none'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ color: '#d946ef', fontSize: '0.85em', transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}>&#9654;</span>
-                        {BRAND_LOGOS[marca] ? (
-                          <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '26px', maxWidth: '120px', objectFit: 'contain' }} />
-                        ) : (
-                          <span style={{ color: '#fff', fontWeight: 700 }}>{marca}</span>
-                        )}
-                      </div>
-                      <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '1.1em' }}>
-                        {(data.total_unidades || 0).toLocaleString()} uds
-                      </span>
-                    </div>
-
-                    {isOpen && data.almacenes && Object.entries(data.almacenes).map(([almNombre, almData]) => (
-                      <div key={almNombre} style={{ padding: '0 18px 14px' }}>
-                        <div style={{
-                          background: 'rgba(217, 70, 239, 0.06)',
-                          borderRadius: '8px',
-                          padding: '12px',
-                          marginBottom: '8px'
-                        }}>
-                          <div style={{ color: '#d946ef', fontWeight: 700, fontSize: '0.85em', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                            <span>{almNombre}</span>
-                            <span style={{ color: '#06b6d4' }}>{(almData.total || 0).toLocaleString()} uds</span>
-                          </div>
-                          {almData.productos && almData.productos.length > 0 ? (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8em' }}>
-                              <thead>
-                                <tr style={{ borderBottom: '1px solid rgba(217, 70, 239, 0.15)' }}>
-                                  <th style={{ textAlign: 'left', padding: '4px 8px', color: '#7f8c8d', fontWeight: 600 }}>Producto</th>
-                                  <th style={{ textAlign: 'right', padding: '4px 8px', color: '#7f8c8d', fontWeight: 600 }}>Cantidad</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {almData.productos
-                                  .sort((a, b) => (b.cantidad || 0) - (a.cantidad || 0))
-                                  .map((prod, j) => (
-                                  <tr key={j} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                    <td style={{ padding: '5px 8px', color: '#ccc' }}>{prod.nombre}</td>
-                                    <td style={{ padding: '5px 8px', color: '#06b6d4', fontWeight: 600, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{(prod.cantidad || 0).toLocaleString()}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          ) : (
-                            <p style={{ color: '#666', fontSize: '0.85em', margin: 0 }}>Sin productos</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              })}
-          </section>
-
-          {/* DISTRIBUCIÓN POR MARCA - Valuación Stock Cruzado */}
-          <section className="section">
-            <h2>📊 Distribución por Marca — 💎 Valuación Stock Cruzado</h2>
-
-            {/* Total Valuación Cruzada */}
-            <div style={{
-              background: 'rgba(0, 0, 0, 0.5)',
-              border: '1px solid rgba(217, 70, 239, 0.3)',
-              borderRadius: '12px',
-              padding: '16px',
-              textAlign: 'center',
-              marginBottom: '16px'
-            }}>
-              <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase' }}>Valor Total Inventario (Artilleros + Zona Franca)</p>
-              <p style={{ color: '#06b6d4', fontSize: '2em', fontWeight: 700, margin: 0 }}>
-                ${(valuationData.TOTAL_GENERAL / 1000000000).toFixed(2)}B
-              </p>
-            </div>
-
-            {/* Barras de distribución con detalle de almacenes */}
-            <div style={{
-              background: 'rgba(0, 0, 0, 0.5)',
-              border: '1px solid rgba(217, 70, 239, 0.2)',
-              borderRadius: '12px',
-              padding: '20px'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {Object.entries(valuationData)
-                  .filter(([key]) => key !== 'TOTAL_GENERAL' && ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND'].includes(key))
-                  .sort((a, b) => (b[1].total_valor || 0) - (a[1].total_valor || 0))
-                  .map(([marca, data]) => {
-                    const percentage = ((data.total_valor || 0) / (valuationData.TOTAL_GENERAL || 1)) * 100
-                    const artData = data.almacenes?.['ARTILLEROS'] || {}
-                    const zfData = data.almacenes?.['ZONA FRANCA'] || {}
-                    return (
-                      <div key={marca}>
-                        {/* Barra */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-                          <div style={{ flex: '0 0 100px' }}>
-                            <p style={{ color: '#d946ef', fontWeight: 700, margin: 0, fontSize: '0.9em' }}>{marca}</p>
-                          </div>
-                          <div style={{
-                            flex: 1,
-                            background: 'rgba(217, 70, 239, 0.1)',
-                            borderRadius: '4px',
-                            height: '24px',
-                            overflow: 'hidden'
-                          }}>
-                            <div style={{
-                              background: 'linear-gradient(90deg, #d946ef, #06b6d4)',
-                              height: '100%',
-                              width: `${percentage}%`,
-                              borderRadius: '4px',
-                              transition: 'width 0.3s ease'
-                            }}></div>
-                          </div>
-                          <div style={{ flex: '0 0 120px', textAlign: 'right' }}>
-                            <p style={{ color: '#06b6d4', fontWeight: 700, margin: 0, fontSize: '0.9em' }}>
-                              ${(data.total_valor / 1e9).toFixed(2)}B
-                            </p>
-                            <p style={{ color: '#fbbf24', fontWeight: 600, margin: 0, fontSize: '0.75em' }}>
-                              {percentage.toFixed(1)}%
-                            </p>
-                          </div>
-                        </div>
-                        {/* Detalle almacenes */}
-                        <div style={{ display: 'flex', gap: '20px', paddingLeft: '112px', fontSize: '0.7em', color: '#7f8c8d' }}>
-                          <span>Artilleros: <span style={{ color: '#06b6d4', fontWeight: 600 }}>{(artData.unidades || 0).toLocaleString()} u</span> · <span style={{ color: '#3e7fff' }}>${((artData.valor || 0) / 1e6).toFixed(1)}M</span></span>
-                          <span>Zona Franca: <span style={{ color: '#06b6d4', fontWeight: 600 }}>{(zfData.unidades || 0).toLocaleString()} u</span> · <span style={{ color: '#3e7fff' }}>${((zfData.valor || 0) / 1e6).toFixed(1)}M</span></span>
-                        </div>
-                      </div>
-                    )
-                  })}
-              </div>
-            </div>
-          </section>
-
-          {/* VALUACIÓN A PRECIO ML */}
-          <section className="section">
-            <h2>💰 Valuación Stock a Precio ML</h2>
-            <p style={{ color: '#95a5a6', fontSize: '0.8em', marginTop: '-10px', marginBottom: '15px' }}>
-              Stock Odoo × Precio promedio de venta en Mercado Libre
-            </p>
-            {(() => {
-              const marcas = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND']
-              const rows = marcas.map(marca => {
+                const percentage = ((data.total_valor || 0) / (valuationData.TOTAL_GENERAL || 1)) * 100
+                const artData = data.almacenes?.['ARTILLEROS'] || {}
+                const zfData = data.almacenes?.['ZONA FRANCA'] || {}
                 const stock = stockData[marca]?.total_unidades || 0
                 const precioML = mlPreciosData[marca]?.precio_promedio || 0
                 const valuacionML = stock * precioML
-                return { marca, stock, precioML, valuacionML }
-              }).filter(r => r.stock > 0 || r.precioML > 0)
-              const totalValuacionML = rows.reduce((s, r) => s + r.valuacionML, 0)
 
-              return (
-                <>
-                  {/* Total grande */}
-                  <div style={{
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    border: '1px solid rgba(217, 70, 239, 0.3)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    textAlign: 'center',
-                    marginBottom: '16px'
-                  }}>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase' }}>Valuación Total a Precio ML</p>
-                    <p style={{ color: '#06b6d4', fontSize: '2em', fontWeight: 700, margin: 0 }}>
-                      ${totalValuacionML >= 1e9 ? (totalValuacionML / 1e9).toFixed(2) + 'B' : (totalValuacionML / 1e6).toFixed(1) + 'M'}
-                    </p>
-                  </div>
-
-                  {/* Cards por marca */}
-                  <div className="cards-grid">
-                    {rows.map(({ marca, stock, precioML, valuacionML }) => (
-                      <div key={marca} className="card">
-                        {BRAND_LOGOS[marca] ? (
-                          <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain', marginBottom: '12px' }} />
-                        ) : (
-                          <h3 style={{ marginBottom: '12px' }}>{marca}</h3>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Stock Odoo</span>
-                          <span style={{ color: '#06b6d4', fontWeight: 700 }}>{stock.toLocaleString()}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Precio ML prom.</span>
+                return (
+                  <div key={marca} className="card">
+                    {BRAND_LOGOS[marca] ? (
+                      <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain', marginBottom: '12px' }} />
+                    ) : (
+                      <h3 style={{ marginBottom: '12px' }}>{marca}</h3>
+                    )}
+                    <div style={{ textAlign: 'center', margin: '0 0 10px 0' }}>
+                      <p style={{ color: '#d946ef', fontSize: '1.6em', fontWeight: 700, margin: 0 }}>
+                        ${(data.total_valor / 1e9).toFixed(2)}B
+                      </p>
+                      <p style={{ color: '#fbbf24', fontSize: '0.75em', fontWeight: 600, margin: '2px 0 0 0' }}>{percentage.toFixed(1)}%</p>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75em' }}>
+                      <span style={{ color: '#7f8c8d' }}>Artilleros</span>
+                      <span style={{ color: '#06b6d4', fontWeight: 600 }}>{(artData.unidades || 0).toLocaleString()} u · ${((artData.valor || 0) / 1e6).toFixed(1)}M</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75em' }}>
+                      <span style={{ color: '#7f8c8d' }}>Zona Franca</span>
+                      <span style={{ color: '#3e7fff', fontWeight: 600 }}>{(zfData.unidades || 0).toLocaleString()} u · ${((zfData.valor || 0) / 1e6).toFixed(1)}M</span>
+                    </div>
+                    {precioML > 0 && (
+                      <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px', marginTop: '6px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em', marginBottom: '4px' }}>
+                          <span style={{ color: '#7f8c8d' }}>Precio ML prom.</span>
                           <span style={{ color: '#fbbf24', fontWeight: 700 }}>${precioML.toLocaleString()}</span>
                         </div>
-                        <div style={{ borderTop: '1px solid rgba(217, 70, 239, 0.2)', paddingTop: '10px', marginTop: '4px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: '#7f8c8d', fontSize: '0.75em' }}>Valuación ML</span>
-                            <span style={{ color: '#d946ef', fontWeight: 700, fontSize: '1.1em' }}>
-                              ${valuacionML >= 1e9 ? (valuacionML / 1e9).toFixed(2) + 'B' : (valuacionML / 1e6).toFixed(1) + 'M'}
-                            </span>
-                          </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75em' }}>
+                          <span style={{ color: '#7f8c8d' }}>Valuación ML</span>
+                          <span style={{ color: '#06b6d4', fontWeight: 700 }}>
+                            ${valuacionML >= 1e9 ? (valuacionML / 1e9).toFixed(2) + 'B' : (valuacionML / 1e6).toFixed(1) + 'M'}
+                          </span>
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
-                </>
-              )
-            })()}
-          </section>
+                )
+              })}
+          </div>
+        </section>
 
         </>
         )}

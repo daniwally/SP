@@ -106,8 +106,8 @@ export default function VentasRetailTab() {
             <div className="kpi-label">Ord. Compra</div>
           </div>
           <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#ef4444' }}>{fmtMoney(c.total_monto || 0)}</div>
-            <div className="kpi-label">Total Compras</div>
+            <div className="kpi-value" style={{ color: '#f59e0b' }}>{pres.total || 0} — {fmtMoney(pres.monto || 0)}</div>
+            <div className="kpi-label">Pre Ventas</div>
           </div>
           <div className="retail-kpi">
             <div className="kpi-value cyan">{cl.total_clientes || 0}</div>
@@ -116,17 +116,6 @@ export default function VentasRetailTab() {
           <div className="retail-kpi">
             <div className="kpi-value green">{cl.recurrentes || 0}</div>
             <div className="kpi-label">Recurrentes</div>
-          </div>
-        </div>
-
-        <div className="retail-kpis" style={{ gridTemplateColumns: '1fr 1fr' }}>
-          <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#f59e0b' }}>{pres.total || 0}</div>
-            <div className="kpi-label">Presupuestos</div>
-          </div>
-          <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#f59e0b' }}>{fmtMoney(pres.monto || 0)}</div>
-            <div className="kpi-label">Monto Presupuestos</div>
           </div>
         </div>
 

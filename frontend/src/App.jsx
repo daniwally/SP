@@ -822,27 +822,48 @@ function App() {
                   }
                 }
 
-                // Buscar match en ML: primero por SKU (seller_sku), luego por nombre
+                // Buscar match en ML: por SKU exacto, luego prefijo SKU, luego nombre
                 const mlPubs = mlPublicaciones[sel.marca] || []
                 let mlMatches = []
                 let mlMatchType = ''
-                if (skus.size > 0) {
+
+                // Normalizar SKUs: quitar espacios, guiones
+                const normSku = s => s.toUpperCase().replace(/[\s\-_.]/g, '')
+                const skuList = [...skus].map(normSku).filter(Boolean)
+
+                if (skuList.length > 0) {
+                  // 1) Match exacto de SKU
                   mlMatches = mlPubs.filter(pub => {
-                    const pubSku = (pub.seller_sku || '').toUpperCase()
+                    const pubSku = normSku(pub.seller_sku || '')
                     if (!pubSku) return false
-                    return [...skus].some(sku => pubSku.includes(sku) || sku.includes(pubSku))
+                    return skuList.some(sku => pubSku === sku)
                   })
-                  if (mlMatches.length > 0) mlMatchType = 'SKU'
+                  if (mlMatches.length > 0) mlMatchType = 'SKU exacto'
+
+                  // 2) Si no hay exacto, buscar por prefijo base (sin últimos 4 dígitos de talle/color)
+                  if (mlMatches.length === 0) {
+                    const basePrefixes = skuList.map(sku => sku.length > 6 ? sku.slice(0, -4) : sku).filter(Boolean)
+                    mlMatches = mlPubs.filter(pub => {
+                      const pubSku = normSku(pub.seller_sku || '')
+                      if (!pubSku) return false
+                      return basePrefixes.some(prefix => pubSku.startsWith(prefix))
+                    })
+                    if (mlMatches.length > 0) mlMatchType = 'SKU prefijo'
+                  }
                 }
-                // Fallback a nombre si no hay match por SKU
+
+                // 3) Fallback a nombre si no hay match por SKU
                 if (mlMatches.length === 0) {
                   const searchName = (sel.name || '').toLowerCase()
                   const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
-                  mlMatches = mlPubs.filter(pub => {
-                    const t = (pub.titulo || '').toLowerCase()
-                    return searchWords.filter(w => t.includes(w)).length >= Math.min(2, searchWords.length)
-                  })
-                  if (mlMatches.length > 0) mlMatchType = 'nombre'
+                  if (searchWords.length > 0) {
+                    mlMatches = mlPubs.filter(pub => {
+                      const t = (pub.titulo || '').toLowerCase()
+                      const matched = searchWords.filter(w => t.includes(w)).length
+                      return matched >= Math.max(2, Math.ceil(searchWords.length * 0.6))
+                    })
+                    if (mlMatches.length > 0) mlMatchType = 'nombre'
+                  }
                 }
                 const mlTotal = mlMatches.reduce((s, p) => s + (p.stock || 0), 0)
 

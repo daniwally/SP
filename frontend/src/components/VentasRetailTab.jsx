@@ -171,7 +171,7 @@ export default function VentasRetailTab() {
         {dashboard.top_marcas?.length > 0 && (
           <div className="retail-top-productos">
             <h3>Top Marcas - Venta Mensual</h3>
-            {dashboard.top_marcas.map((m, i) => {
+            {dashboard.top_marcas.filter(m => m.marca && m.marca !== 'Sin marca').map((m, i) => {
               const maxMonto = dashboard.top_marcas[0]?.monto || 1
               const logo = BRAND_LOGOS[m.marca?.toUpperCase()]
               return (

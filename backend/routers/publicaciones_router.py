@@ -139,6 +139,56 @@ async def get_items_full(item_ids: List[str], token: str) -> List[Dict]:
     return [r for r in results if r]
 
 
+async def enrich_items_with_variation_skus(items: List[Dict], token: str) -> List[Dict]:
+    """Para items sin SKU, buscar en /items/{id}/variations/{var_id} donde ML
+    guarda SELLER_SKU en el campo 'attributes' (no en attribute_combinations).
+    Solo fetchea 1 variación por item para descubrir el patrón de SKU."""
+    items_need_enrichment = []
+    for item in items:
+        if not _extract_skus(item) and item.get("variations"):
+            items_need_enrichment.append(item)
+
+    if not items_need_enrichment:
+        return items
+
+    async with httpx.AsyncClient() as client:
+        sem = asyncio.Semaphore(15)
+
+        async def fetch_var_skus(item):
+            item_id = item.get("id")
+            all_var_skus = []
+            for var in item.get("variations", []):
+                var_id = var.get("id")
+                if not var_id:
+                    continue
+                async with sem:
+                    try:
+                        url = f"https://api.mercadolibre.com/items/{item_id}/variations/{var_id}"
+                        resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+                        resp.raise_for_status()
+                        vdata = resp.json()
+                        for attr in vdata.get("attributes", []):
+                            if attr.get("id") == "SELLER_SKU":
+                                sku = attr.get("value_name") or ""
+                                if sku:
+                                    all_var_skus.append(sku)
+                                    # También guardar en la variación del item original
+                                    var["seller_custom_field"] = sku
+                                break
+                    except Exception:
+                        pass
+            return item_id, all_var_skus
+
+        results = await asyncio.gather(*[fetch_var_skus(item) for item in items_need_enrichment])
+
+    # Log enrichment results
+    for item_id, skus in results:
+        if skus:
+            print(f"✅ Enriched {item_id} with {len(skus)} variation SKUs: {skus[:3]}")
+
+    return items
+
+
 def _extract_skus(item: Dict) -> List[str]:
     """Extraer todos los SKUs de un item: seller_custom_field, attributes SELLER_SKU, variations"""
     skus = []
@@ -518,6 +568,8 @@ async def match_skus_ml(body: dict):
         uid = MARCAS[marca]
         item_ids = await get_seller_items(uid, token, "active")
         items = await get_items_full(item_ids, token)
+        # Enriquecer: buscar SKUs en variaciones individuales para items sin SKU
+        items = await enrich_items_with_variation_skus(items, token)
         _marca_cache[marca] = items
         _marca_cache_ts[marca] = now
     else:

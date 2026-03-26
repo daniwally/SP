@@ -119,15 +119,32 @@ async def get_items_batch(item_ids: List[str], token: str) -> List[Dict]:
 
 
 def _extract_skus(item: Dict) -> List[str]:
-    """Extraer todos los SKUs de un item: seller_custom_field + variations"""
+    """Extraer todos los SKUs de un item: seller_custom_field, attributes SELLER_SKU, variations"""
     skus = []
+    # 1) seller_custom_field a nivel raíz
     root_sku = item.get("seller_custom_field")
     if root_sku:
         skus.append(root_sku)
+    # 2) attributes con id SELLER_SKU
+    for attr in item.get("attributes", []):
+        if attr.get("id") == "SELLER_SKU":
+            val = attr.get("value_name") or ""
+            if val and val not in skus:
+                skus.append(val)
+            for v in attr.get("values", []):
+                vn = v.get("name") or ""
+                if vn and vn not in skus:
+                    skus.append(vn)
+    # 3) variations: seller_custom_field + attribute_combinations
     for var in item.get("variations", []):
         var_sku = var.get("seller_custom_field")
         if var_sku and var_sku not in skus:
             skus.append(var_sku)
+        for ac in var.get("attribute_combinations", []):
+            if ac.get("id") == "SELLER_SKU":
+                vn = ac.get("value_name") or ac.get("name") or ""
+                if vn and vn not in skus:
+                    skus.append(vn)
     return skus
 
 

@@ -61,14 +61,39 @@ def _stock_actual_sync():
         if not quants:
             return {"error": "No se obtuvieron datos de stock desde Odoo"}
 
-        # 2) Traer productos en UNA sola llamada
+        # 2) Traer productos con atributos de variante en UNA sola llamada
         all_prod_ids = list(set(q['product_id'][0] for q in quants if q.get('product_id')))
         all_prods = models.execute_kw(
             ODOO_DB, uid, ODOO_KEY, 'product.product', 'search_read',
             [[('id', 'in', all_prod_ids)]],
-            {'fields': ['id', 'name', 'categ_id'], 'limit': 5000}
+            {'fields': ['id', 'name', 'categ_id', 'default_code', 'product_template_attribute_value_ids'], 'limit': 5000}
         )
-        prod_map = {p['id']: p for p in all_prods}
+
+        # 2b) Traer valores de atributos de variante (color, talle, etc.)
+        all_attr_val_ids = set()
+        for p in all_prods:
+            all_attr_val_ids.update(p.get('product_template_attribute_value_ids') or [])
+
+        attr_map = {}
+        if all_attr_val_ids:
+            attr_vals = models.execute_kw(
+                ODOO_DB, uid, ODOO_KEY, 'product.template.attribute.value', 'search_read',
+                [[('id', 'in', list(all_attr_val_ids))]],
+                {'fields': ['id', 'attribute_id', 'name'], 'limit': 5000}
+            )
+            for av in attr_vals:
+                attr_name = av['attribute_id'][1] if av.get('attribute_id') else ''
+                attr_map[av['id']] = {'atributo': attr_name, 'valor': av['name']}
+
+        prod_map = {}
+        for p in all_prods:
+            attrs = {}
+            for av_id in (p.get('product_template_attribute_value_ids') or []):
+                if av_id in attr_map:
+                    a = attr_map[av_id]
+                    attrs[a['atributo']] = a['valor']
+            p['_attrs'] = attrs
+            prod_map[p['id']] = p
 
         # 3) Agrupar por marca y almacén
         result = {}
@@ -96,10 +121,15 @@ def _stock_actual_sync():
 
             cantidad = int(q['quantity'])
 
-            result[marca]['almacenes'][wh_name]['productos'].append({
+            attrs = prod_data.get('_attrs', {})
+            prod_entry = {
                 'nombre': prod_data['name'],
                 'cantidad': cantidad,
-            })
+                'sku': prod_data.get('default_code') or '',
+            }
+            if attrs:
+                prod_entry['atributos'] = attrs
+            result[marca]['almacenes'][wh_name]['productos'].append(prod_entry)
 
             result[marca]['almacenes'][wh_name]['total'] += cantidad
             result[marca]['total_unidades'] += cantidad

@@ -203,6 +203,7 @@ body {
   padding-top: 10px;
   border-top: 1px solid rgba(217, 70, 239, 0.1);
   margin-top: 10px;
+  text-align: left;
 }
 
 .producto-item {
@@ -211,7 +212,7 @@ body {
   font-weight: 400;
   font-family: 'Inter', sans-serif;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }

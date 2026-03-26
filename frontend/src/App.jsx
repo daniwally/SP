@@ -868,18 +868,18 @@ function App() {
                 // 3) Fallback a nombre si no hay match por SKU
                 if (mlMatches.length === 0) {
                   const searchName = (sel.name || '').toLowerCase()
-                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
+                  const brandName = (sel.marca || '').toLowerCase()
+                  // Excluir nombre de marca y palabras genéricas de la búsqueda
+                  const excludeWords = new Set([brandName, 'zapatilla', 'zapatillas', 'botin', 'botines', 'bota', 'botas', 'par'])
+                  const searchWords = searchName.split(/\s+/).filter(w => w.length > 2 && !excludeWords.has(w))
                   if (searchWords.length > 0) {
-                    // Para nombres cortos (1-2 palabras), buscar como palabra completa con regex
-                    const minMatch = Math.max(1, Math.ceil(searchWords.length * 0.5))
+                    // Requerir TODAS las palabras específicas del producto
                     mlMatches = mlPubs.filter(pub => {
                       const t = (pub.titulo || '').toLowerCase()
-                      const matched = searchWords.filter(w => {
-                        // Buscar como palabra completa (no substring parcial)
+                      return searchWords.every(w => {
                         const regex = new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i')
                         return regex.test(t)
-                      }).length
-                      return matched >= minMatch
+                      })
                     })
                     if (mlMatches.length > 0) mlMatchType = 'nombre'
                   }

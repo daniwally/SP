@@ -997,9 +997,9 @@ function App() {
           <VentasUnifiedTab testData={testData} />
         )}
 
-        {activeTab === 'retail' && (
+        <div style={{ display: activeTab === 'retail' ? 'block' : 'none' }}>
           <VentasRetailTab />
-        )}
+        </div>
       </main>
 
       <footer className="footer">

@@ -125,6 +125,9 @@ function App() {
         mes: ventasMes
       })
       setStockData(stock)
+      const brands = ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS']
+      const firstBrand = Object.entries(stock).filter(([m]) => brands.includes(m)).sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))[0]
+      if (firstBrand) setExpandedBrand(firstBrand[0])
       setValuationData(valuacion)
       setTestData(test)
       setTokenStatus(tokens)

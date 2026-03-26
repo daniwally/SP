@@ -145,6 +145,28 @@ export default function VentasRetailTab() {
             )}
           </div>
 
+          {/* Pre Ventas */}
+          <div className="ventas-period-card">
+            <h3 style={{ color: '#f59e0b' }}>Pre Ventas</h3>
+            <div className="period-total">
+              <span className="period-amount" style={{ color: '#f59e0b' }}>{fmtMoney(pres.monto || 0)}</span>
+              <span className="period-count">{pres.total || 0} presupuestos</span>
+            </div>
+            {pres.top_ordenes?.length > 0 && (
+              <div className="period-orders">
+                <div className="period-orders-title">Top 10 presupuestos</div>
+                {pres.top_ordenes.map((o, i) => (
+                  <div key={i} className="period-order-item">
+                    <span className="order-rank">#{i + 1}</span>
+                    <span className="order-name" title={o.cliente}>{o.cliente}</span>
+                    <span className="order-date">{fmtDate(o.fecha)}</span>
+                    <span className="order-amount" style={{ color: '#f59e0b' }}>{fmtMoney(o.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Ventas del Mes */}
           <div className="ventas-period-card">
             <h3>Ventas del Mes</h3>

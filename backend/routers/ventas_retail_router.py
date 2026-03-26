@@ -425,7 +425,8 @@ def _presupuestos_sync(desde: str, hasta: str):
             ODOO_DB, uid, ODOO_KEY, 'sale.order', 'search_read',
             [domain],
             {
-                'fields': ['amount_total'],
+                'fields': ['name', 'partner_id', 'date_order', 'amount_total'],
+                'order': 'amount_total desc',
                 'limit': 500,
             }
         )
@@ -433,7 +434,14 @@ def _presupuestos_sync(desde: str, hasta: str):
         total = len(orders)
         monto = round(sum(o.get('amount_total', 0) for o in orders), 2)
 
-        return {"presupuestos": {"total": total, "monto": monto}}
+        top_ordenes = [{
+            'numero': o.get('name', ''),
+            'cliente': o['partner_id'][1] if o.get('partner_id') else 'Sin cliente',
+            'fecha': o.get('date_order', ''),
+            'total': o.get('amount_total', 0),
+        } for o in orders[:10]]
+
+        return {"presupuestos": {"total": total, "monto": monto, "top_ordenes": top_ordenes}}
 
     except Exception as e:
         print(f"Retail presupuestos error: {e}")

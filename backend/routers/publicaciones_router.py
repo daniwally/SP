@@ -597,3 +597,118 @@ async def match_skus_ml(body: dict):
         "match_type": match_type if matched else None,
         "total_items_marca": len(items),
     }
+
+
+# ── Preguntas sin responder (últimos 15 días) ──────────────────────
+_preguntas_cache: Dict[str, dict] = {}
+_preguntas_cache_ts: float = 0
+PREGUNTAS_CACHE_TTL = 300  # 5 min
+
+@router.get("/preguntas-sin-responder")
+async def preguntas_sin_responder():
+    """Fetch unanswered questions from last 15 days for all brands."""
+    global _preguntas_cache, _preguntas_cache_ts
+
+    now = time.time()
+    if _preguntas_cache and (now - _preguntas_cache_ts) < PREGUNTAS_CACHE_TTL:
+        return _preguntas_cache
+
+    desde = datetime.now(ART) - timedelta(days=15)
+    desde_iso = desde.strftime("%Y-%m-%dT00:00:00.000-03:00")
+
+    async def fetch_preguntas_marca(marca: str, uid: int):
+        token = await get_token_by_marca(marca)
+        if not token:
+            return marca, []
+
+        preguntas = []
+        offset = 0
+        limit = 50
+        async with httpx.AsyncClient() as client:
+            while True:
+                url = (
+                    f"https://api.mercadolibre.com/questions/search"
+                    f"?seller_id={uid}&status=UNANSWERED"
+                    f"&sort_fields=date_created&sort_types=DESC"
+                    f"&api_version=4"
+                    f"&offset={offset}&limit={limit}"
+                )
+                try:
+                    resp = await client.get(
+                        url,
+                        headers={"Authorization": f"Bearer {token}"},
+                        timeout=10
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
+                except Exception as e:
+                    print(f"Error fetching questions for {marca}: {e}")
+                    break
+
+                questions = data.get("questions", [])
+                if not questions:
+                    break
+
+                for q in questions:
+                    created = q.get("date_created", "")
+                    if created and created < desde_iso:
+                        # Older than 15 days, stop
+                        questions = []
+                        break
+                    preguntas.append({
+                        "id": q.get("id"),
+                        "text": q.get("text", ""),
+                        "date_created": created,
+                        "item_id": q.get("item_id", ""),
+                        "from_id": q.get("from", {}).get("id") if isinstance(q.get("from"), dict) else None,
+                    })
+
+                total = data.get("total", 0)
+                offset += limit
+                if offset >= total or not questions:
+                    break
+
+        # Fetch item titles for each unique item_id
+        item_ids = list(set(p["item_id"] for p in preguntas if p["item_id"]))
+        item_titles = {}
+        if item_ids and token:
+            async with httpx.AsyncClient() as client:
+                sem = asyncio.Semaphore(10)
+                async def fetch_title(iid):
+                    async with sem:
+                        try:
+                            resp = await client.get(
+                                f"https://api.mercadolibre.com/items/{iid}?attributes=title,permalink",
+                                headers={"Authorization": f"Bearer {token}"},
+                                timeout=10
+                            )
+                            resp.raise_for_status()
+                            d = resp.json()
+                            item_titles[iid] = {
+                                "title": d.get("title", ""),
+                                "permalink": d.get("permalink", ""),
+                            }
+                        except:
+                            pass
+                await asyncio.gather(*[fetch_title(iid) for iid in item_ids])
+
+        for p in preguntas:
+            info = item_titles.get(p["item_id"], {})
+            p["item_title"] = info.get("title", "")
+            p["item_permalink"] = info.get("permalink", "")
+
+        return marca, preguntas
+
+    tasks = [fetch_preguntas_marca(m, uid) for m, uid in MARCAS.items()]
+    results = await asyncio.gather(*tasks)
+
+    response = {}
+    for marca, preguntas in results:
+        response[marca] = {
+            "sin_responder": len(preguntas),
+            "preguntas": preguntas,
+        }
+
+    _preguntas_cache = response
+    _preguntas_cache_ts = time.time()
+    return response

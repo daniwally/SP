@@ -166,7 +166,7 @@ function App() {
             <div className="ring-segment" />
           </div>
           <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
-          <p className="loading-subtitle">Cargando datos</p>
+          <p className="loading-subtitle">Cargando datos de Mercado Libre y Odoo</p>
         </div>
       </div>
     )

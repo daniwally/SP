@@ -430,10 +430,8 @@ function App() {
                 .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
                 .sort((a, b) => (b[1].total_unidades || 0) - (a[1].total_unidades || 0))
                 .map(([marca, data]) => {
-                  const artilleros = data.almacenes?.['Artilleros'] || { total: 0, productos: [] }
-                  const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)'] || { total: 0, productos: [] }
-                  const allProds = [...(artilleros.productos || []), ...(aduana.productos || [])]
-                    .sort((a, b) => (b.cantidad || 0) - (a.cantidad || 0))
+                  const artilleros = data.almacenes?.['Artilleros']?.total || 0
+                  const aduana = data.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0
 
                   return (
                     <div key={marca} className="card">
@@ -442,23 +440,20 @@ function App() {
                       ) : (
                         <h3>{marca}</h3>
                       )}
-                      <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
+                      <div style={{ textAlign: 'center', margin: '8px 0 12px 0' }}>
                         <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{(data.total_unidades || 0).toLocaleString()}</p>
                         <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>unidades</p>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '0.68em', marginBottom: '8px' }}>
-                        <span style={{ color: '#06b6d4' }}>Artilleros: <b>{(artilleros.total || 0).toLocaleString()}</b></span>
-                        <span style={{ color: '#3e7fff' }}>Aduana: <b>{(aduana.total || 0).toLocaleString()}</b></span>
-                      </div>
-                      {allProds.length > 0 && (
-                        <div className="productos-list">
-                          {allProds.slice(0, 10).map((prod, idx) => (
-                            <p key={idx} className="producto-item">
-                              {prod.nombre} <span className="cantidad">x{(prod.cantidad || 0).toLocaleString()}</span>
-                            </p>
-                          ))}
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
+                          <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
+                          <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{artilleros.toLocaleString()}</p>
                         </div>
-                      )}
+                        <div style={{ flex: 1, textAlign: 'center', background: 'rgba(62, 127, 255, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
+                          <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Aduana</p>
+                          <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{aduana.toLocaleString()}</p>
+                        </div>
+                      </div>
                     </div>
                   )
                 })}

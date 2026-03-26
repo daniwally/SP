@@ -838,11 +838,6 @@ function App() {
                 // Normalizar SKUs: quitar espacios, guiones
                 const normSku = s => s.toUpperCase().replace(/[\s\-_.]/g, '')
                 const skuList = [...skus].map(normSku).filter(Boolean)
-                // Debug: ver qué SKUs tiene Odoo vs ML
-                console.log(`[Comparador] Producto: "${sel.name}", SKUs Odoo:`, skuList)
-                if (mlPubs.length > 0) {
-                  console.log(`[Comparador] ML pubs (${mlPubs.length}):`, mlPubs.slice(0, 5).map(p => ({ titulo: p.titulo, sku: p.seller_sku, skus: p.seller_skus, stock: p.stock })))
-                }
 
                 if (skuList.length > 0) {
                   // Obtener todos los SKUs de cada publicación ML (root + variaciones)
@@ -875,10 +870,11 @@ function App() {
                   const searchName = (sel.name || '').toLowerCase()
                   const searchWords = searchName.split(/\s+/).filter(w => w.length > 2)
                   if (searchWords.length > 0) {
+                    const minMatch = Math.max(1, Math.ceil(searchWords.length * 0.5))
                     mlMatches = mlPubs.filter(pub => {
                       const t = (pub.titulo || '').toLowerCase()
                       const matched = searchWords.filter(w => t.includes(w)).length
-                      return matched >= Math.max(2, Math.ceil(searchWords.length * 0.6))
+                      return matched >= minMatch
                     })
                     if (mlMatches.length > 0) mlMatchType = 'nombre'
                   }

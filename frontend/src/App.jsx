@@ -463,24 +463,61 @@ function App() {
           </section>
 
           {/* TOTAL STOCK CARD */}
-          <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
-            <div className="card">
-              <div style={{ textAlign: 'center', margin: '4px 0 14px 0' }}>
-                <p className="total-item-ordenes" style={{ fontSize: '2.8em', margin: 0 }}>{Object.values(stockData).reduce((sum, m) => sum + (m.total_unidades || 0), 0).toLocaleString()}</p>
-                <p className="total-item-ordenes" style={{ fontSize: '0.9em', margin: '0 0 4px 0' }}>Total Stock</p>
-              </div>
-              <div style={{ display: 'flex', gap: '12px', maxWidth: '400px', margin: '0 auto' }}>
-                <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
-                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
-                  <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Artilleros']?.total || 0), 0).toLocaleString()}</p>
+          {(() => {
+            const totalStock = Object.values(stockData).reduce((sum, m) => sum + (m.total_unidades || 0), 0)
+            const totalArt = Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Artilleros']?.total || 0), 0)
+            const totalAdu = Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0), 0)
+            const marcasStock = Object.entries(stockData)
+              .filter(([marca]) => ['SHAQ', 'STARTER', 'HYDRATE', 'TIMBERLAND', 'ELSYS'].includes(marca))
+              .map(([marca, data]) => ({ marca, total: data.total_unidades || 0 }))
+              .sort((a, b) => b.total - a.total)
+            const maxStock = marcasStock[0]?.total || 1
+
+            return (
+              <div className="cards-grid" style={{ gridTemplateColumns: '1fr' }}>
+                <div className="card">
+                  <div style={{ textAlign: 'center', margin: '4px 0 14px 0' }}>
+                    <p className="total-item-ordenes" style={{ fontSize: '2.8em', margin: 0 }}>{totalStock.toLocaleString()}</p>
+                    <p className="total-item-ordenes" style={{ fontSize: '0.9em', margin: '0 0 4px 0' }}>Total Stock</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', maxWidth: '400px', margin: '0 auto 20px auto' }}>
+                    <div style={{ flex: 1, textAlign: 'center', background: 'rgba(6, 182, 212, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
+                      <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Artilleros</p>
+                      <p style={{ color: '#06b6d4', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{totalArt.toLocaleString()}</p>
+                    </div>
+                    <div style={{ flex: 1, textAlign: 'center', background: 'rgba(62, 127, 255, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
+                      <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Aduana</p>
+                      <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{totalAdu.toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  {/* Top Marcas por Stock */}
+                  <div className="retail-top-productos" style={{ maxWidth: '100%', margin: 0, background: 'transparent', border: 'none', padding: '0' }}>
+                    <h3 style={{ fontSize: '0.9em' }}>Distribución por Marca</h3>
+                    {marcasStock.map((m, i) => {
+                      const logo = BRAND_LOGOS[m.marca]
+                      const pct = totalStock > 0 ? ((m.total / totalStock) * 100).toFixed(1) : '0.0'
+                      return (
+                        <div key={i} className="top-prod-item">
+                          <span className="top-prod-rank">#{i + 1}</span>
+                          {logo ? (
+                            <img src={logo} alt={m.marca} className="top-marca-logo" />
+                          ) : (
+                            <span className="top-prod-name" title={m.marca}>{m.marca}</span>
+                          )}
+                          <div className="top-prod-bar">
+                            <div className="top-prod-bar-fill" style={{ width: `${(m.total / maxStock) * 100}%` }} />
+                          </div>
+                          <span className="top-prod-amount">{m.total.toLocaleString()}</span>
+                          <span style={{ color: '#fbbf24', fontWeight: 600, fontSize: '0.85em', minWidth: '50px', textAlign: 'right' }}>{pct}%</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-                <div style={{ flex: 1, textAlign: 'center', background: 'rgba(62, 127, 255, 0.08)', borderRadius: '8px', padding: '10px 6px' }}>
-                  <p style={{ color: '#7f8c8d', fontSize: '0.7em', fontWeight: 600, margin: '0 0 4px 0' }}>Aduana</p>
-                  <p style={{ color: '#3e7fff', fontSize: '1.5em', fontWeight: 700, margin: 0 }}>{Object.values(stockData).reduce((sum, m) => sum + (m.almacenes?.['Aduana (Tránsito – Solo interno)']?.total || 0), 0).toLocaleString()}</p>
-                </div>
               </div>
-            </div>
-          </div>
+            )
+          })()}
         </div>
 
         {/* VALUACIÓN STOCK CRUZADO */}

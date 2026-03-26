@@ -32,7 +32,6 @@ export default function VentasRetailTab() {
 
   const [dashboard, setDashboard] = useState(null)
   const [pedidos, setPedidos] = useState(null)
-  const [compras, setCompras] = useState(null)
   const [clientes, setClientes] = useState(null)
   const [expandedRows, setExpandedRows] = useState({})
 
@@ -52,10 +51,6 @@ export default function VentasRetailTab() {
         const res = await axios.get(API + '/pedidos' + params, { timeout: 30000 })
         if (res.data.error) setError(res.data.error)
         setPedidos(res.data)
-      } else if (subTab === 'compras') {
-        const res = await axios.get(API + '/compras' + params, { timeout: 30000 })
-        if (res.data.error) setError(res.data.error)
-        setCompras(res.data)
       } else if (subTab === 'clientes') {
         const res = await axios.get(API + '/clientes' + params, { timeout: 30000 })
         if (res.data.error) setError(res.data.error)
@@ -289,59 +284,6 @@ export default function VentasRetailTab() {
     )
   }
 
-  // ---- COMPRAS ----
-  const renderCompras = () => {
-    if (!compras) return null
-    const r = compras.resumen || {}
-    const list = compras.compras || []
-
-    return (
-      <>
-        <div className="retail-kpis">
-          <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#ef4444' }}>{r.total_compras || 0}</div>
-            <div className="kpi-label">Ord. de Compra</div>
-          </div>
-          <div className="retail-kpi">
-            <div className="kpi-value" style={{ color: '#ef4444' }}>{fmtMoney(r.total_monto || 0)}</div>
-            <div className="kpi-label">Total Invertido</div>
-          </div>
-          <div className="retail-kpi">
-            <div className="kpi-value amber">{fmtMoney(r.compra_promedio || 0)}</div>
-            <div className="kpi-label">Compra Prom.</div>
-          </div>
-        </div>
-
-        <div className="retail-table-wrap">
-          <table className="retail-table">
-            <thead>
-              <tr>
-                <th>Orden</th>
-                <th>Fecha</th>
-                <th>Proveedor</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map(c => (
-                <tr key={c.id}>
-                  <td>{c.numero}</td>
-                  <td>{fmtDate(c.fecha)}</td>
-                  <td>{c.proveedor}</td>
-                  <td>{c.items}</td>
-                  <td className="monto red">{fmtMoney(c.total)}</td>
-                  <td><span className={`estado-badge ${c.estado}`}>{c.estado}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </>
-    )
-  }
-
   // ---- CLIENTES ----
   const renderClientes = () => {
     if (!clientes) return null
@@ -417,7 +359,7 @@ export default function VentasRetailTab() {
       </div>
 
       <div className="retail-subtabs">
-        {['dashboard', 'pedidos', 'compras', 'clientes'].map(t => (
+        {['dashboard', 'pedidos', 'clientes'].map(t => (
           <button
             key={t}
             className={`retail-subtab ${subTab === t ? 'active' : ''}`}
@@ -448,7 +390,6 @@ export default function VentasRetailTab() {
         <>
           {subTab === 'dashboard' && renderDashboard()}
           {subTab === 'pedidos' && renderPedidos()}
-          {subTab === 'compras' && renderCompras()}
           {subTab === 'clientes' && renderClientes()}
         </>
       )}

@@ -500,9 +500,10 @@ async def match_skus_ml(body: dict):
     """
     marca = body.get("marca")
     skus = body.get("skus", [])
+    product_name = body.get("product_name", "").lower().strip()
     if not marca or marca not in MARCAS:
         raise HTTPException(status_code=400, detail="Marca inválida")
-    if not skus:
+    if not skus and not product_name:
         return {"items": []}
 
     # Normalizar SKUs buscados
@@ -569,7 +570,6 @@ async def match_skus_ml(body: dict):
                 match_type = "prefijo"
 
     # 3) Si no hay match por prefijo, buscar por nombre de modelo en títulos ML
-    product_name = body.get("product_name", "").lower().strip()
     if not matched and product_name:
         brand_name = marca.lower()
         # El nombre del modelo es la primera palabra que no sea la marca

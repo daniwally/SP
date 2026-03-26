@@ -105,7 +105,7 @@ function App() {
           }
         }
       }
-      if (skus.size === 0) return
+      if (skus.size === 0 && !sel.name) return
       setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: true, items: [], matchType: null } }))
       const API = window.location.origin + '/api'
       axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus], product_name: sel.name }, { timeout: 30000 })

@@ -870,16 +870,22 @@ function App() {
                   const searchName = (sel.name || '').toLowerCase()
                   const brandName = (sel.marca || '').toLowerCase()
                   // Excluir nombre de marca y palabras genéricas de la búsqueda
-                  const excludeWords = new Set([brandName, 'zapatilla', 'zapatillas', 'botin', 'botines', 'bota', 'botas', 'par'])
+                  const excludeWords = new Set([brandName, 'zapatilla', 'zapatillas', 'botin', 'botines', 'bota', 'botas', 'par',
+                    'shoes', 'shoe', 'basketball', 'running', 'training', 'casual', 'deportivo', 'deportiva',
+                    'hombre', 'mujer', 'niño', 'niña', 'unisex', 'adulto', 'kids', 'men', 'women',
+                    'black', 'white', 'negro', 'blanco', 'azul', 'rojo',
+                    'talle', 'size', 'pack', 'set', 'combo', 'original', 'nuevo', 'new'])
                   const searchWords = searchName.split(/\s+/).filter(w => w.length > 2 && !excludeWords.has(w))
                   if (searchWords.length > 0) {
-                    // Requerir TODAS las palabras específicas del producto
+                    // Requerir todas si son 1-2 palabras, o al menos 60% si son más
+                    const minMatch = searchWords.length <= 2 ? searchWords.length : Math.ceil(searchWords.length * 0.6)
                     mlMatches = mlPubs.filter(pub => {
                       const t = (pub.titulo || '').toLowerCase()
-                      return searchWords.every(w => {
+                      const matched = searchWords.filter(w => {
                         const regex = new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i')
                         return regex.test(t)
-                      })
+                      }).length
+                      return matched >= minMatch
                     })
                     if (mlMatches.length > 0) mlMatchType = 'nombre'
                   }

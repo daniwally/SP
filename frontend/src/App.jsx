@@ -111,7 +111,8 @@ function App() {
       axios.post(`${API}/publicaciones/match-skus`, { marca: sel.marca, skus: [...skus] }, { timeout: 30000 })
         .then(res => {
           const d = res.data || {}
-          console.log(`ML [${sel.name}]: ${d.items?.length || 0} match de ${d.total_items_marca} items (${d.items_con_sku} con SKU). Buscados: ${d.skus_buscados}`, d.skus_sin_match?.length ? `Sin match: ${d.skus_sin_match.slice(0,5).join(', ')}` : '')
+          console.log(`ML [${sel.name}]: ${d.items?.length || 0} match de ${d.total_items_marca} items (${d.items_con_sku} con SKU)`)
+          if (d.all_ml_skus) console.log('SKUs en ML:', JSON.stringify(d.all_ml_skus, null, 2))
           setComparadorMlData(prev => ({ ...prev, [cardKey]: { loading: false, items: d.items || [] } }))
         })
         .catch(e => {

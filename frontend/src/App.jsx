@@ -869,7 +869,9 @@ function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                       {BRAND_LOGOS[sel.marca] && <img src={BRAND_LOGOS[sel.marca]} alt="" style={{ height: '22px', objectFit: 'contain' }} />}
                       <span style={{ fontWeight: 700, fontSize: '0.95em' }}>{sel.name}</span>
-                      {sel.sku && <span style={{ color: '#888', fontSize: '0.8em' }}>{sel.sku}</span>}
+                      {sel.sku
+                        ? <span style={{ color: '#888', fontSize: '0.8em' }}>{sel.sku}</span>
+                        : <span style={{ color: '#ef4444', fontSize: '0.75em', fontStyle: 'italic' }}>* producto sin SKU</span>}
                       <span style={{ color: '#d946ef', fontWeight: 700, marginLeft: 'auto' }}>{total.toLocaleString('es-AR')} total</span>
                     </div>
 
@@ -918,11 +920,8 @@ function App() {
                             ))}
                           </div>
                         )}
-                        {!mlInfo.loading && mlItems.length === 0 && skus.size > 0 && (
+                        {!mlInfo.loading && mlItems.length === 0 && (
                           <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin match en ML</p>
-                        )}
-                        {skus.size === 0 && (
-                          <p style={{ color: '#555', fontSize: '0.72em', margin: '4px 0 0 0' }}>Sin SKU en Odoo</p>
                         )}
                       </div>
                     </div>

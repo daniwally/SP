@@ -98,6 +98,10 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
   const [historialLoading, setHistorialLoading] = useState(false);
   const [historialShow, setHistorialShow] = useState(false);
 
+  // --- Estado para Preguntas sin responder ---
+  const [preguntasData, setPreguntasData] = useState({});
+  const [preguntasLoading, setPreguntasLoading] = useState(false);
+
   const fetchOptimizacion = async (selectedMarca, limit) => {
     setOptLoading(true);
     setOptError(null);
@@ -195,6 +199,16 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
       fetchReporteTodas(statusFilter);
     }
   }, [marca, statusFilter, viewMode]);
+
+  // Fetch preguntas sin responder
+  useEffect(() => {
+    setPreguntasLoading(true);
+    fetch('/api/publicaciones/preguntas-sin-responder')
+      .then(r => r.json())
+      .then(data => setPreguntasData(data))
+      .catch(err => console.error('Error fetching preguntas:', err))
+      .finally(() => setPreguntasLoading(false));
+  }, []);
 
   const fetchReporteMarca = async (selectedMarca, status) => {
     setLoading(true);
@@ -574,30 +588,73 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
         />
       )}
 
-      {/* PREGUNTAS Y RESPUESTAS POR MARCA */}
-      {Object.keys(ventasMesMl).length > 0 && (
-        <section className="section" style={{ marginTop: '32px' }}>
-          <h2 style={{ marginBottom: '8px', textAlign: 'center', color: '#f59e0b' }}>Preguntas & Respuestas</h2>
+      {/* PREGUNTAS SIN RESPONDER (últimos 15 días) */}
+      <section className="section" style={{ marginTop: '32px' }}>
+        <h2 style={{ marginBottom: '16px', textAlign: 'center', color: '#f59e0b' }}>
+          Preguntas Sin Responder
+          <span style={{ fontSize: '0.6em', color: '#888', marginLeft: '8px' }}>(últimos 15 días)</span>
+        </h2>
+        {preguntasLoading ? (
+          <p style={{ textAlign: 'center', color: '#888' }}>Cargando preguntas...</p>
+        ) : Object.keys(preguntasData).length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#888' }}>No hay datos de preguntas</p>
+        ) : (
           <div className="questions-grid">
-            {Object.entries(ventasMesMl).map(([marca, data]) => {
-              const preg = data.preguntas || { total: 0, sin_responder: 0, tiempo_promedio_horas: 0, tasa_respuesta: 0 }
+            {Object.entries(preguntasData).map(([brandKey, brandData]) => {
+              const preguntas = brandData.preguntas || [];
+              const count = brandData.sin_responder || 0;
               return (
-                <div key={marca} className="question-card">
-                  <div style={{ marginBottom: '12px' }}>
-                    {BRAND_LOGOS[marca] ? <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '28px', objectFit: 'contain' }} /> : <h3 style={{ color: '#06b6d4', margin: 0 }}>{marca}</h3>}
+                <div key={brandKey} className="question-card" style={{ minWidth: '280px', maxWidth: '350px' }}>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    {BRAND_LOGOS[brandKey]
+                      ? <img src={BRAND_LOGOS[brandKey]} alt={brandKey} style={{ height: '28px', objectFit: 'contain' }} />
+                      : <h3 style={{ color: '#06b6d4', margin: 0 }}>{brandKey}</h3>}
+                    <span style={{
+                      background: count > 10 ? 'rgba(239,68,68,0.2)' : count > 0 ? 'rgba(251,191,36,0.2)' : 'rgba(134,239,172,0.2)',
+                      color: count > 10 ? '#ef4444' : count > 0 ? '#fbbf24' : '#86efac',
+                      padding: '2px 10px', borderRadius: '12px', fontSize: '0.85em', fontWeight: 600
+                    }}>
+                      {count} sin responder
+                    </span>
                   </div>
-                  <div style={{ fontSize: '0.85em', lineHeight: '1.6' }}>
-                    <p><strong>Total preguntas:</strong> <span style={{ color: '#06b6d4' }}>{preg.total}</span></p>
-                    <p><strong>Sin responder:</strong> <span style={{ color: preg.sin_responder > 10 ? '#ef4444' : '#86efac' }}>{preg.sin_responder}</span> {preg.sin_responder > 10 && '⚠️'}</p>
-                    <p><strong>Tiempo promedio:</strong> <span style={{ color: '#86efac' }}>{preg.tiempo_promedio_horas.toFixed(1)}h</span></p>
-                    <p><strong>Tasa respuesta:</strong> <span style={{ color: preg.tasa_respuesta >= 90 ? '#86efac' : '#fbbf24' }}>{preg.tasa_respuesta.toFixed(1)}%</span></p>
-                  </div>
+                  {preguntas.length === 0 ? (
+                    <p style={{ color: '#86efac', fontSize: '0.85em', textAlign: 'center' }}>Sin preguntas pendientes</p>
+                  ) : (
+                    <div style={{ maxHeight: '300px', overflowY: 'auto', fontSize: '0.82em' }}>
+                      {preguntas.map((q, idx) => (
+                        <div key={q.id || idx} style={{
+                          padding: '8px 0',
+                          borderBottom: idx < preguntas.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none'
+                        }}>
+                          <p style={{ margin: '0 0 4px 0', color: '#e2e8f0', lineHeight: '1.4' }}>"{q.text}"</p>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            {q.item_title ? (
+                              <a
+                                href={q.item_permalink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: '#06b6d4', fontSize: '0.9em', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}
+                                title={q.item_title}
+                              >
+                                {q.item_title.length > 35 ? q.item_title.slice(0, 35) + '…' : q.item_title}
+                              </a>
+                            ) : (
+                              <span style={{ color: '#666', fontSize: '0.9em' }}>{q.item_id}</span>
+                            )}
+                            <span style={{ color: '#666', fontSize: '0.85em', whiteSpace: 'nowrap' }}>
+                              {q.date_created ? new Date(q.date_created).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }) : ''}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )
+              );
             })}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* OPTIMIZACIÓN DE TÍTULOS CON IA */}
       <section className="section" style={{ marginTop: '32px' }}>

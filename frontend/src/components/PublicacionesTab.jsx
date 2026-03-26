@@ -102,6 +102,9 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
   const [preguntasData, setPreguntasData] = useState({});
   const [preguntasLoading, setPreguntasLoading] = useState(false);
 
+  // --- Listado colapsado ---
+  const [listadoOpen, setListadoOpen] = useState(false);
+
   const fetchOptimizacion = async (selectedMarca, limit) => {
     setOptLoading(true);
     setOptError(null);
@@ -451,7 +454,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
         </div>
       )}
 
-      {/* Table */}
+      {/* Logo + KPIs (siempre visibles) + Tabla colapsable */}
       {!loading && publicaciones.length > 0 && (
         <div className="publicaciones-grid">
           {viewMode === 'marca' && BRAND_LOGOS[marca] && (
@@ -461,6 +464,18 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
           )}
           {/* KPIs debajo del logo */}
           {!loading && kpis && <KpisSection kpis={kpis} />}
+
+          {/* Toggle listado */}
+          <div
+            onClick={() => setListadoOpen(!listadoOpen)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', margin: '12px 0 8px', padding: '8px', background: 'rgba(6,182,212,0.08)', borderRadius: '8px' }}
+          >
+            <span style={{ color: '#06b6d4', fontSize: '0.9em' }}>
+              {listadoOpen ? '▼' : '▶'} Listado de Publicaciones ({publicaciones.length})
+            </span>
+          </div>
+
+          {listadoOpen && (
           <table className="publicaciones-table">
             <thead>
               <tr>
@@ -572,6 +587,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
               ))}
             </tbody>
           </table>
+          )}
         </div>
       )}
 

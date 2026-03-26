@@ -120,31 +120,6 @@ export default function VentasRetailTab() {
         </div>
 
         <div className="ventas-period-grid">
-          {/* Ventas de la Semana */}
-          <div className="ventas-period-card">
-            <h3>Ventas de la Semana</h3>
-            <div className="period-total">
-              <span className="period-amount">{fmtMoney(dashboard.ventas_semana?.total_monto || 0)}</span>
-              <span className="period-count">{dashboard.ventas_semana?.total_pedidos || 0} pedidos</span>
-            </div>
-            <div className="period-range">
-              {fmtDate(dashboard.ventas_semana?.desde)} — {fmtDate(dashboard.ventas_semana?.hasta)}
-            </div>
-            {dashboard.ventas_semana?.top_ordenes?.length > 0 && (
-              <div className="period-orders">
-                <div className="period-orders-title">Top 10 órdenes</div>
-                {dashboard.ventas_semana.top_ordenes.map((o, i) => (
-                  <div key={i} className="period-order-item">
-                    <span className="order-rank">#{i + 1}</span>
-                    <span className="order-name" title={o.cliente}>{o.cliente}</span>
-                    <span className="order-date">{fmtDate(o.fecha)}</span>
-                    <span className="order-amount">{fmtMoney(o.total)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Ventas del Mes */}
           <div className="ventas-period-card">
             <h3>Ventas del Mes</h3>

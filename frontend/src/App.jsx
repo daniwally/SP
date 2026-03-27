@@ -490,6 +490,7 @@ function App() {
                       datasets: Object.entries(rangoData.diario.marcas || {}).map(([marca, datos]) => ({
                         label: marca,
                         data: datos.map(d => d.total),
+                        ordenes: datos.map(d => d.ordenes),
                         borderColor: BRAND_COLORS[marca] || '#888',
                         backgroundColor: (BRAND_COLORS[marca] || '#888') + '15',
                         borderWidth: 2,
@@ -508,13 +509,19 @@ function App() {
                           labels: { color: '#b0b0c0', usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } },
                         },
                         tooltip: {
-                          backgroundColor: 'rgba(0,0,0,0.85)',
+                          backgroundColor: 'rgba(0,0,0,0.9)',
                           titleColor: '#fff',
                           bodyColor: '#b0b0c0',
                           borderColor: 'rgba(255,255,255,0.1)',
                           borderWidth: 1,
+                          titleMarginBottom: 10,
+                          bodySpacing: 8,
+                          padding: 14,
                           callbacks: {
-                            label: (ctx) => `${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString('es-AR')}`,
+                            label: (ctx) => {
+                              const ordenes = ctx.dataset.ordenes?.[ctx.dataIndex] || 0
+                              return `${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString('es-AR')}  (${ordenes} art.)`
+                            },
                           },
                         },
                       },

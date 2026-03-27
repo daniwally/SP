@@ -71,20 +71,29 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
   }, [])
 
   // Fetch daily chart data
-  useEffect(() => {
+  const fetchMonitorData = () => {
     const API = window.location.origin + '/api/test'
     axios.get(API + '/ventas-diarias', { timeout: 60000 })
       .then(res => setDailyData(res.data))
       .catch(() => {})
-  }, [])
-
-  // Fetch preguntas sin responder (últimos 15 días)
-  useEffect(() => {
     fetch('/api/publicaciones/preguntas-sin-responder')
       .then(r => r.json())
       .then(data => setPreguntasData(data))
       .catch(() => {})
+  }
+
+  useEffect(() => {
+    fetchMonitorData()
   }, [])
+
+  // Auto-refresh every 5 min only in fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return
+    const interval = setInterval(() => {
+      fetchMonitorData()
+    }, 300000)
+    return () => clearInterval(interval)
+  }, [isFullscreen])
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {

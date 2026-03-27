@@ -167,7 +167,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         </div>
         {data.productos && data.productos.length > 0 && (
           <div style={{ marginTop: '12px' }}>
-            {data.productos.slice(0, 4).map((prod, idx) => (
+            {data.productos.slice(0, 10).map((prod, idx) => (
               <p key={idx} style={{
                 color: '#b0b0c0', fontSize: isFullscreen ? '0.85em' : '0.75em',
                 margin: '4px 0', display: 'flex', justifyContent: 'space-between',

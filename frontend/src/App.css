@@ -830,3 +830,138 @@ body {
 .react-datepicker__triangle {
   display: none !important;
 }
+
+/* ===== MONITOR / TV MODE ===== */
+
+@keyframes monitorPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px #22c55e; }
+  50% { opacity: 0.4; box-shadow: 0 0 4px #22c55e; }
+}
+
+@keyframes monitorTicker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+@keyframes monitorFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.monitor-kpi-card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+
+.monitor-kpi-label {
+  color: #7f8c8d;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.monitor-kpi-value {
+  font-size: 2.8em;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.monitor-kpi-sub {
+  color: #888;
+  font-size: 1em;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.monitor-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.monitor-panel-active {
+  opacity: 1;
+  pointer-events: auto;
+  animation: monitorFadeIn 0.6s ease;
+}
+
+.monitor-panel-title {
+  color: #fff;
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.monitor-brand-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.monitor-brand-card:hover {
+  border-color: rgba(217, 70, 239, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.monitor-ticker-wrap {
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(217, 70, 239, 0.2);
+  padding: 10px 0;
+  border-radius: 0 0 12px 12px;
+}
+
+.monitor-ticker {
+  display: flex;
+  white-space: nowrap;
+  animation: monitorTicker 30s linear infinite;
+  width: max-content;
+}
+
+.monitor-ticker-item {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.95em;
+  padding: 0 4px;
+}
+
+/* Fullscreen overrides */
+.monitor-container:-webkit-full-screen .monitor-kpi-value {
+  font-size: 3.5em;
+}
+
+.monitor-container:-webkit-full-screen .monitor-panel-title {
+  font-size: 1.8em;
+}
+
+.monitor-container:-webkit-full-screen .monitor-brand-card {
+  padding: 28px;
+}
+
+.monitor-container:fullscreen .monitor-kpi-value {
+  font-size: 3.5em;
+}
+
+.monitor-container:fullscreen .monitor-panel-title {
+  font-size: 1.8em;
+}
+
+.monitor-container:fullscreen .monitor-brand-card {
+  padding: 28px;
+}

@@ -228,15 +228,8 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
       {/* Content wrapper */}
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* HEADER BAR */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '24px',
-        borderBottom: '1px solid rgba(217, 70, 239, 0.3)',
-        paddingBottom: '16px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="monitor-header">
+        <div className="monitor-header-left">
           <div style={{
             width: '10px', height: '10px', borderRadius: '50%',
             background: '#22c55e', boxShadow: '0 0 8px #22c55e',
@@ -247,7 +240,7 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div className="monitor-header-right">
           <span style={{ color: '#888', fontSize: isFullscreen ? '1em' : '0.85em' }}>{fmtDate()}</span>
           <span style={{
             color: '#06b6d4', fontSize: isFullscreen ? '2em' : '1.4em', fontWeight: 800,
@@ -267,12 +260,7 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
       </div>
 
       {/* KPI TOP ROW */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gap: '20px',
-        marginBottom: '24px',
-      }}>
+      <div className="monitor-kpi-grid" style={{ marginBottom: '24px' }}>
         {/* HOY */}
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
           <div className="monitor-kpi-label">Ventas Hoy</div>
@@ -460,12 +448,7 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
       </div>
 
       {/* STATUS BAR */}
-      <div style={{
-        display: 'flex', justifyContent: 'center', gap: '32px',
-        padding: '10px 0', marginBottom: '8px',
-        borderTop: '1px solid rgba(217, 70, 239, 0.15)',
-        borderBottom: '1px solid rgba(217, 70, 239, 0.15)',
-      }}>
+      <div className="monitor-status-bar">
         <span style={{ color: totalPreguntas > 0 ? '#ef4444' : '#22c55e', fontSize: isFullscreen ? '1em' : '0.85em', fontWeight: 600 }}>
           {totalPreguntas > 0 ? `${totalPreguntas} preguntas sin responder (15 días)` : 'Sin preguntas pendientes'}
         </span>

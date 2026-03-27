@@ -70,7 +70,7 @@ function KpisSection({ kpis }) {
   );
 }
 
-export default function PublicacionesTab({ ventasMesMl = {} }) {
+export default function PublicacionesTab({ ventasMesMl = {}, refreshKey = 0 }) {
   const [marca, setMarca] = useState('SHAQ');
   const [statusFilter, setStatusFilter] = useState('active');
   const [viewMode, setViewMode] = useState('marca'); // 'marca' or 'todas'
@@ -196,7 +196,7 @@ export default function PublicacionesTab({ ventasMesMl = {} }) {
       .then(data => setPreguntasData(data))
       .catch(err => console.error('Error fetching preguntas:', err))
       .finally(() => setPreguntasLoading(false));
-  }, []);
+  }, [refreshKey]);
 
   const fetchReporteMarca = async (selectedMarca, status) => {
     setLoading(true);

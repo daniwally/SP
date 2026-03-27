@@ -306,13 +306,13 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
       </div>
 
       {/* ROTATING PANELS */}
-      <div style={{ position: 'relative', minHeight: isFullscreen ? '55vh' : '45vh' }}>
+      <div style={{ position: 'relative', minHeight: isFullscreen ? '55vh' : '50vh' }}>
 
         {/* PANEL 0: Ventas del día por marca */}
         <div className={`monitor-panel ${activePanel === 0 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Ventas del Día</h2>
           <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsHoy.length, 5)}, 1fr)`, gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`, gap: '16px' }}>
             {brandsHoy.map(([marca, data]) => renderBrandCard(marca, data, brandsHoy[0]?.[1]?.total || 1))}
           </div>
         </div>
@@ -327,7 +327,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
             const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
             return `${fmt(hace7)} - ${fmt(today)}`
           })()}</p>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsSemana.length, 5)}, 1fr)`, gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`, gap: '16px' }}>
             {brandsSemana.map(([marca, data]) => renderBrandCard(marca, data, brandsSemana[0]?.[1]?.total || 1))}
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
             const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
             return `${fmt(inicio)} - ${fmt(today)}`
           })()}</p>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsMes.length, 5)}, 1fr)`, gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`, gap: '16px' }}>
             {brandsMes.map(([marca, data]) => renderBrandCard(marca, data, brandsMes[0]?.[1]?.total || 1))}
           </div>
         </div>

@@ -215,10 +215,17 @@ async def ventas_rango(desde: str, hasta: str):
     date_from = f"{desde}T00:00:00.000-03:00"
     date_to = f"{hasta}T23:59:59.999-03:00"
 
+    def fecha_art(date_str):
+        try:
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            return dt.astimezone(ART).strftime("%Y-%m-%d")
+        except Exception:
+            return date_str[:10]
+
     async def fetch_cuenta(cuenta_num, uid, marca):
         token = await get_token(cuenta_num)
         if not token:
-            return marca, {"error": "Token not found"}
+            return marca, {"error": "Token not found"}, {}
 
         try:
             ordenes = []
@@ -252,24 +259,52 @@ async def ventas_rango(desde: str, hasta: str):
 
             ordenes = [o for o in ordenes if o.get("status") != "cancelled"]
 
+            # Agrupar por día para el gráfico
+            por_dia = defaultdict(lambda: {"total": 0, "ordenes": 0})
+            for o in ordenes:
+                dia = fecha_art(o.get("date_created", ""))
+                por_dia[dia]["total"] += o.get("total_amount", 0)
+                por_dia[dia]["ordenes"] += 1
+
             return marca, {
                 "total": sum(o.get("total_amount", 0) for o in ordenes),
                 "ordenes": len(ordenes),
                 "productos": extract_sku_productos(ordenes)[:10]
-            }
+            }, dict(por_dia)
 
         except Exception as e:
-            return marca, {"error": str(e)}
+            return marca, {"error": str(e)}, {}
 
     results = await asyncio.gather(*[fetch_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
 
     resultado = {}
-    for marca, data in results:
+    diario_por_marca = {}
+    for marca, data, diario in results:
         resultado[marca] = data
+        if diario:
+            diario_por_marca[marca] = diario
 
     total_general = sum(v.get("total", 0) for v in resultado.values() if "total" in v)
     ordenes_general = sum(v.get("ordenes", 0) for v in resultado.values() if "ordenes" in v)
     resultado["totales"] = {"total": total_general, "ordenes": ordenes_general}
+
+    # Generar lista de días del rango
+    d_start = datetime.strptime(desde, "%Y-%m-%d")
+    d_end = datetime.strptime(hasta, "%Y-%m-%d")
+    dias = []
+    d = d_start
+    while d <= d_end:
+        dias.append(d.strftime("%Y-%m-%d"))
+        d += timedelta(days=1)
+
+    marcas_diario = {}
+    for marca, data in diario_por_marca.items():
+        marcas_diario[marca] = [
+            {"fecha": dia, "total": data.get(dia, {}).get("total", 0), "ordenes": data.get(dia, {}).get("ordenes", 0)}
+            for dia in dias
+        ]
+
+    resultado["diario"] = {"dias": dias, "marcas": marcas_diario}
 
     return resultado
 

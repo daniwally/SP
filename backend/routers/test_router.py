@@ -272,3 +272,84 @@ async def ventas_rango(desde: str, hasta: str):
     resultado["totales"] = {"total": total_general, "ordenes": ordenes_general}
 
     return resultado
+
+
+@router.get("/ventas-diarias")
+async def ventas_diarias():
+    """Ventas diarias del mes actual agrupadas por marca — para gráfico de líneas"""
+    NOW = datetime.now(ART)
+    HOY = NOW.strftime("%Y-%m-%d")
+    INICIO_MES = datetime(NOW.year, NOW.month, 1).strftime("%Y-%m-%d")
+
+    def fecha_art(date_str):
+        try:
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            return dt.astimezone(ART).strftime("%Y-%m-%d")
+        except Exception:
+            return date_str[:10]
+
+    async def fetch_cuenta(cuenta_num, uid, marca):
+        token = await get_token(cuenta_num)
+        if not token:
+            return marca, {}
+
+        try:
+            ordenes = []
+            date_from = f"{INICIO_MES}T00:00:00.000-03:00"
+            date_to = f"{HOY}T23:59:59.999-03:00"
+            base_url = (
+                f"https://api.mercadolibre.com/orders/search"
+                f"?seller={uid}&sort=date_desc"
+                f"&order.date_created.from={date_from}"
+                f"&order.date_created.to={date_to}"
+            )
+            url = base_url
+
+            async with httpx.AsyncClient() as client:
+                while True:
+                    resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    if not data or "results" not in data:
+                        break
+                    batch = data.get("results", [])
+                    ordenes.extend(batch)
+                    paging = data.get("paging", {})
+                    offset = paging.get("offset", 0)
+                    limit = paging.get("limit", 50)
+                    total = paging.get("total", 0)
+                    if offset + limit >= total:
+                        break
+                    url = f"{base_url}&offset={offset + limit}"
+
+            ordenes = [o for o in ordenes if o.get("status") != "cancelled"]
+
+            # Agrupar por día
+            por_dia = defaultdict(lambda: {"total": 0, "ordenes": 0})
+            for o in ordenes:
+                dia = fecha_art(o.get("date_created", ""))
+                por_dia[dia]["total"] += o.get("total_amount", 0)
+                por_dia[dia]["ordenes"] += 1
+
+            return marca, dict(por_dia)
+        except Exception as e:
+            print(f"Error ventas-diarias {marca}: {e}")
+            return marca, {}
+
+    results = await asyncio.gather(*[fetch_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
+
+    # Generar lista de todos los días del mes
+    dias = []
+    d = datetime(NOW.year, NOW.month, 1)
+    while d.date() <= NOW.date():
+        dias.append(d.strftime("%Y-%m-%d"))
+        d += timedelta(days=1)
+
+    marcas_data = {}
+    for marca, data in results:
+        marcas_data[marca] = [
+            {"fecha": dia, "total": data.get(dia, {}).get("total", 0), "ordenes": data.get(dia, {}).get("ordenes", 0)}
+            for dia in dias
+        ]
+
+    return {"dias": dias, "marcas": marcas_data}

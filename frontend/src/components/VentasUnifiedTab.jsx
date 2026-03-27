@@ -133,7 +133,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
               <div style={kpiBoxStyle('#d946ef')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>E-COMMERCE (ML)</p>
                 <p style={{ color: '#d946ef', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomSemana)}</p>
-                <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{ecomSemanaOrdenes} órdenes</p>
+                <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{ecomSemanaOrdenes} productos vendidos</p>
               </div>
               <div style={kpiBoxStyle('#06b6d4')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>RETAIL (ODOO)</p>
@@ -180,7 +180,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
               <div style={kpiBoxStyle('#d946ef')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>E-COMMERCE (ML)</p>
                 <p style={{ color: '#d946ef', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomMes)}</p>
-                <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{ecomMesOrdenes} órdenes</p>
+                <p style={{ color: '#fbbf24', fontSize: '0.8em', margin: '6px 0 0 0', fontWeight: 700 }}>{ecomMesOrdenes} productos vendidos</p>
               </div>
               <div style={kpiBoxStyle('#06b6d4')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>RETAIL (ODOO)</p>
@@ -234,7 +234,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
                     <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
                       <div style={{ width: `${((data.total || 0) / maxVal) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #d946ef, #a855f7)', borderRadius: '3px' }} />
                     </div>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.7em', margin: '3px 0 0 0' }}>{data.ordenes || 0} órdenes · Prom: {fmtMoney(data.promedio || 0)}</p>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.7em', margin: '3px 0 0 0' }}>{data.ordenes || 0} productos vendidos · Prom: {fmtMoney(data.promedio || 0)}</p>
                   </div>
                 </div>
               )
@@ -302,7 +302,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
                     <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
                       <div style={{ width: `${((data.total || 0) / maxVal) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #d946ef, #a855f7)', borderRadius: '3px' }} />
                     </div>
-                    <p style={{ color: '#7f8c8d', fontSize: '0.7em', margin: '3px 0 0 0' }}>{data.ordenes || 0} órdenes · Prom: {fmtMoney(data.promedio || 0)}</p>
+                    <p style={{ color: '#7f8c8d', fontSize: '0.7em', margin: '3px 0 0 0' }}>{data.ordenes || 0} productos vendidos · Prom: {fmtMoney(data.promedio || 0)}</p>
                   </div>
                 </div>
               )

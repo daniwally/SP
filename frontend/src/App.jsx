@@ -410,7 +410,7 @@ function App() {
               return `${formatDateSpanish(inicio)} - ${formatDateSpanish(today)}`
             })()}
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
+          <div className="acumulado-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
             <div className="compare-card">
               <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
               <p className="subtitle">Acumulado de {getCurrentMonthName()}</p>

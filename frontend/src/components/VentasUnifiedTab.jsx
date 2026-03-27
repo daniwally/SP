@@ -105,7 +105,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
         <h2 style={{ marginBottom: '24px' }}>📊 Resumen de Ventas — E-commerce vs Retail</h2>
 
         {/* KPI TOTALES GRANDES */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+        <div className="ventas-2col-grid" style={{ display: 'grid', gap: '20px', marginBottom: '24px' }}>
 
           {/* SEMANA */}
           <div style={{ ...cardStyle }}>
@@ -129,7 +129,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
             </div>
 
             {/* E-commerce vs Retail */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div className="ventas-inner-2col" style={{ display: 'grid', gap: '16px', marginBottom: '16px' }}>
               <div style={kpiBoxStyle('#d946ef')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>E-COMMERCE (ML)</p>
                 <p style={{ color: '#d946ef', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomSemana)}</p>
@@ -176,7 +176,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
             </div>
 
             {/* E-commerce vs Retail */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div className="ventas-inner-2col" style={{ display: 'grid', gap: '16px', marginBottom: '16px' }}>
               <div style={kpiBoxStyle('#d946ef')}>
                 <p style={{ color: '#7f8c8d', fontSize: '0.75em', fontWeight: 600, margin: '0 0 6px 0' }}>E-COMMERCE (ML)</p>
                 <p style={{ color: '#d946ef', fontSize: '1.35em', fontWeight: 800, margin: 0 }}>{fmtMoney(ecomMes)}</p>
@@ -209,7 +209,7 @@ export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
       <section className="section" style={{ marginTop: '0' }}>
         <h2 style={{ marginBottom: '24px' }}>Desglose por Marca</h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="ventas-2col-grid" style={{ display: 'grid', gap: '20px' }}>
 
           {/* E-COMMERCE POR MARCA - SEMANA */}
           <div style={{ ...cardStyle }}>

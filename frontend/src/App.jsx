@@ -404,19 +404,16 @@ function App() {
             <div className="compare-card">
               <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
               <p className="subtitle">Acumulado de {getCurrentMonthName()}</p>
-              <p className="total-item-ordenes" style={{ marginTop: '4px' }}>{ordenesMes} órdenes</p>
             </div>
 
             <div className="compare-card">
               <p className="big-number">${fmtMoney(Math.round(totalMensual / new Date().getDate()))}</p>
               <p className="subtitle">Promedio diario del mes</p>
-              <p className="total-item-ordenes" style={{ marginTop: '4px' }}>{Math.round(ordenesMes / new Date().getDate())} órdenes/día</p>
             </div>
 
             <div className="compare-card">
               <p className="big-number">{unidadesMes.toLocaleString('es-AR')}</p>
               <p className="subtitle">Unidades vendidas</p>
-              <p className="total-item-ordenes" style={{ marginTop: '4px' }}>{Math.round(unidadesMes / new Date().getDate())} uds/día</p>
             </div>
           </div>
         </section>

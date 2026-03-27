@@ -22,6 +22,7 @@ import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
 import VentasUnifiedTab from './components/VentasUnifiedTab'
+import MonitorTab from './components/MonitorTab'
 
 const BRAND_COLORS = {
   'SHAQ': '#f59e0b',
@@ -305,6 +306,13 @@ function App() {
               onClick={() => setActiveTab('status')}
             >
               ⚙️ Status
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'monitor' ? 'active' : ''}`}
+              onClick={() => setActiveTab('monitor')}
+              style={activeTab === 'monitor' ? {} : { background: 'rgba(217, 70, 239, 0.1)', borderColor: 'rgba(217, 70, 239, 0.3)' }}
+            >
+              TV Monitor
             </button>
           </div>
           <button onClick={fetchAllData} className="btn-refresh">↻</button>
@@ -1120,6 +1128,10 @@ function App() {
         <div style={{ display: activeTab === 'retail' ? 'block' : 'none' }}>
           <VentasRetailTab refreshKey={refreshKey} />
         </div>
+
+        {activeTab === 'monitor' && (
+          <MonitorTab testData={testData} salesData={salesData} />
+        )}
       </main>
 
       <footer className="footer">

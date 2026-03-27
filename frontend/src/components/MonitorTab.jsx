@@ -282,7 +282,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
 
         {/* PANEL 0: Ventas del día por marca */}
         <div className={`monitor-panel ${activePanel === 0 ? 'monitor-panel-active' : ''}`}>
-          <h2 className="monitor-panel-title">Ventas del Día — Por Marca</h2>
+          <h2 className="monitor-panel-title">Ventas del Día</h2>
           <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsHoy.length, 5)}, 1fr)`, gap: '16px' }}>
             {brandsHoy.map(([marca, data]) => renderBrandCard(marca, data, brandsHoy[0]?.[1]?.total || 1))}
@@ -291,7 +291,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
 
         {/* PANEL 1: Ventas de la semana por marca */}
         <div className={`monitor-panel ${activePanel === 1 ? 'monitor-panel-active' : ''}`}>
-          <h2 className="monitor-panel-title">Ventas de la Semana — Por Marca</h2>
+          <h2 className="monitor-panel-title">Ventas de la Semana</h2>
           <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{(() => {
             const today = new Date()
             const hace7 = new Date(today)
@@ -306,7 +306,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
 
         {/* PANEL 2: Acumulado mensual por marca */}
         <div className={`monitor-panel ${activePanel === 2 ? 'monitor-panel-active' : ''}`}>
-          <h2 className="monitor-panel-title">Acumulado del Mes — Por Marca</h2>
+          <h2 className="monitor-panel-title">Acumulado del Mes</h2>
           <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{(() => {
             const today = new Date()
             const inicio = new Date(today.getFullYear(), today.getMonth(), 1)

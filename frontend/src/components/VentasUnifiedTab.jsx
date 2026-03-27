@@ -1,20 +1,5 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Line } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
-
 const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
 const BRAND_LOGOS = {
   'SHAQ': `${LOGO_BASE}/shaq-logo.png`,
@@ -27,18 +12,9 @@ const BRAND_LOGOS = {
 
 const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('es-AR')
 
-const BRAND_COLORS = {
-  'SHAQ': '#f59e0b',
-  'STARTER': '#06b6d4',
-  'HYDRATE': '#22c55e',
-  'TIMBERLAND': '#a855f7',
-  'URBAN_FLOW': '#ef4444',
-}
-
 export default function VentasUnifiedTab({ testData }) {
   const [retailData, setRetailData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [dailyData, setDailyData] = useState(null)
 
   useEffect(() => {
     const fetchRetail = async () => {
@@ -56,13 +32,6 @@ export default function VentasUnifiedTab({ testData }) {
       setLoading(false)
     }
     fetchRetail()
-  }, [])
-
-  useEffect(() => {
-    const API = window.location.origin + '/api/test'
-    axios.get(API + '/ventas-diarias', { timeout: 60000 })
-      .then(res => setDailyData(res.data))
-      .catch(err => console.error('Error fetching daily data:', err))
   }, [])
 
   // E-commerce totals
@@ -235,68 +204,6 @@ export default function VentasUnifiedTab({ testData }) {
         </div>
 
       </section>
-
-      {/* GRÁFICO DE VENTAS DIARIAS */}
-      {dailyData && dailyData.dias && (
-        <section className="section" style={{ marginTop: '0', marginBottom: '0' }}>
-          <h2 style={{ marginBottom: '16px' }}>Variación Diaria de Ventas — Mes Actual</h2>
-          <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <Line
-              data={{
-                labels: dailyData.dias.map(d => {
-                  const parts = d.split('-')
-                  return `${parts[2]}/${parts[1]}`
-                }),
-                datasets: Object.entries(dailyData.marcas || {}).map(([marca, datos]) => ({
-                  label: marca,
-                  data: datos.map(d => d.total),
-                  borderColor: BRAND_COLORS[marca] || '#888',
-                  backgroundColor: (BRAND_COLORS[marca] || '#888') + '15',
-                  borderWidth: 2,
-                  pointRadius: 3,
-                  pointHoverRadius: 6,
-                  tension: 0.3,
-                  fill: false,
-                })),
-              }}
-              options={{
-                responsive: true,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                  legend: {
-                    position: 'top',
-                    labels: { color: '#b0b0c0', usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } },
-                  },
-                  tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.85)',
-                    titleColor: '#fff',
-                    bodyColor: '#b0b0c0',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    callbacks: {
-                      label: (ctx) => `${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString('es-AR')}`,
-                    },
-                  },
-                },
-                scales: {
-                  x: {
-                    ticks: { color: '#666', font: { size: 11 } },
-                    grid: { color: 'rgba(255,255,255,0.04)' },
-                  },
-                  y: {
-                    ticks: {
-                      color: '#666',
-                      font: { size: 11 },
-                      callback: (v) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `$${(v / 1000).toFixed(0)}K` : `$${v}`,
-                    },
-                    grid: { color: 'rgba(255,255,255,0.04)' },
-                  },
-                },
-              }}
-            />
-          </div>
-        </section>
-      )}
 
       {/* DESGLOSE POR MARCA */}
       <section className="section" style={{ marginTop: '0' }}>

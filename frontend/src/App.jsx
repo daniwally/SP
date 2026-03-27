@@ -3,12 +3,33 @@ import axios from 'axios'
 import DatePicker, { registerLocale } from 'react-datepicker'
 import es from 'date-fns/locale/es'
 import 'react-datepicker/dist/react-datepicker.css'
+import { Line } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title as ChartTitle,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+} from 'chart.js'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTitle, ChartTooltip, ChartLegend)
 
 registerLocale('es', es)
 import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
 import VentasUnifiedTab from './components/VentasUnifiedTab'
+
+const BRAND_COLORS = {
+  'SHAQ': '#f59e0b',
+  'STARTER': '#06b6d4',
+  'HYDRATE': '#22c55e',
+  'TIMBERLAND': '#a855f7',
+  'URBAN_FLOW': '#ef4444',
+}
 
 const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
 const BRAND_LOGOS = {
@@ -431,7 +452,7 @@ function App() {
                 </div>
               </div>
               <div className="cards-grid">
-                {Object.entries(rangoData).filter(([k]) => k !== 'totales').map(([marca, data]) => (
+                {Object.entries(rangoData).filter(([k]) => k !== 'totales' && k !== 'diario').map(([marca, data]) => (
                   <div key={marca} className="card">
                     {BRAND_LOGOS[marca] ? (
                       <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
@@ -455,6 +476,66 @@ function App() {
                   </div>
                 ))}
               </div>
+
+              {/* GRÁFICO DE VARIACIÓN DIARIA */}
+              {rangoData.diario && rangoData.diario.dias && rangoData.diario.dias.length > 0 && (
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
+                  <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Variación Diaria de Ventas</h3>
+                  <Line
+                    data={{
+                      labels: rangoData.diario.dias.map(d => {
+                        const parts = d.split('-')
+                        return `${parts[2]}/${parts[1]}`
+                      }),
+                      datasets: Object.entries(rangoData.diario.marcas || {}).map(([marca, datos]) => ({
+                        label: marca,
+                        data: datos.map(d => d.total),
+                        borderColor: BRAND_COLORS[marca] || '#888',
+                        backgroundColor: (BRAND_COLORS[marca] || '#888') + '15',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        tension: 0.3,
+                        fill: false,
+                      })),
+                    }}
+                    options={{
+                      responsive: true,
+                      interaction: { mode: 'index', intersect: false },
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                          labels: { color: '#b0b0c0', usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } },
+                        },
+                        tooltip: {
+                          backgroundColor: 'rgba(0,0,0,0.85)',
+                          titleColor: '#fff',
+                          bodyColor: '#b0b0c0',
+                          borderColor: 'rgba(255,255,255,0.1)',
+                          borderWidth: 1,
+                          callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString('es-AR')}`,
+                          },
+                        },
+                      },
+                      scales: {
+                        x: {
+                          ticks: { color: '#666', font: { size: 11 } },
+                          grid: { color: 'rgba(255,255,255,0.04)' },
+                        },
+                        y: {
+                          ticks: {
+                            color: '#666',
+                            font: { size: 11 },
+                            callback: (v) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `$${(v / 1000).toFixed(0)}K` : `$${v}`,
+                          },
+                          grid: { color: 'rgba(255,255,255,0.04)' },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              )}
             </>
           )}
         </section>

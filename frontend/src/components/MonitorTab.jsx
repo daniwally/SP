@@ -53,6 +53,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
   const [activePanel, setActivePanel] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [dailyData, setDailyData] = useState(null)
+  const [preguntasData, setPreguntasData] = useState(null)
   const containerRef = useRef(null)
   const PANEL_COUNT = 4
   const ROTATE_INTERVAL = 12000
@@ -74,6 +75,14 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
     const API = window.location.origin + '/api/test'
     axios.get(API + '/ventas-diarias', { timeout: 60000 })
       .then(res => setDailyData(res.data))
+      .catch(() => {})
+  }, [])
+
+  // Fetch preguntas sin responder (últimos 15 días)
+  useEffect(() => {
+    fetch('/api/publicaciones/preguntas-sin-responder')
+      .then(r => r.json())
+      .then(data => setPreguntasData(data))
       .catch(() => {})
   }, [])
 
@@ -121,9 +130,9 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
     color: BRAND_COLORS[marca] || '#888',
   }))
 
-  const totalPreguntas = Object.values(salesData.mes || {}).reduce((s, v) => {
-    return s + (v.preguntas?.sin_responder || 0)
-  }, 0)
+  const totalPreguntas = preguntasData
+    ? Object.values(preguntasData).reduce((s, v) => s + (v.sin_responder || 0), 0)
+    : 0
 
   // Render brand card helper
   const renderBrandCard = (marca, data, maxVal) => {
@@ -404,11 +413,9 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         borderTop: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        {totalPreguntas > 0 && (
-          <span style={{ color: '#ef4444', fontSize: isFullscreen ? '1em' : '0.85em', fontWeight: 600 }}>
-            {totalPreguntas} preguntas sin responder
-          </span>
-        )}
+        <span style={{ color: totalPreguntas > 0 ? '#ef4444' : '#22c55e', fontSize: isFullscreen ? '1em' : '0.85em', fontWeight: 600 }}>
+          {totalPreguntas > 0 ? `${totalPreguntas} preguntas sin responder (15 días)` : 'Sin preguntas pendientes'}
+        </span>
         <span style={{ color: '#888', fontSize: isFullscreen ? '1em' : '0.85em' }}>
           Prom. diario: ${fmtMoney(Math.round(totalMes / Math.max(1, new Date().getDate())))}
         </span>

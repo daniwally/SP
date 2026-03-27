@@ -187,7 +187,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
       ref={containerRef}
       className="monitor-container"
       style={{
-        background: '#0a0a0f',
+        background: 'transparent',
         minHeight: isFullscreen ? '100vh' : 'calc(100vh - 120px)',
         padding: isFullscreen ? '30px 40px' : '20px',
         position: 'relative',

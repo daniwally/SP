@@ -522,6 +522,14 @@ function App() {
                               const ordenes = ctx.dataset.ordenes?.[ctx.dataIndex] || 0
                               return `${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString('es-AR')}  (${ordenes} art.)`
                             },
+                            afterBody: (items) => {
+                              const totalVentas = items.reduce((sum, item) => sum + (item.parsed?.y || 0), 0)
+                              const totalArt = items.reduce((sum, item) => {
+                                const ordenes = item.dataset.ordenes?.[item.dataIndex] || 0
+                                return sum + ordenes
+                              }, 0)
+                              return `\nTotal del día: $${Math.round(totalVentas).toLocaleString('es-AR')}  (${totalArt} art.)`
+                            },
                           },
                         },
                       },

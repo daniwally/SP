@@ -86,6 +86,9 @@ body {
 .btn-refresh {
   width: 45px;
   height: 45px;
+  min-width: 45px;
+  min-height: 45px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 2px solid #d946ef;
   background: linear-gradient(135deg, rgba(217, 70, 239, 0.15), rgba(6, 182, 212, 0.08));
@@ -781,6 +784,8 @@ body {
   .btn-refresh {
     width: 36px;
     height: 36px;
+    min-width: 36px;
+    min-height: 36px;
     font-size: 1.1em;
   }
 

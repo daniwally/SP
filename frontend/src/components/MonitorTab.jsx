@@ -1,4 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
+import { Line } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const LOGO_BASE = 'https://raw.githubusercontent.com/daniwally/SP/main/logos'
 const BRAND_LOGOS = {
@@ -29,26 +43,38 @@ const fmtDate = () => {
   return now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+const calcUnits = (brandData) => {
+  const prods = brandData.productos || []
+  return prods.reduce((s, p) => s + (p.cantidad || 0), 0)
+}
+
 export default function MonitorTab({ testData = {}, salesData = {} }) {
   const [clock, setClock] = useState(fmtTime())
   const [activePanel, setActivePanel] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [dailyData, setDailyData] = useState(null)
   const containerRef = useRef(null)
-  const PANEL_COUNT = 3
-  const ROTATE_INTERVAL = 12000 // 12 seconds per panel
+  const PANEL_COUNT = 4
+  const ROTATE_INTERVAL = 12000
 
-  // Clock update
   useEffect(() => {
     const interval = setInterval(() => setClock(fmtTime()), 1000)
     return () => clearInterval(interval)
   }, [])
 
-  // Panel rotation
   useEffect(() => {
     const interval = setInterval(() => {
       setActivePanel(p => (p + 1) % PANEL_COUNT)
     }, ROTATE_INTERVAL)
     return () => clearInterval(interval)
+  }, [])
+
+  // Fetch daily chart data
+  useEffect(() => {
+    const API = window.location.origin + '/api/test'
+    axios.get(API + '/ventas-diarias', { timeout: 60000 })
+      .then(res => setDailyData(res.data))
+      .catch(() => {})
   }, [])
 
   const toggleFullscreen = () => {
@@ -79,22 +105,73 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
   const totalMes = testData.totales?.mes?.total ?? Object.values(ventasMes).reduce((s, v) => s + (v.total || 0), 0)
   const ordenesMes = testData.totales?.mes?.ordenes ?? Object.values(ventasMes).reduce((s, v) => s + (v.ordenes || 0), 0)
 
+  const unitsHoy = Object.values(ventasHoy).reduce((s, v) => s + calcUnits(v), 0)
+  const units7d = Object.values(ventas7d).reduce((s, v) => s + calcUnits(v), 0)
+  const unitsMes = Object.values(ventasMes).reduce((s, v) => s + calcUnits(v), 0)
+
   const brandsSemana = Object.entries(ventas7d).sort(([,a],[,b]) => (b.total||0) - (a.total||0))
   const brandsMes = Object.entries(ventasMes).sort(([,a],[,b]) => (b.total||0) - (a.total||0))
   const brandsHoy = Object.entries(ventasHoy).sort(([,a],[,b]) => (b.total||0) - (a.total||0))
 
-  // Ticker data — all brands with today's sales
   const tickerItems = brandsHoy.map(([marca, data]) => ({
     marca,
     total: data.total || 0,
     ordenes: data.ordenes || 0,
+    units: calcUnits(data),
     color: BRAND_COLORS[marca] || '#888',
   }))
 
-  // Preguntas sin responder from salesData
   const totalPreguntas = Object.values(salesData.mes || {}).reduce((s, v) => {
     return s + (v.preguntas?.sin_responder || 0)
   }, 0)
+
+  // Render brand card helper
+  const renderBrandCard = (marca, data, maxVal) => {
+    const units = calcUnits(data)
+    return (
+      <div key={marca} className="monitor-brand-card">
+        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+          {BRAND_LOGOS[marca]
+            ? <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: isFullscreen ? '44px' : '32px', objectFit: 'contain' }} />
+            : <span style={{ color: BRAND_COLORS[marca] || '#fff', fontWeight: 800, fontSize: '1.1em' }}>{marca}</span>
+          }
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#fff', fontSize: isFullscreen ? '2.6em' : '1.9em', fontWeight: 800, margin: '0', lineHeight: 1.1 }}>
+            {units > 0 ? units : (data.ordenes || 0)}
+          </p>
+          <p style={{ color: '#888', fontSize: isFullscreen ? '0.95em' : '0.8em', margin: '2px 0 8px 0', fontWeight: 500 }}>
+            {units > 0 ? 'unidades' : 'órdenes'}
+          </p>
+          <p style={{ color: BRAND_COLORS[marca] || '#fff', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, margin: '0 0 10px 0' }}>
+            ${fmtMoney(data.total || 0)}
+          </p>
+        </div>
+        <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+          <div style={{
+            width: `${((data.total || 0) / maxVal) * 100}%`,
+            height: '100%',
+            background: BRAND_COLORS[marca] || '#888',
+            borderRadius: '3px',
+            transition: 'width 1s ease',
+          }} />
+        </div>
+        {data.productos && data.productos.length > 0 && (
+          <div style={{ marginTop: '12px' }}>
+            {data.productos.slice(0, 4).map((prod, idx) => (
+              <p key={idx} style={{
+                color: '#b0b0c0', fontSize: isFullscreen ? '0.85em' : '0.75em',
+                margin: '4px 0', display: 'flex', justifyContent: 'space-between',
+              }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '78%', textAlign: 'left' }}>{prod.nombre}</span>
+                <span style={{ color: '#fbbf24', fontWeight: 600 }}>x{prod.cantidad}</span>
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div
@@ -158,27 +235,36 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
           <div className="monitor-kpi-label">Ventas Hoy</div>
           <div className="monitor-kpi-value" style={{ color: '#22c55e' }}>
+            {unitsHoy > 0 ? unitsHoy : ordenesHoy}
+          </div>
+          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>{unitsHoy > 0 ? 'unidades' : 'órdenes'}</div>
+          <div style={{ color: '#22c55e', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, opacity: 0.85 }}>
             ${fmtMoney(totalHoy)}
           </div>
-          <div className="monitor-kpi-sub">{ordenesHoy} órdenes</div>
         </div>
 
         {/* SEMANA */}
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(6, 182, 212, 0.3)' }}>
           <div className="monitor-kpi-label">Ventas Semana</div>
           <div className="monitor-kpi-value" style={{ color: '#06b6d4' }}>
+            {units7d > 0 ? units7d : ordenes7d}
+          </div>
+          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>{units7d > 0 ? 'unidades' : 'órdenes'}</div>
+          <div style={{ color: '#06b6d4', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, opacity: 0.85 }}>
             ${fmtMoney(total7d)}
           </div>
-          <div className="monitor-kpi-sub">{ordenes7d} órdenes</div>
         </div>
 
         {/* MES */}
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(217, 70, 239, 0.3)' }}>
           <div className="monitor-kpi-label">Acumulado Mes</div>
           <div className="monitor-kpi-value" style={{ color: '#d946ef' }}>
+            {unitsMes > 0 ? unitsMes.toLocaleString('es-AR') : ordenesMes}
+          </div>
+          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>{unitsMes > 0 ? 'unidades' : 'órdenes'}</div>
+          <div style={{ color: '#d946ef', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, opacity: 0.85 }}>
             ${fmtMoney(totalMes)}
           </div>
-          <div className="monitor-kpi-sub">{ordenesMes} órdenes</div>
         </div>
       </div>
 
@@ -189,49 +275,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className={`monitor-panel ${activePanel === 0 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Ventas del Día — Por Marca</h2>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsHoy.length, 5)}, 1fr)`, gap: '16px' }}>
-            {brandsHoy.map(([marca, data]) => {
-              const maxVal = brandsHoy[0]?.[1]?.total || 1
-              return (
-                <div key={marca} className="monitor-brand-card">
-                  <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                    {BRAND_LOGOS[marca]
-                      ? <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: isFullscreen ? '44px' : '32px', objectFit: 'contain' }} />
-                      : <span style={{ color: BRAND_COLORS[marca] || '#fff', fontWeight: 800, fontSize: '1.1em' }}>{marca}</span>
-                    }
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <p style={{ color: BRAND_COLORS[marca] || '#fff', fontSize: isFullscreen ? '2.2em' : '1.6em', fontWeight: 800, margin: '0 0 4px 0' }}>
-                      ${fmtMoney(data.total || 0)}
-                    </p>
-                    <p style={{ color: '#888', fontSize: isFullscreen ? '1.1em' : '0.85em', margin: '0 0 12px 0' }}>
-                      {data.ordenes || 0} órdenes
-                    </p>
-                  </div>
-                  <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                    <div style={{
-                      width: `${((data.total || 0) / maxVal) * 100}%`,
-                      height: '100%',
-                      background: BRAND_COLORS[marca] || '#888',
-                      borderRadius: '3px',
-                      transition: 'width 1s ease',
-                    }} />
-                  </div>
-                  {data.productos && data.productos.length > 0 && (
-                    <div style={{ marginTop: '12px' }}>
-                      {data.productos.slice(0, 3).map((prod, idx) => (
-                        <p key={idx} style={{
-                          color: '#b0b0c0', fontSize: isFullscreen ? '0.85em' : '0.75em',
-                          margin: '4px 0', display: 'flex', justifyContent: 'space-between',
-                        }}>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%', textAlign: 'left' }}>{prod.nombre}</span>
-                          <span style={{ color: '#fbbf24', fontWeight: 600 }}>x{prod.cantidad}</span>
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+            {brandsHoy.map(([marca, data]) => renderBrandCard(marca, data, brandsHoy[0]?.[1]?.total || 1))}
           </div>
         </div>
 
@@ -239,49 +283,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className={`monitor-panel ${activePanel === 1 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Ventas de la Semana — Por Marca</h2>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsSemana.length, 5)}, 1fr)`, gap: '16px' }}>
-            {brandsSemana.map(([marca, data]) => {
-              const maxVal = brandsSemana[0]?.[1]?.total || 1
-              return (
-                <div key={marca} className="monitor-brand-card">
-                  <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                    {BRAND_LOGOS[marca]
-                      ? <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: isFullscreen ? '44px' : '32px', objectFit: 'contain' }} />
-                      : <span style={{ color: BRAND_COLORS[marca] || '#fff', fontWeight: 800, fontSize: '1.1em' }}>{marca}</span>
-                    }
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <p style={{ color: BRAND_COLORS[marca] || '#fff', fontSize: isFullscreen ? '2.2em' : '1.6em', fontWeight: 800, margin: '0 0 4px 0' }}>
-                      ${fmtMoney(data.total || 0)}
-                    </p>
-                    <p style={{ color: '#888', fontSize: isFullscreen ? '1.1em' : '0.85em', margin: '0 0 12px 0' }}>
-                      {data.ordenes || 0} órdenes
-                    </p>
-                  </div>
-                  <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                    <div style={{
-                      width: `${((data.total || 0) / maxVal) * 100}%`,
-                      height: '100%',
-                      background: BRAND_COLORS[marca] || '#888',
-                      borderRadius: '3px',
-                      transition: 'width 1s ease',
-                    }} />
-                  </div>
-                  {data.productos && data.productos.length > 0 && (
-                    <div style={{ marginTop: '12px' }}>
-                      {data.productos.slice(0, 5).map((prod, idx) => (
-                        <p key={idx} style={{
-                          color: '#b0b0c0', fontSize: isFullscreen ? '0.85em' : '0.75em',
-                          margin: '4px 0', display: 'flex', justifyContent: 'space-between',
-                        }}>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%', textAlign: 'left' }}>{prod.nombre}</span>
-                          <span style={{ color: '#fbbf24', fontWeight: 600 }}>x{prod.cantidad}</span>
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+            {brandsSemana.map(([marca, data]) => renderBrandCard(marca, data, brandsSemana[0]?.[1]?.total || 1))}
           </div>
         </div>
 
@@ -289,56 +291,96 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className={`monitor-panel ${activePanel === 2 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Acumulado del Mes — Por Marca</h2>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsMes.length, 5)}, 1fr)`, gap: '16px' }}>
-            {brandsMes.map(([marca, data]) => {
-              const maxVal = brandsMes[0]?.[1]?.total || 1
-              return (
-                <div key={marca} className="monitor-brand-card">
-                  <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                    {BRAND_LOGOS[marca]
-                      ? <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: isFullscreen ? '44px' : '32px', objectFit: 'contain' }} />
-                      : <span style={{ color: BRAND_COLORS[marca] || '#fff', fontWeight: 800, fontSize: '1.1em' }}>{marca}</span>
-                    }
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <p style={{ color: BRAND_COLORS[marca] || '#fff', fontSize: isFullscreen ? '2.2em' : '1.6em', fontWeight: 800, margin: '0 0 4px 0' }}>
-                      ${fmtMoney(data.total || 0)}
-                    </p>
-                    <p style={{ color: '#888', fontSize: isFullscreen ? '1.1em' : '0.85em', margin: '0 0 12px 0' }}>
-                      {data.ordenes || 0} órdenes
-                    </p>
-                  </div>
-                  <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                    <div style={{
-                      width: `${((data.total || 0) / maxVal) * 100}%`,
-                      height: '100%',
-                      background: BRAND_COLORS[marca] || '#888',
-                      borderRadius: '3px',
-                      transition: 'width 1s ease',
-                    }} />
-                  </div>
-                  {data.productos && data.productos.length > 0 && (
-                    <div style={{ marginTop: '12px' }}>
-                      {data.productos.slice(0, 5).map((prod, idx) => (
-                        <p key={idx} style={{
-                          color: '#b0b0c0', fontSize: isFullscreen ? '0.85em' : '0.75em',
-                          margin: '4px 0', display: 'flex', justifyContent: 'space-between',
-                        }}>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%', textAlign: 'left' }}>{prod.nombre}</span>
-                          <span style={{ color: '#fbbf24', fontWeight: 600 }}>x{prod.cantidad}</span>
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+            {brandsMes.map(([marca, data]) => renderBrandCard(marca, data, brandsMes[0]?.[1]?.total || 1))}
           </div>
+        </div>
+
+        {/* PANEL 3: Gráfico de variación diaria */}
+        <div className={`monitor-panel ${activePanel === 3 ? 'monitor-panel-active' : ''}`}>
+          <h2 className="monitor-panel-title">Variación Diaria de Ventas — Mes Actual</h2>
+          {dailyData && dailyData.dias ? (
+            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '14px', padding: isFullscreen ? '30px' : '20px', border: '1px solid rgba(255,255,255,0.06)', height: isFullscreen ? '48vh' : '38vh' }}>
+              <Line
+                data={{
+                  labels: dailyData.dias.map(d => {
+                    const parts = d.split('-')
+                    return `${parts[2]}/${parts[1]}`
+                  }),
+                  datasets: Object.entries(dailyData.marcas || {}).map(([marca, datos]) => ({
+                    label: marca,
+                    data: datos.map(d => d.total),
+                    ordenes: datos.map(d => d.ordenes),
+                    borderColor: BRAND_COLORS[marca] || '#888',
+                    backgroundColor: (BRAND_COLORS[marca] || '#888') + '15',
+                    borderWidth: isFullscreen ? 3 : 2,
+                    pointRadius: isFullscreen ? 4 : 3,
+                    pointHoverRadius: isFullscreen ? 8 : 6,
+                    tension: 0.3,
+                    fill: false,
+                  })),
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  interaction: { mode: 'index', intersect: false },
+                  plugins: {
+                    legend: {
+                      position: 'top',
+                      labels: { color: '#b0b0c0', usePointStyle: true, pointStyle: 'circle', padding: 20, font: { size: isFullscreen ? 14 : 12 } },
+                    },
+                    tooltip: {
+                      backgroundColor: 'rgba(0,0,0,0.9)',
+                      titleColor: '#fff',
+                      bodyColor: '#b0b0c0',
+                      borderColor: 'rgba(255,255,255,0.1)',
+                      borderWidth: 1,
+                      titleMarginBottom: 10,
+                      bodySpacing: 8,
+                      padding: 14,
+                      titleFont: { size: isFullscreen ? 16 : 13 },
+                      bodyFont: { size: isFullscreen ? 14 : 12 },
+                      callbacks: {
+                        label: (ctx) => {
+                          const ordenes = ctx.dataset.ordenes?.[ctx.dataIndex] || 0
+                          return `${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString('es-AR')}  (${ordenes} art.)`
+                        },
+                        afterBody: (items) => {
+                          const totalVentas = items.reduce((sum, item) => sum + (item.parsed?.y || 0), 0)
+                          const totalArt = items.reduce((sum, item) => {
+                            const ordenes = item.dataset.ordenes?.[item.dataIndex] || 0
+                            return sum + ordenes
+                          }, 0)
+                          return `\nTotal del día: $${Math.round(totalVentas).toLocaleString('es-AR')}  (${totalArt} art.)`
+                        },
+                      },
+                    },
+                  },
+                  scales: {
+                    x: {
+                      ticks: { color: '#666', font: { size: isFullscreen ? 13 : 11 } },
+                      grid: { color: 'rgba(255,255,255,0.04)' },
+                    },
+                    y: {
+                      ticks: {
+                        color: '#666',
+                        font: { size: isFullscreen ? 13 : 11 },
+                        callback: (v) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `$${(v / 1000).toFixed(0)}K` : `$${v}`,
+                      },
+                      grid: { color: 'rgba(255,255,255,0.04)' },
+                    },
+                  },
+                }}
+              />
+            </div>
+          ) : (
+            <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Cargando gráfico...</p>
+          )}
         </div>
       </div>
 
       {/* PANEL INDICATOR DOTS */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', margin: '16px 0' }}>
-        {[0, 1, 2].map(i => (
+        {Array.from({ length: PANEL_COUNT }).map((_, i) => (
           <button
             key={i}
             onClick={() => setActivePanel(i)}
@@ -373,6 +415,9 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <span style={{ color: '#888', fontSize: isFullscreen ? '1em' : '0.85em' }}>
           {ordenesMes} órdenes este mes
         </span>
+        <span style={{ color: '#888', fontSize: isFullscreen ? '1em' : '0.85em' }}>
+          {unitsMes.toLocaleString('es-AR')} unidades este mes
+        </span>
       </div>
 
       {/* TICKER BAR */}
@@ -381,7 +426,8 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
           {[...tickerItems, ...tickerItems, ...tickerItems].map((item, idx) => (
             <span key={idx} className="monitor-ticker-item">
               <span style={{ color: item.color, fontWeight: 800 }}>{item.marca}</span>
-              <span style={{ color: '#fff', fontWeight: 700 }}>${fmtMoney(item.total)}</span>
+              <span style={{ color: '#fff', fontWeight: 700 }}>{item.units} uds</span>
+              <span style={{ color: item.color, fontWeight: 600 }}>${fmtMoney(item.total)}</span>
               <span style={{ color: '#888' }}>({item.ordenes} ord.)</span>
               <span style={{ color: 'rgba(255,255,255,0.15)', margin: '0 8px' }}>|</span>
             </span>

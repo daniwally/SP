@@ -19,7 +19,7 @@ const fmtDate = (d) => {
   return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`
 }
 
-export default function VentasRetailTab() {
+export default function VentasRetailTab({ refreshKey = 0 }) {
   const [subTab, setSubTab] = useState('dashboard')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -71,7 +71,7 @@ export default function VentasRetailTab() {
 
   useEffect(() => {
     fetchData()
-  }, [subTab])
+  }, [subTab, refreshKey])
 
   // ---- DASHBOARD ----
   const renderDashboard = () => {

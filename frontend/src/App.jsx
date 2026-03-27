@@ -86,6 +86,7 @@ function App() {
   const [comparadorMlData, setComparadorMlData] = useState({}) // { cardKey: { loading, items: [] } }
   const [valuationData, setValuationData] = useState({})
   const [testData, setTestData] = useState({})
+  const [refreshKey, setRefreshKey] = useState(0)
   const [tokenStatus, setTokenStatus] = useState({})
   const [mlPreciosData, setMlPreciosData] = useState({})
   const [loading, setLoading] = useState(true)
@@ -145,6 +146,7 @@ function App() {
   const fetchAllData = async () => {
     try {
       setLoading(true)
+      setRefreshKey(k => k + 1)
       const API = window.location.origin + '/api'
       
       console.log('🔄 Fetching data from:', API)
@@ -1108,15 +1110,15 @@ function App() {
         )}
 
         {activeTab === 'publicaciones' && (
-          <PublicacionesTab ventasMesMl={ventasMesMl} />
+          <PublicacionesTab ventasMesMl={ventasMesMl} refreshKey={refreshKey} />
         )}
 
         <div style={{ display: activeTab === 'ventas' ? 'block' : 'none' }}>
-          <VentasUnifiedTab testData={testData} />
+          <VentasUnifiedTab testData={testData} refreshKey={refreshKey} />
         </div>
 
         <div style={{ display: activeTab === 'retail' ? 'block' : 'none' }}>
-          <VentasRetailTab />
+          <VentasRetailTab refreshKey={refreshKey} />
         </div>
       </main>
 

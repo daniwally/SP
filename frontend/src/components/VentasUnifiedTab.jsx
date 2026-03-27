@@ -12,7 +12,7 @@ const BRAND_LOGOS = {
 
 const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('es-AR')
 
-export default function VentasUnifiedTab({ testData }) {
+export default function VentasUnifiedTab({ testData, refreshKey = 0 }) {
   const [retailData, setRetailData] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -32,7 +32,7 @@ export default function VentasUnifiedTab({ testData }) {
       setLoading(false)
     }
     fetchRetail()
-  }, [])
+  }, [refreshKey])
 
   // E-commerce totals
   const ecomSemana = testData?.totales?.semana?.total || 0

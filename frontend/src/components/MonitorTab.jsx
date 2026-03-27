@@ -283,6 +283,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         {/* PANEL 0: Ventas del día por marca */}
         <div className={`monitor-panel ${activePanel === 0 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Ventas del Día — Por Marca</h2>
+          <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsHoy.length, 5)}, 1fr)`, gap: '16px' }}>
             {brandsHoy.map(([marca, data]) => renderBrandCard(marca, data, brandsHoy[0]?.[1]?.total || 1))}
           </div>
@@ -291,6 +292,13 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         {/* PANEL 1: Ventas de la semana por marca */}
         <div className={`monitor-panel ${activePanel === 1 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Ventas de la Semana — Por Marca</h2>
+          <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{(() => {
+            const today = new Date()
+            const hace7 = new Date(today)
+            hace7.setDate(hace7.getDate() - 7)
+            const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+            return `${fmt(hace7)} - ${fmt(today)}`
+          })()}</p>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsSemana.length, 5)}, 1fr)`, gap: '16px' }}>
             {brandsSemana.map(([marca, data]) => renderBrandCard(marca, data, brandsSemana[0]?.[1]?.total || 1))}
           </div>
@@ -299,6 +307,12 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         {/* PANEL 2: Acumulado mensual por marca */}
         <div className={`monitor-panel ${activePanel === 2 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Acumulado del Mes — Por Marca</h2>
+          <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{(() => {
+            const today = new Date()
+            const inicio = new Date(today.getFullYear(), today.getMonth(), 1)
+            const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+            return `${fmt(inicio)} - ${fmt(today)}`
+          })()}</p>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(brandsMes.length, 5)}, 1fr)`, gap: '16px' }}>
             {brandsMes.map(([marca, data]) => renderBrandCard(marca, data, brandsMes[0]?.[1]?.total || 1))}
           </div>
@@ -307,6 +321,12 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         {/* PANEL 3: Gráfico de variación diaria */}
         <div className={`monitor-panel ${activePanel === 3 ? 'monitor-panel-active' : ''}`}>
           <h2 className="monitor-panel-title">Variación Diaria de Ventas — Mes Actual</h2>
+          <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>{(() => {
+            const today = new Date()
+            const inicio = new Date(today.getFullYear(), today.getMonth(), 1)
+            const fmt = (d) => d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+            return `${fmt(inicio)} - ${fmt(today)}`
+          })()}</p>
           {dailyData && dailyData.dias ? (
             <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '14px', padding: isFullscreen ? '30px' : '20px', border: '1px solid rgba(255,255,255,0.06)', height: isFullscreen ? '48vh' : '38vh' }}>
               <Line

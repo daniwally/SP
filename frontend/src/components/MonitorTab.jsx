@@ -187,13 +187,32 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
       ref={containerRef}
       className="monitor-container"
       style={{
-        background: 'transparent',
+        background: isFullscreen ? '#000' : 'transparent',
         minHeight: isFullscreen ? '100vh' : 'calc(100vh - 120px)',
         padding: isFullscreen ? '30px 40px' : '20px',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
+      {/* Fullscreen background image */}
+      {isFullscreen && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundImage: `url('https://raw.githubusercontent.com/daniwally/SP/main/backgrounds/bg1.jpg')`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          opacity: 0.45, zIndex: 0,
+        }} />
+      )}
+      {isFullscreen && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0))',
+          zIndex: 0,
+        }} />
+      )}
+
+      {/* Content wrapper */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* HEADER BAR */}
       <div style={{
         display: 'flex',
@@ -328,7 +347,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
             return `${fmt(inicio)} - ${fmt(today)}`
           })()}</p>
           {dailyData && dailyData.dias ? (
-            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '14px', padding: isFullscreen ? '30px' : '20px', border: '1px solid rgba(255,255,255,0.06)', height: isFullscreen ? '48vh' : '38vh' }}>
+            <div style={{ background: 'rgba(0,0,0,0.5)', borderRadius: '12px', padding: isFullscreen ? '30px' : '20px', border: '1px solid rgba(217, 70, 239, 0.2)', height: isFullscreen ? '48vh' : '38vh' }}>
               <Line
                 data={{
                   labels: dailyData.dias.map(d => {
@@ -430,8 +449,8 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
       <div style={{
         display: 'flex', justifyContent: 'center', gap: '32px',
         padding: '10px 0', marginBottom: '8px',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderTop: '1px solid rgba(217, 70, 239, 0.15)',
+        borderBottom: '1px solid rgba(217, 70, 239, 0.15)',
       }}>
         <span style={{ color: totalPreguntas > 0 ? '#ef4444' : '#22c55e', fontSize: isFullscreen ? '1em' : '0.85em', fontWeight: 600 }}>
           {totalPreguntas > 0 ? `${totalPreguntas} preguntas sin responder (15 días)` : 'Sin preguntas pendientes'}
@@ -461,6 +480,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
           ))}
         </div>
       </div>
+      </div>{/* close content wrapper */}
     </div>
   )
 }

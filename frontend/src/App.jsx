@@ -249,6 +249,11 @@ function App() {
   const total7d = testData.totales?.semana?.total ?? Object.values(ventas7d).reduce((sum, v) => sum + (v.total || 0), 0)
   const ordenes7d = testData.totales?.semana?.ordenes ?? Object.values(ventas7d).reduce((sum, v) => sum + (v.ordenes || 0), 0)
   const totalMensual = testData.totales?.mes?.total ?? Object.values(ventasMes).reduce((sum, v) => sum + (v.total || 0), 0)
+  const ordenesMes = testData.totales?.mes?.ordenes ?? Object.values(ventasMes).reduce((sum, v) => sum + (v.ordenes || 0), 0)
+  const unidadesMes = Object.values(ventasMes).reduce((sum, v) => {
+    const prods = v.productos || []
+    return sum + prods.reduce((s, p) => s + (p.cantidad || 0), 0)
+  }, 0)
   
   // Top 3 marcas del mes
   const marcasOrdenadas = Object.entries(ventasMes)
@@ -388,15 +393,30 @@ function App() {
         {/* COMPARATIVA */}
         <section className="section">
           <h2>Acumulado Mensual</h2>
-          <div className="section-2col">
+          <p className="section-date">
+            {(() => {
+              const today = new Date()
+              const inicio = new Date(today.getFullYear(), today.getMonth(), 1)
+              return `${formatDateSpanish(inicio)} - ${formatDateSpanish(today)}`
+            })()}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div className="compare-card">
               <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
               <p className="subtitle">Acumulado de {getCurrentMonthName()}</p>
+              <p className="total-item-ordenes" style={{ marginTop: '4px' }}>{ordenesMes} órdenes</p>
             </div>
 
             <div className="compare-card">
               <p className="big-number">${fmtMoney(Math.round(totalMensual / new Date().getDate()))}</p>
               <p className="subtitle">Promedio diario del mes</p>
+              <p className="total-item-ordenes" style={{ marginTop: '4px' }}>{Math.round(ordenesMes / new Date().getDate())} órdenes/día</p>
+            </div>
+
+            <div className="compare-card">
+              <p className="big-number">{unidadesMes.toLocaleString('es-AR')}</p>
+              <p className="subtitle">Unidades vendidas</p>
+              <p className="total-item-ordenes" style={{ marginTop: '4px' }}>{Math.round(unidadesMes / new Date().getDate())} uds/día</p>
             </div>
           </div>
         </section>

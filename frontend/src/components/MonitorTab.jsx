@@ -48,12 +48,13 @@ const calcUnits = (brandData) => {
   return prods.reduce((s, p) => s + (p.cantidad || 0), 0)
 }
 
-export default function MonitorTab({ testData = {}, salesData = {} }) {
+export default function MonitorTab({ testData: initialTestData = {}, salesData = {} }) {
   const [clock, setClock] = useState(fmtTime())
   const [activePanel, setActivePanel] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [dailyData, setDailyData] = useState(null)
   const [preguntasData, setPreguntasData] = useState(null)
+  const [liveTestData, setLiveTestData] = useState(null)
   const containerRef = useRef(null)
   const PANEL_COUNT = 4
   const ROTATE_INTERVAL = 12000
@@ -70,9 +71,12 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
     return () => clearInterval(interval)
   }, [])
 
-  // Fetch daily chart data
+  // Fetch all monitor data
   const fetchMonitorData = () => {
     const API = window.location.origin + '/api/test'
+    axios.get(API + '/ventas-detallado', { timeout: 30000 })
+      .then(res => setLiveTestData(res.data))
+      .catch(() => {})
     axios.get(API + '/ventas-diarias', { timeout: 60000 })
       .then(res => setDailyData(res.data))
       .catch(() => {})
@@ -111,7 +115,8 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
 
-  // Data
+  // Data — use live data if available, otherwise props from parent
+  const testData = liveTestData || initialTestData
   const ventasHoy = testData.hoy || {}
   const ventas7d = testData.semana || {}
   const ventasMes = testData.mes || {}

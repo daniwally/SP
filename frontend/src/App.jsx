@@ -400,7 +400,7 @@ function App() {
               return `${formatDateSpanish(inicio)} - ${formatDateSpanish(today)}`
             })()}
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
             <div className="compare-card">
               <p className="big-number">${(totalMensual / 1000000).toFixed(2)}M</p>
               <p className="subtitle">Acumulado de {getCurrentMonthName()}</p>
@@ -414,6 +414,11 @@ function App() {
             <div className="compare-card">
               <p className="big-number">{unidadesMes.toLocaleString('es-AR')}</p>
               <p className="subtitle">Unidades vendidas</p>
+            </div>
+
+            <div className="compare-card">
+              <p className="big-number">{Math.round(unidadesMes / new Date().getDate()).toLocaleString('es-AR')}</p>
+              <p className="subtitle">Promedio uds/día</p>
             </div>
           </div>
         </section>

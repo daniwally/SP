@@ -993,9 +993,9 @@ function App() {
           <PublicacionesTab ventasMesMl={ventasMesMl} />
         )}
 
-        {activeTab === 'ventas' && (
+        <div style={{ display: activeTab === 'ventas' ? 'block' : 'none' }}>
           <VentasUnifiedTab testData={testData} />
-        )}
+        </div>
 
         <div style={{ display: activeTab === 'retail' ? 'block' : 'none' }}>
           <VentasRetailTab />

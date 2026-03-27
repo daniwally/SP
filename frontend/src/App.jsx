@@ -337,7 +337,7 @@ function App() {
                   )}
                   <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
                     <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{data.ordenes || 0}</p>
-                    <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>órdenes</p>
+                    <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>productos vendidos</p>
                   </div>
                   <p className="value" style={{ fontSize: '0.68em' }}>${fmtMoney(data.total || 0)}</p>
                   {data.productos && data.productos.length > 0 && (
@@ -358,12 +358,12 @@ function App() {
           <div className="totals-row totals-row-small">
             <div className="total-item">
               <span>Total Hoy:</span>
-              <span className="total-item-ordenes">{ordenesHoy} órdenes</span>
+              <span className="total-item-ordenes">{ordenesHoy} productos vendidos</span>
               <span className="total-item-value">${fmtMoney(totalHoy)}</span>
             </div>
             <div className="total-item">
               <span>Total Semana:</span>
-              <span className="total-item-ordenes">{ordenes7d} órdenes</span>
+              <span className="total-item-ordenes">{ordenes7d} productos vendidos</span>
               <span className="total-item-value">${fmtMoney(total7d)}</span>
             </div>
           </div>
@@ -382,7 +382,7 @@ function App() {
                   )}
                   <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
                     <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{data.ordenes || 0}</p>
-                    <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>órdenes</p>
+                    <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>productos vendidos</p>
                   </div>
                   <p className="value" style={{ fontSize: '0.68em' }}>${fmtMoney(data.total || 0)}</p>
                   {data.productos && data.productos.length > 0 && (
@@ -422,13 +422,13 @@ function App() {
             </div>
 
             <div className="compare-card">
-              <p className="big-number">{unidadesMes.toLocaleString('es-AR')}</p>
-              <p className="subtitle">Unidades vendidas</p>
+              <p className="big-number">{ordenesMes.toLocaleString('es-AR')}</p>
+              <p className="subtitle">Productos vendidos</p>
             </div>
 
             <div className="compare-card">
-              <p className="big-number">{Math.round(unidadesMes / new Date().getDate()).toLocaleString('es-AR')}</p>
-              <p className="subtitle">Promedio uds/día</p>
+              <p className="big-number">{Math.round(ordenesMes / new Date().getDate()).toLocaleString('es-AR')}</p>
+              <p className="subtitle">Promedio prod/día</p>
             </div>
           </div>
         </section>
@@ -474,12 +474,12 @@ function App() {
               <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
                 <div className="total-item">
                   <span>Total Rango:</span>
-                  <span className="total-item-ordenes">{rangoData.totales?.ordenes || 0} órdenes</span>
+                  <span className="total-item-ordenes">{rangoData.totales?.ordenes || 0} productos vendidos</span>
                   <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(rangoData.totales?.total || 0)}</span>
                 </div>
                 <div className="total-item">
                   <span>Prom. diario:</span>
-                  <span className="total-item-ordenes">{Math.round((rangoData.totales?.ordenes || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1))} órdenes</span>
+                  <span className="total-item-ordenes">{Math.round((rangoData.totales?.ordenes || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1))} productos vendidos</span>
                   <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(Math.round((rangoData.totales?.total || 0) / Math.max(1, Math.ceil((rangoHasta - rangoDesde) / 86400000) + 1)))}</span>
                 </div>
               </div>
@@ -493,7 +493,7 @@ function App() {
                     )}
                     <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
                       <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{data.ordenes || 0}</p>
-                      <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>órdenes</p>
+                      <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>productos vendidos</p>
                     </div>
                     <p className="value" style={{ fontSize: '0.68em' }}>${fmtMoney(data.total || 0)}</p>
                     {data.productos && data.productos.length > 0 && (
@@ -1103,7 +1103,7 @@ function App() {
                       </p>
                       <p className="subtitle">Token ML</p>
                       <p style={{ fontSize: '0.75em', color: '#fbbf24', fontWeight: 700, marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                        {todayData.ordenes !== undefined ? todayData.ordenes : 0} órdenes hoy
+                        {todayData.ordenes !== undefined ? todayData.ordenes : 0} productos vendidos hoy
                       </p>
                     </div>
                   )

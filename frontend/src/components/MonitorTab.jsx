@@ -147,10 +147,10 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         </div>
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: '#fff', fontSize: isFullscreen ? '2.6em' : '1.9em', fontWeight: 800, margin: '0', lineHeight: 1.1 }}>
-            {units > 0 ? units : (data.ordenes || 0)}
+            {data.ordenes || 0}
           </p>
           <p style={{ color: '#888', fontSize: isFullscreen ? '0.95em' : '0.8em', margin: '2px 0 8px 0', fontWeight: 500 }}>
-            {units > 0 ? 'unidades' : 'órdenes'}
+            productos vendidos
           </p>
           <p style={{ color: BRAND_COLORS[marca] || '#fff', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, margin: '0 0 10px 0' }}>
             ${fmtMoney(data.total || 0)}
@@ -263,9 +263,9 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
           <div className="monitor-kpi-label">Ventas Hoy</div>
           <div className="monitor-kpi-value" style={{ color: '#22c55e' }}>
-            {unitsHoy > 0 ? unitsHoy : ordenesHoy}
+            {ordenesHoy}
           </div>
-          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>{unitsHoy > 0 ? 'unidades' : 'órdenes'}</div>
+          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>productos vendidos</div>
           <div style={{ color: '#22c55e', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, opacity: 0.85 }}>
             ${fmtMoney(totalHoy)}
           </div>
@@ -275,9 +275,9 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(6, 182, 212, 0.3)' }}>
           <div className="monitor-kpi-label">Ventas Semana</div>
           <div className="monitor-kpi-value" style={{ color: '#06b6d4' }}>
-            {units7d > 0 ? units7d : ordenes7d}
+            {ordenes7d}
           </div>
-          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>{units7d > 0 ? 'unidades' : 'órdenes'}</div>
+          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>productos vendidos</div>
           <div style={{ color: '#06b6d4', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, opacity: 0.85 }}>
             ${fmtMoney(total7d)}
           </div>
@@ -287,9 +287,9 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
         <div className="monitor-kpi-card" style={{ borderColor: 'rgba(217, 70, 239, 0.3)' }}>
           <div className="monitor-kpi-label">Acumulado Mes</div>
           <div className="monitor-kpi-value" style={{ color: '#d946ef' }}>
-            {unitsMes > 0 ? unitsMes.toLocaleString('es-AR') : ordenesMes}
+            {ordenesMes}
           </div>
-          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>{unitsMes > 0 ? 'unidades' : 'órdenes'}</div>
+          <div className="monitor-kpi-sub" style={{ marginBottom: '4px' }}>productos vendidos</div>
           <div style={{ color: '#d946ef', fontSize: isFullscreen ? '1.3em' : '1em', fontWeight: 700, opacity: 0.85 }}>
             ${fmtMoney(totalMes)}
           </div>
@@ -459,10 +459,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
           Prom. diario: ${fmtMoney(Math.round(totalMes / Math.max(1, new Date().getDate())))}
         </span>
         <span style={{ color: '#888', fontSize: isFullscreen ? '1em' : '0.85em' }}>
-          {ordenesMes} órdenes este mes
-        </span>
-        <span style={{ color: '#888', fontSize: isFullscreen ? '1em' : '0.85em' }}>
-          {unitsMes.toLocaleString('es-AR')} unidades este mes
+          {ordenesMes} productos vendidos este mes
         </span>
       </div>
 
@@ -472,7 +469,7 @@ export default function MonitorTab({ testData = {}, salesData = {} }) {
           {[...tickerItems, ...tickerItems, ...tickerItems].map((item, idx) => (
             <span key={idx} className="monitor-ticker-item">
               <span style={{ color: item.color, fontWeight: 800 }}>{item.marca}</span>
-              <span style={{ color: '#fff', fontWeight: 700 }}>{item.units} uds</span>
+              <span style={{ color: '#fff', fontWeight: 700 }}>{item.ordenes} prod.</span>
               <span style={{ color: item.color, fontWeight: 600 }}>${fmtMoney(item.total)}</span>
               <span style={{ color: '#888' }}>({item.ordenes} ord.)</span>
               <span style={{ color: 'rgba(255,255,255,0.15)', margin: '0 8px' }}>|</span>

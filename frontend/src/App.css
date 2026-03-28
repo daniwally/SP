@@ -96,6 +96,31 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+.brand-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  white-space: nowrap;
+}
+
+.brand-command {
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.brand-dot {
+  color: #06b6d4;
+  font-weight: 900;
+}
+
+.brand-ai {
+  color: #06b6d4;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
 .btn-refresh {
   width: 45px;
   height: 45px;

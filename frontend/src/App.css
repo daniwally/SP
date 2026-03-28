@@ -854,6 +854,14 @@ body {
     grid-template-columns: 1fr 1fr !important;
   }
 
+  .status-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-tokens-grid {
+    grid-template-columns: 1fr;
+  }
+
   .rango-datepicker {
     width: 110px !important;
   }
@@ -1145,6 +1153,126 @@ body {
 
 .react-datepicker__triangle {
   display: none !important;
+}
+
+/* ===== STATUS TAB ===== */
+
+.status-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.status-service-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(217, 70, 239, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+
+.status-service-card:hover {
+  border-color: rgba(217, 70, 239, 0.4);
+  box-shadow: 0 8px 24px rgba(217, 70, 239, 0.15);
+}
+
+.status-service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.status-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge-ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-badge-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge-warn {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.status-service-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+  color: #7f8c8d;
+}
+
+.status-tokens-section {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(217, 70, 239, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.status-tokens-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.status-token-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.status-brand-tokens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.status-token-brand-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(217, 70, 239, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s;
+}
+
+.status-token-brand-card:hover {
+  border-color: rgba(217, 70, 239, 0.4);
 }
 
 /* ===== MONITOR / TV MODE ===== */

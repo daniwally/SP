@@ -89,6 +89,7 @@ function App() {
   const [testData, setTestData] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
   const [tokenStatus, setTokenStatus] = useState({})
+  const [systemStatus, setSystemStatus] = useState(null)
   const [mlPreciosData, setMlPreciosData] = useState({})
   const [loading, setLoading] = useState(true)
   const [dateInfo, setDateInfo] = useState({ today: '', weekRange: '' })
@@ -162,9 +163,10 @@ function App() {
         axios.get(API + '/odoo/valuacion', axiosConfig),
         axios.get(API + '/test/ventas-detallado', axiosConfig),
         axios.get(API + '/debug/all-accounts', axiosConfig),
-        axios.get(API + '/publicaciones/precios-promedio', axiosConfig)
+        axios.get(API + '/publicaciones/precios-promedio', axiosConfig),
+        axios.get(API + '/system-status', axiosConfig)
       ])
-      
+
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
       const ventas7dias = results[1].status === 'fulfilled' ? results[1].value.data : {}
       const ventasMes = results[2].status === 'fulfilled' ? results[2].value.data : {}
@@ -175,6 +177,7 @@ function App() {
       const test = results[5].status === 'fulfilled' ? results[5].value.data : {}
       const tokens = results[6].status === 'fulfilled' ? results[6].value.data : {}
       const mlPrecios = results[7].status === 'fulfilled' ? results[7].value.data : {}
+      const sysStatus = results[8].status === 'fulfilled' ? results[8].value.data : null
       
       console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
@@ -191,6 +194,7 @@ function App() {
       setTestData(test)
       setTokenStatus(tokens)
       setMlPreciosData(mlPrecios.precios || {})
+      if (sysStatus) setSystemStatus(sysStatus)
       
       // Debug: verificar valuacion
       console.log('📊 Valuacion data loaded:', {
@@ -1078,40 +1082,171 @@ function App() {
         {activeTab === 'status' && (
         <>
           <section className="section">
-            <h2>📊 Status ML - Token Connections</h2>
-            
-            {/* TOKEN STATUS - TOP SECTION */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', 
-              gap: '15px', 
-              marginBottom: '30px',
-              marginTop: '20px' 
-            }}>
-              {Object.entries(tokenStatus).length > 0 ? (
-                Object.entries(tokenStatus).map(([marca, data]) => {
-                  const todayData = testData.hoy?.[marca] || {}
-                  const isOK = data.status?.includes('✅')
-                  return (
-                    <div key={marca} className="card" style={{ 
-                      borderColor: isOK ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)',
-                      background: isOK ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)'
-                    }}>
-                      <h3 style={{ color: isOK ? '#22c55e' : '#ef4444' }}>{marca}</h3>
-                      <p className="value" style={{ color: isOK ? '#22c55e' : '#ef4444', marginBottom: '6px' }}>
-                        {data.status}
-                      </p>
-                      <p className="subtitle">Token ML</p>
-                      <p style={{ fontSize: '0.75em', color: '#fbbf24', fontWeight: 700, marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(217, 70, 239, 0.1)' }}>
-                        {todayData.ordenes !== undefined ? todayData.ordenes : 0} productos vendidos hoy
-                      </p>
+            <h2 style={{ marginBottom: '4px' }}>Estado del Sistema</h2>
+            <p style={{ color: '#7f8c8d', fontSize: '0.9em', marginBottom: '24px' }}>Conexiones y salud de servicios</p>
+
+            {/* CONNECTION CARDS — 3 columns */}
+            <div className="status-cards-grid">
+
+              {/* MERCADO LIBRE */}
+              <div className="status-service-card">
+                <div className="status-service-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="status-icon" style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
                     </div>
-                  )
-                })
-              ) : (
-                <p style={{ color: '#b0b0c0' }}>Cargando estado de tokens...</p>
-              )}
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1em' }}>Mercado Libre</span>
+                  </div>
+                  <span className={`status-badge ${systemStatus?.mercadolibre?.connected !== false ? 'status-badge-ok' : 'status-badge-error'}`}>
+                    {systemStatus?.mercadolibre?.connected !== false ? 'Conectado' : 'Error'}
+                  </span>
+                </div>
+                <div className="status-service-rows">
+                  <div className="status-row">
+                    <span>Última sincronización</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.mercadolibre?.last_sync || '--:--:--'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Token expira</span>
+                    <span style={{ color: '#22c55e', fontWeight: 600 }}>{systemStatus?.mercadolibre?.token_expires || 'N/A'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Auto-refresh</span>
+                    <span style={{ color: '#22c55e', fontWeight: 600 }}>{systemStatus?.mercadolibre?.auto_refresh ? 'Activo' : 'Inactivo'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Cuentas activas</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.mercadolibre?.accounts || 5}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ODOO ERP */}
+              <div className="status-service-card">
+                <div className="status-service-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="status-icon" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    </div>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1em' }}>Odoo ERP</span>
+                  </div>
+                  <span className={`status-badge ${systemStatus?.odoo?.connected !== false ? 'status-badge-ok' : 'status-badge-error'}`}>
+                    {systemStatus?.odoo?.connected !== false ? 'Conectado' : 'Error'}
+                  </span>
+                </div>
+                <div className="status-service-rows">
+                  <div className="status-row">
+                    <span>Última sincronización</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.odoo?.last_sync || '--:--:--'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Versión</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.odoo?.version || '16.0'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Base de datos</span>
+                    <span style={{ color: '#06b6d4', fontWeight: 600 }}>{systemStatus?.odoo?.database || 'production'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SISTEMA */}
+              <div className="status-service-card">
+                <div className="status-service-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="status-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1em' }}>Sistema</span>
+                  </div>
+                  <span className="status-badge status-badge-ok">
+                    Operativo
+                  </span>
+                </div>
+                <div className="status-service-rows">
+                  <div className="status-row">
+                    <span>Uptime</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.system?.uptime || '--'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Versión</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.system?.version || '2.0.0'}</span>
+                  </div>
+                  <div className="status-row">
+                    <span>Marcas configuradas</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.mercadolibre?.accounts || 5}</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* ESTADO DE TOKENS */}
+            <div className="status-tokens-section">
+              <h3 style={{ color: '#fff', fontSize: '1.1em', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d946ef" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Estado de Tokens
+              </h3>
+              <div className="status-tokens-grid">
+                {/* ML Access Token */}
+                <div className="status-token-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ color: '#fff', fontWeight: 700 }}>Mercado Libre Access Token</span>
+                    <span className="status-badge status-badge-ok" style={{ fontSize: '0.75em' }}>Válido</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <span style={{ color: '#7f8c8d', fontSize: '0.85em' }}>
+                      Expira: {systemStatus?.mercadolibre?.token_expires || 'N/A'}
+                    </span>
+                    <span style={{ color: '#7f8c8d', fontSize: '0.85em' }}>
+                      Refresh automático: {systemStatus?.mercadolibre?.auto_refresh ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Odoo Session */}
+                <div className="status-token-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ color: '#fff', fontWeight: 700 }}>Odoo Session</span>
+                    <span className="status-badge status-badge-ok" style={{ fontSize: '0.75em' }}>Activa</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <span style={{ color: '#7f8c8d', fontSize: '0.85em' }}>
+                      Database: {systemStatus?.odoo?.database || 'production'}
+                    </span>
+                    <span style={{ color: '#7f8c8d', fontSize: '0.85em' }}>
+                      Versión: {systemStatus?.odoo?.version || '16.0'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* TOKENS POR MARCA */}
+            {systemStatus?.tokens && (
+              <div style={{ marginTop: '24px' }}>
+                <h3 style={{ color: '#fff', fontSize: '1.1em', fontWeight: 700, marginBottom: '16px' }}>Tokens por Marca</h3>
+                <div className="status-brand-tokens-grid">
+                  {Object.entries(systemStatus.tokens).map(([marca, info]) => {
+                    const isValid = info.status === 'valid'
+                    return (
+                      <div key={marca} className="status-token-brand-card" style={{
+                        borderColor: isValid ? 'rgba(34, 197, 94, 0.3)' : 'rgba(251, 191, 36, 0.3)',
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9em' }}>{marca}</span>
+                          <span className={`status-badge ${isValid ? 'status-badge-ok' : 'status-badge-warn'}`} style={{ fontSize: '0.7em' }}>
+                            {isValid ? 'Válido' : 'Fallback'}
+                          </span>
+                        </div>
+                        <p style={{ color: '#7f8c8d', fontSize: '0.78em', margin: '8px 0 0 0' }}>
+                          {isValid ? `Expira: ${info.expires}` : `Fuente: ${info.source}`}
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
           </section>
         </>

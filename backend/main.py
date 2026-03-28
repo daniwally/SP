@@ -132,21 +132,25 @@ async def system_status():
         except Exception:
             pass
 
-    # Odoo connection test
+    # Odoo connection test — try XML-RPC version call (same as app uses)
     odoo_connected = False
-    odoo_version = None
+    odoo_version = "16.0"
     odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
+    odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
     try:
-        async with httpx.AsyncClient(timeout=5) as client:
-            odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
-            resp = await client.get(f"{odoo_url}/web/webclient/version_info", timeout=5)
-            if resp.status_code == 200:
-                odoo_connected = True
-                vinfo = resp.json()
-                odoo_version = vinfo.get("server_version", "16.0") if isinstance(vinfo, dict) else "16.0"
+        import xmlrpc.client
+        common = xmlrpc.client.ServerProxy(f"{odoo_url}/xmlrpc/2/common", allow_none=True)
+        version = common.version()
+        odoo_connected = True
+        odoo_version = version.get("server_version", "16.0") if isinstance(version, dict) else "16.0"
     except Exception:
-        odoo_connected = True  # assume connected if can't check version
-        odoo_version = "16.0"
+        # Fallback: try HTTP ping
+        try:
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.get(f"{odoo_url}/web/login", timeout=5)
+                odoo_connected = resp.status_code in (200, 302, 303)
+        except Exception:
+            pass
 
     # Token with earliest expiration
     earliest_exp = None

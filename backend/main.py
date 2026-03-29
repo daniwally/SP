@@ -132,37 +132,23 @@ async def system_status():
         except Exception:
             pass
 
-    # Odoo connection test — use same auth as odoo_router
+    # Odoo connection test — use odoo_router's get_uid (same that powers the app)
     odoo_connected = False
     odoo_version = "16.0"
     odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
-    odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
-    odoo_user = os.environ.get("ODOO_USER", "rudolf@sobrepatas.com")
-    odoo_key = os.environ.get("ODOO_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
     odoo_error = None
     try:
-        import xmlrpc.client
         import asyncio
-        def _check_odoo():
-            common = xmlrpc.client.ServerProxy(f"{odoo_url}/xmlrpc/2/common")
-            uid = common.authenticate(odoo_db, odoo_user, odoo_key, {})
-            return uid
-        uid = await asyncio.to_thread(_check_odoo)
+        from routers.odoo_router import get_uid
+        uid = await asyncio.to_thread(get_uid)
         odoo_connected = uid is not None and uid > 0
         if not odoo_connected:
-            odoo_error = "Autenticación fallida (uid inválido)"
+            odoo_error = "Autenticación fallida"
     except Exception as e:
-        err_msg = str(e)
         err_type = type(e).__name__
+        err_msg = str(e)
         print(f"⚠️ Odoo check failed: [{err_type}] {err_msg}")
-        if "Timeout" in err_type or "timed out" in err_msg.lower():
-            odoo_error = "Timeout — el servidor no responde"
-        elif "ConnectionRefused" in err_type or "Connection refused" in err_msg:
-            odoo_error = "Conexión rechazada por el servidor"
-        elif "Name or service not known" in err_msg or "getaddrinfo" in err_msg:
-            odoo_error = "No se puede resolver el dominio"
-        else:
-            odoo_error = f"{err_type}: {err_msg[:100]}"
+        odoo_error = f"{err_type}: {err_msg[:100]}"
 
     # Token with earliest expiration
     earliest_exp = None

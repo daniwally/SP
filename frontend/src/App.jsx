@@ -195,14 +195,18 @@ function App() {
       setTokenStatus(tokens)
       setMlPreciosData(mlPrecios.precios || {})
       if (sysStatus) setSystemStatus(sysStatus)
-      
-      // Debug: verificar valuacion
-      console.log('📊 Valuacion data loaded:', {
-        total_general: valuacion.TOTAL_GENERAL,
-        marcas: Object.keys(valuacion).filter(k => k !== 'TOTAL_GENERAL')
-      })
-      
+
       setLoading(false)
+
+      // Odoo check — runs after main data loads, doesn't block UI
+      axios.get(API + '/odoo-check', { timeout: 20000 })
+        .then(res => {
+          setSystemStatus(prev => prev ? {
+            ...prev,
+            odoo: { ...prev.odoo, connected: res.data.connected, error: res.data.error }
+          } : prev)
+        })
+        .catch(() => {})
     } catch (error) {
       console.error('❌ Error fetching data:', error)
       setLoading(false)
@@ -1136,8 +1140,8 @@ function App() {
                     </div>
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1em' }}>Odoo ERP</span>
                   </div>
-                  <span className={`status-badge ${systemStatus?.odoo?.connected !== false ? 'status-badge-ok' : 'status-badge-error'}`}>
-                    {systemStatus?.odoo?.connected !== false ? 'Conectado' : 'Sin conexión'}
+                  <span className={`status-badge ${systemStatus?.odoo?.connected === true ? 'status-badge-ok' : systemStatus?.odoo?.connected === false ? 'status-badge-error' : 'status-badge-warn'}`}>
+                    {systemStatus?.odoo?.connected === true ? 'Conectado' : systemStatus?.odoo?.connected === false ? 'Sin conexión' : 'Verificando...'}
                   </span>
                 </div>
                 <div className="status-service-rows">

@@ -138,7 +138,7 @@ async def system_status():
     odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
     odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
     odoo_user = os.environ.get("ODOO_USER", "rudolf@sobrepatas.com")
-    odoo_key = os.environ.get("ODOO_API_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
+    odoo_key = os.environ.get("ODOO_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
     odoo_error = None
     try:
         import xmlrpc.client
@@ -153,14 +153,16 @@ async def system_status():
             odoo_error = "Autenticación fallida (uid inválido)"
     except Exception as e:
         err_msg = str(e)
-        if "TimeoutError" in type(e).__name__ or "timed out" in err_msg.lower():
+        err_type = type(e).__name__
+        print(f"⚠️ Odoo check failed: [{err_type}] {err_msg}")
+        if "Timeout" in err_type or "timed out" in err_msg.lower():
             odoo_error = "Timeout — el servidor no responde"
-        elif "ConnectionRefused" in type(e).__name__ or "Connection refused" in err_msg:
+        elif "ConnectionRefused" in err_type or "Connection refused" in err_msg:
             odoo_error = "Conexión rechazada por el servidor"
         elif "Name or service not known" in err_msg or "getaddrinfo" in err_msg:
             odoo_error = "No se puede resolver el dominio"
         else:
-            odoo_error = err_msg[:120]
+            odoo_error = f"{err_type}: {err_msg[:100]}"
 
     # Token with earliest expiration
     earliest_exp = None

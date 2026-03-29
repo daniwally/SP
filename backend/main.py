@@ -132,23 +132,25 @@ async def system_status():
         except Exception:
             pass
 
-    # Odoo connection test — try XML-RPC version call (same as app uses)
+    # Odoo connection test — quick HTTP check
     odoo_connected = False
     odoo_version = "16.0"
     odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
     odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
     try:
-        import xmlrpc.client
-        common = xmlrpc.client.ServerProxy(f"{odoo_url}/xmlrpc/2/common", allow_none=True)
-        version = common.version()
-        odoo_connected = True
-        odoo_version = version.get("server_version", "16.0") if isinstance(version, dict) else "16.0"
+        async with httpx.AsyncClient(timeout=8, follow_redirects=True) as client:
+            resp = await client.get(f"{odoo_url}/web/login")
+            odoo_connected = resp.status_code < 500
     except Exception:
-        # Fallback: try HTTP ping
+        pass
+    # If HTTP check failed, try XML-RPC (slower but more reliable)
+    if not odoo_connected:
         try:
-            async with httpx.AsyncClient(timeout=5) as client:
-                resp = await client.get(f"{odoo_url}/web/login", timeout=5)
-                odoo_connected = resp.status_code in (200, 302, 303)
+            import xmlrpc.client
+            common = xmlrpc.client.ServerProxy(f"{odoo_url}/xmlrpc/2/common", allow_none=True)
+            version = common.version()
+            odoo_connected = True
+            odoo_version = version.get("server_version", "16.0") if isinstance(version, dict) else "16.0"
         except Exception:
             pass
 

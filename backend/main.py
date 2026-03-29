@@ -139,6 +139,7 @@ async def system_status():
     odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
     odoo_user = os.environ.get("ODOO_USER", "rudolf@sobrepatas.com")
     odoo_key = os.environ.get("ODOO_API_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
+    odoo_error = None
     try:
         import xmlrpc.client
         import asyncio
@@ -148,8 +149,18 @@ async def system_status():
             return uid
         uid = await asyncio.to_thread(_check_odoo)
         odoo_connected = uid is not None and uid > 0
-    except Exception:
-        pass
+        if not odoo_connected:
+            odoo_error = "Autenticación fallida (uid inválido)"
+    except Exception as e:
+        err_msg = str(e)
+        if "TimeoutError" in type(e).__name__ or "timed out" in err_msg.lower():
+            odoo_error = "Timeout — el servidor no responde"
+        elif "ConnectionRefused" in type(e).__name__ or "Connection refused" in err_msg:
+            odoo_error = "Conexión rechazada por el servidor"
+        elif "Name or service not known" in err_msg or "getaddrinfo" in err_msg:
+            odoo_error = "No se puede resolver el dominio"
+        else:
+            odoo_error = err_msg[:120]
 
     # Token with earliest expiration
     earliest_exp = None
@@ -171,6 +182,7 @@ async def system_status():
         },
         "odoo": {
             "connected": odoo_connected,
+            "error": odoo_error,
             "last_sync": now.strftime("%H:%M:%S"),
             "version": odoo_version or "16.0",
             "database": odoo_db.split("-main")[0].replace("gedvera-", "") if "gedvera" in odoo_db else odoo_db,

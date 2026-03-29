@@ -1104,7 +1104,7 @@ function App() {
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1em' }}>Mercado Libre</span>
                   </div>
                   <span className={`status-badge ${systemStatus?.mercadolibre?.connected !== false ? 'status-badge-ok' : 'status-badge-error'}`}>
-                    {systemStatus?.mercadolibre?.connected !== false ? 'Conectado' : 'Error'}
+                    {systemStatus?.mercadolibre?.connected !== false ? 'Conectado' : 'Sin conexión'}
                   </span>
                 </div>
                 <div className="status-service-rows">
@@ -1137,10 +1137,15 @@ function App() {
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1em' }}>Odoo ERP</span>
                   </div>
                   <span className={`status-badge ${systemStatus?.odoo?.connected !== false ? 'status-badge-ok' : 'status-badge-error'}`}>
-                    {systemStatus?.odoo?.connected !== false ? 'Conectado' : 'Error'}
+                    {systemStatus?.odoo?.connected !== false ? 'Conectado' : 'Sin conexión'}
                   </span>
                 </div>
                 <div className="status-service-rows">
+                  {systemStatus?.odoo?.error && (
+                    <div className="status-row" style={{ background: 'rgba(239, 68, 68, 0.08)', borderRadius: '8px', padding: '8px 12px', margin: '0 0 4px 0' }}>
+                      <span style={{ color: '#ef4444', fontSize: '0.85em' }}>{systemStatus.odoo.error}</span>
+                    </div>
+                  )}
                   <div className="status-row">
                     <span>Última sincronización</span>
                     <span style={{ color: '#fff', fontWeight: 600 }}>{systemStatus?.odoo?.last_sync || '--:--:--'}</span>

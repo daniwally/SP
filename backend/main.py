@@ -132,10 +132,24 @@ async def system_status():
         except Exception:
             pass
 
-    # Odoo — assume connected (configured and normally operational)
-    odoo_connected = True
+    # Odoo connection test — use same auth as odoo_router
+    odoo_connected = False
     odoo_version = "16.0"
     odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
+    odoo_url = os.environ.get("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
+    odoo_user = os.environ.get("ODOO_USER", "rudolf@sobrepatas.com")
+    odoo_key = os.environ.get("ODOO_API_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
+    try:
+        import xmlrpc.client
+        import asyncio
+        def _check_odoo():
+            common = xmlrpc.client.ServerProxy(f"{odoo_url}/xmlrpc/2/common")
+            uid = common.authenticate(odoo_db, odoo_user, odoo_key, {})
+            return uid
+        uid = await asyncio.to_thread(_check_odoo)
+        odoo_connected = uid is not None and uid > 0
+    except Exception:
+        pass
 
     # Token with earliest expiration
     earliest_exp = None

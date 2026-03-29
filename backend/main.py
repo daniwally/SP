@@ -132,24 +132,6 @@ async def system_status():
         except Exception:
             pass
 
-    # Odoo connection test — use odoo_router's get_uid (same that powers the app)
-    odoo_connected = False
-    odoo_version = "16.0"
-    odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
-    odoo_error = None
-    try:
-        import asyncio
-        from routers.odoo_router import get_uid
-        uid = await asyncio.to_thread(get_uid)
-        odoo_connected = uid is not None and uid > 0
-        if not odoo_connected:
-            odoo_error = "Autenticación fallida"
-    except Exception as e:
-        err_type = type(e).__name__
-        err_msg = str(e)
-        print(f"⚠️ Odoo check failed: [{err_type}] {err_msg}")
-        odoo_error = f"{err_type}: {err_msg[:100]}"
-
     # Token with earliest expiration
     earliest_exp = None
     for marca, info in ml_tokens.items():
@@ -160,6 +142,8 @@ async def system_status():
     # Auto refresh status
     has_refresh_tokens = len(REFRESH_TOKENS) > 0
 
+    odoo_db = os.environ.get("ODOO_DB", "gedvera-sobrepatas-main-25353401")
+
     return {
         "mercadolibre": {
             "connected": ml_connected,
@@ -169,10 +153,10 @@ async def system_status():
             "accounts": len(CUENTAS),
         },
         "odoo": {
-            "connected": odoo_connected,
-            "error": odoo_error,
+            "connected": None,
+            "error": None,
             "last_sync": now.strftime("%H:%M:%S"),
-            "version": odoo_version or "16.0",
+            "version": "16.0",
             "database": odoo_db.split("-main")[0].replace("gedvera-", "") if "gedvera" in odoo_db else odoo_db,
         },
         "system": {
@@ -199,6 +183,22 @@ def _get_uptime():
     if hours > 0:
         return f"{hours}h {mins}m"
     return f"{mins}m"
+
+@app.get("/api/odoo-check")
+async def odoo_check():
+    """Lightweight Odoo connection check — called separately to avoid blocking"""
+    import asyncio
+    from routers.odoo_router import get_uid
+    try:
+        uid = await asyncio.to_thread(get_uid)
+        if uid and uid > 0:
+            return {"connected": True, "error": None}
+        return {"connected": False, "error": "Autenticación fallida"}
+    except Exception as e:
+        err_type = type(e).__name__
+        err_msg = str(e)
+        print(f"⚠️ Odoo check failed: [{err_type}] {err_msg}")
+        return {"connected": False, "error": f"{err_type}: {err_msg[:100]}"}
 
 @app.get("/api/debug/api-test/{cuenta_num}")
 async def debug_api_test(cuenta_num: int):

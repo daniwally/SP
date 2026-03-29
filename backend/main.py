@@ -188,17 +188,40 @@ def _get_uptime():
 async def odoo_check():
     """Lightweight Odoo connection check — called separately to avoid blocking"""
     import asyncio
-    from routers.odoo_router import get_uid
+    from routers.odoo_router import get_uid, ODOO_URL, ODOO_DB, ODOO_USER, ODOO_KEY
     try:
         uid = await asyncio.to_thread(get_uid)
         if uid and uid > 0:
-            return {"connected": True, "error": None}
-        return {"connected": False, "error": "Autenticación fallida"}
+            return {
+                "connected": True,
+                "error": None,
+                "uid": uid,
+                "url": ODOO_URL,
+                "db": ODOO_DB,
+                "user": ODOO_USER,
+                "key_preview": f"{ODOO_KEY[:8]}...{ODOO_KEY[-8:]}" if ODOO_KEY else None,
+            }
+        return {
+            "connected": False,
+            "error": "Autenticación fallida (uid inválido)",
+            "uid": uid,
+            "url": ODOO_URL,
+            "db": ODOO_DB,
+            "user": ODOO_USER,
+            "key_preview": f"{ODOO_KEY[:8]}...{ODOO_KEY[-8:]}" if ODOO_KEY else None,
+        }
     except Exception as e:
         err_type = type(e).__name__
         err_msg = str(e)
         print(f"⚠️ Odoo check failed: [{err_type}] {err_msg}")
-        return {"connected": False, "error": f"{err_type}: {err_msg[:100]}"}
+        return {
+            "connected": False,
+            "error": f"{err_type}: {err_msg[:150]}",
+            "url": ODOO_URL,
+            "db": ODOO_DB,
+            "user": ODOO_USER,
+            "key_preview": f"{ODOO_KEY[:8]}...{ODOO_KEY[-8:]}" if ODOO_KEY else None,
+        }
 
 @app.get("/api/debug/api-test/{cuenta_num}")
 async def debug_api_test(cuenta_num: int):

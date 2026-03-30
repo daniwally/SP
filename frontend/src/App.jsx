@@ -106,6 +106,7 @@ function App() {
   const [enviosLoading, setEnviosLoading] = useState(false)
   const [enviosListaOpen, setEnviosListaOpen] = useState(false)
   const [enviosProvincia, setEnviosProvincia] = useState(null)
+  const [enviosHeatmap, setEnviosHeatmap] = useState(null)
 
   useEffect(() => {
     const today = new Date()
@@ -244,15 +245,21 @@ function App() {
     if (!enviosDesde || !enviosHasta) return
     setEnviosLoading(true)
     setEnviosProvincia(null)
+    setEnviosHeatmap(null)
     try {
       const API = window.location.origin + '/api'
-      const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 120000 })
+      const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 60000 })
       setEnviosDetalle(resp.data)
+      setEnviosLoading(false)
+      // Heatmap aparte — no bloquea los datos principales
+      axios.get(`${API}/test/envios-heatmap?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 120000 })
+        .then(r => setEnviosHeatmap(r.data.heatmap || []))
+        .catch(() => setEnviosHeatmap([]))
     } catch (e) {
       console.error('Error fetching envios detalle:', e)
       setEnviosDetalle(null)
+      setEnviosLoading(false)
     }
-    setEnviosLoading(false)
   }
 
   if (loading) {
@@ -1345,7 +1352,13 @@ function App() {
               )}
 
               {/* Mapa de calor */}
-              <EnviosHeatMap points={enviosDetalle.heatmap} />
+              {enviosHeatmap === null ? (
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '40px 20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px', textAlign: 'center' }}>
+                  <p style={{ color: '#06b6d4', fontSize: '0.85em' }}>Geocodificando localidades para el mapa de calor...</p>
+                </div>
+              ) : (
+                <EnviosHeatMap points={enviosHeatmap} />
+              )}
 
               {/* Listado de envíos — collapsible */}
               <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>

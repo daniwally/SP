@@ -642,14 +642,6 @@ async def envios_detalle(desde: str, hasta: str):
     for e in all_envios:
         por_estado[e.get("status", "unknown")] += 1
 
-    return {
-        "total": len(all_envios),
-        "por_marca": por_marca,
-        "por_estado": dict(por_estado),
-        "por_provincia": dict(sorted(por_provincia.items(), key=lambda x: x[1], reverse=True)),
-        "envios": all_envios,
-    }
-
     # Geocodificar localidades para heatmap
     localidades = defaultdict(int)
     for e in all_envios:
@@ -659,9 +651,15 @@ async def envios_detalle(desde: str, hasta: str):
             localidades[(ciudad, provincia)] += 1
 
     heatmap_points = await geocode_localidades(localidades)
-    resultado["heatmap"] = heatmap_points
 
-    return resultado
+    return {
+        "total": len(all_envios),
+        "por_marca": por_marca,
+        "por_estado": dict(por_estado),
+        "por_provincia": dict(sorted(por_provincia.items(), key=lambda x: x[1], reverse=True)),
+        "envios": all_envios,
+        "heatmap": heatmap_points,
+    }
 
 
 # Cache global de geocoding — persiste mientras el server esté vivo

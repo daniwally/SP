@@ -432,3 +432,220 @@ async def ventas_diarias():
         ]
 
     return {"dias": dias, "marcas": marcas_data}
+
+
+@router.get("/envios")
+async def envios_resumen():
+    """Resumen de envíos: hoy, semana y mes — con detalle de estado por marca"""
+    NOW = datetime.now(ART)
+    HOY = NOW.strftime("%Y-%m-%d")
+    HACE_7 = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
+    INICIO_MES = datetime(NOW.year, NOW.month, 1).strftime("%Y-%m-%d")
+
+    def fecha_art(date_str):
+        try:
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            return dt.astimezone(ART).strftime("%Y-%m-%d")
+        except Exception:
+            return date_str[:10]
+
+    async def fetch_envios_cuenta(cuenta_num, uid, marca):
+        token = await get_token(cuenta_num)
+        if not token:
+            return marca, {"error": "Token not found"}
+
+        try:
+            ordenes = []
+            date_from = f"{INICIO_MES}T00:00:00.000-03:00"
+            date_to = f"{HOY}T23:59:59.999-03:00"
+            base_url = (
+                f"https://api.mercadolibre.com/orders/search"
+                f"?seller={uid}&sort=date_desc"
+                f"&order.date_created.from={date_from}"
+                f"&order.date_created.to={date_to}"
+            )
+            url = base_url
+
+            async with httpx.AsyncClient() as client:
+                while True:
+                    resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    if not data or "results" not in data:
+                        break
+                    batch = data.get("results", [])
+                    ordenes.extend(batch)
+                    paging = data.get("paging", {})
+                    offset = paging.get("offset", 0)
+                    limit = paging.get("limit", 50)
+                    total = paging.get("total", 0)
+                    if offset + limit >= total:
+                        break
+                    url = f"{base_url}&offset={offset + limit}"
+
+            ordenes = [o for o in ordenes if o.get("status") != "cancelled"]
+
+            # Extraer shipping ids y contar por estado
+            def get_envios_stats(lista_ordenes):
+                shipping_ids = []
+                for o in lista_ordenes:
+                    sid = o.get("shipping", {}).get("id")
+                    if sid:
+                        shipping_ids.append(sid)
+                return {"envios": len(shipping_ids)}
+
+            ordenes_hoy = [o for o in ordenes if fecha_art(o.get("date_created", "")) == HOY]
+            ordenes_7d = [o for o in ordenes if HACE_7 <= fecha_art(o.get("date_created", "")) <= HOY]
+
+            return marca, {
+                "hoy": get_envios_stats(ordenes_hoy),
+                "semana": get_envios_stats(ordenes_7d),
+                "mes": get_envios_stats(ordenes),
+            }
+        except Exception as e:
+            print(f"Error envios {marca}: {e}")
+            return marca, {"error": str(e)[:100]}
+
+    results = await asyncio.gather(*[fetch_envios_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
+    return {marca: data for marca, data in results}
+
+
+@router.get("/envios-detalle")
+async def envios_detalle(desde: str, hasta: str):
+    """Lista detallada de envíos por rango con estado, dirección y tracking"""
+    date_from = f"{desde}T00:00:00.000-03:00"
+    date_to = f"{hasta}T23:59:59.999-03:00"
+
+    async def fetch_cuenta(cuenta_num, uid, marca):
+        token = await get_token(cuenta_num)
+        if not token:
+            return marca, []
+
+        try:
+            ordenes = []
+            base_url = (
+                f"https://api.mercadolibre.com/orders/search"
+                f"?seller={uid}&sort=date_desc"
+                f"&order.date_created.from={date_from}"
+                f"&order.date_created.to={date_to}"
+            )
+            url = base_url
+
+            async with httpx.AsyncClient(timeout=15) as client:
+                while True:
+                    resp = await client.get(url, headers={"Authorization": f"Bearer {token}"})
+                    resp.raise_for_status()
+                    data = resp.json()
+                    if not data or "results" not in data:
+                        break
+                    batch = data.get("results", [])
+                    ordenes.extend(batch)
+                    paging = data.get("paging", {})
+                    offset = paging.get("offset", 0)
+                    limit = paging.get("limit", 50)
+                    total = paging.get("total", 0)
+                    if offset + limit >= total:
+                        break
+                    url = f"{base_url}&offset={offset + limit}"
+
+                ordenes = [o for o in ordenes if o.get("status") != "cancelled"]
+
+                # Para cada orden con shipping, obtener detalle del envío
+                shipping_ids = []
+                order_map = {}
+                for o in ordenes:
+                    sid = o.get("shipping", {}).get("id")
+                    if sid:
+                        shipping_ids.append(sid)
+                        order_map[sid] = o
+
+                # Fetch shipment details in batches (max 20 concurrent)
+                envios = []
+                batch_size = 20
+                for i in range(0, len(shipping_ids), batch_size):
+                    batch_ids = shipping_ids[i:i + batch_size]
+                    tasks = []
+                    for sid in batch_ids:
+                        tasks.append(client.get(
+                            f"https://api.mercadolibre.com/shipments/{sid}",
+                            headers={"Authorization": f"Bearer {token}", "x-format-new": "true"},
+                            timeout=10
+                        ))
+                    responses = await asyncio.gather(*tasks, return_exceptions=True)
+                    for j, resp in enumerate(responses):
+                        sid = batch_ids[j]
+                        orden = order_map.get(sid, {})
+                        if isinstance(resp, Exception):
+                            envios.append({
+                                "shipping_id": sid,
+                                "marca": marca,
+                                "fecha": orden.get("date_created", "")[:10],
+                                "monto": orden.get("total_amount", 0),
+                                "status": "unknown",
+                                "ciudad": None,
+                                "provincia": None,
+                                "cp": None,
+                            })
+                        elif resp.status_code == 200:
+                            ship = resp.json()
+                            receiver = ship.get("receiver_address") or ship.get("destination", {}).get("shipping_address", {}) or {}
+                            status_detail = ship.get("status", "unknown")
+                            substatus = ship.get("substatus", "")
+                            envios.append({
+                                "shipping_id": sid,
+                                "marca": marca,
+                                "fecha": orden.get("date_created", "")[:10],
+                                "monto": orden.get("total_amount", 0),
+                                "status": status_detail,
+                                "substatus": substatus,
+                                "ciudad": receiver.get("city", {}).get("name") if isinstance(receiver.get("city"), dict) else receiver.get("city"),
+                                "provincia": receiver.get("state", {}).get("name") if isinstance(receiver.get("state"), dict) else receiver.get("state"),
+                                "cp": receiver.get("zip_code"),
+                                "producto": orden.get("order_items", [{}])[0].get("item", {}).get("title", "") if orden.get("order_items") else "",
+                            })
+                        else:
+                            envios.append({
+                                "shipping_id": sid,
+                                "marca": marca,
+                                "fecha": orden.get("date_created", "")[:10],
+                                "monto": orden.get("total_amount", 0),
+                                "status": "error",
+                                "ciudad": None,
+                                "provincia": None,
+                                "cp": None,
+                            })
+
+            return marca, envios
+        except Exception as e:
+            print(f"Error envios-detalle {marca}: {e}")
+            return marca, []
+
+    results = await asyncio.gather(*[fetch_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
+
+    all_envios = []
+    por_marca = {}
+    for marca, envios in results:
+        por_marca[marca] = len(envios)
+        all_envios.extend(envios)
+
+    # Ordenar por fecha desc
+    all_envios.sort(key=lambda x: x.get("fecha", ""), reverse=True)
+
+    # Stats por provincia
+    por_provincia = defaultdict(int)
+    for e in all_envios:
+        prov = e.get("provincia") or "Desconocida"
+        por_provincia[prov] += 1
+
+    # Stats por estado
+    por_estado = defaultdict(int)
+    for e in all_envios:
+        por_estado[e.get("status", "unknown")] += 1
+
+    return {
+        "total": len(all_envios),
+        "por_marca": por_marca,
+        "por_estado": dict(por_estado),
+        "por_provincia": dict(sorted(por_provincia.items(), key=lambda x: x[1], reverse=True)),
+        "envios": all_envios,
+    }

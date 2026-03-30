@@ -598,6 +598,44 @@ function App() {
                   />
                 </div>
               )}
+
+              {/* TOP 10 CATEGORÍAS */}
+              {rangoData.categorias && rangoData.categorias.length > 0 && (
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
+                  <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 16px 0' }}>Top 10 Categorías</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {rangoData.categorias.map((cat, idx) => {
+                      const maxCant = rangoData.categorias[0]?.cantidad || 1
+                      const pct = (cat.cantidad / maxCant) * 100
+                      const rankColors = ['#d946ef', '#06b6d4', '#a855f7']
+                      const barColor = idx < 3 ? rankColors[idx] : 'rgba(255,255,255,0.15)'
+                      return (
+                        <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                          <span style={{
+                            width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '0.75em', fontWeight: 700, flexShrink: 0,
+                            background: idx < 3 ? `linear-gradient(135deg, ${rankColors[idx]}, ${rankColors[idx]}88)` : 'rgba(255,255,255,0.08)',
+                            color: idx < 3 ? '#fff' : '#999',
+                          }}>
+                            {idx + 1}
+                          </span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
+                              <span style={{ color: '#fff', fontSize: '0.85em', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>{cat.nombre}</span>
+                              <span style={{ color: '#ccc', fontSize: '0.8em', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                {cat.cantidad} ventas · ${cat.total >= 1000000 ? (cat.total / 1000000).toFixed(1) + 'M' : cat.total >= 1000 ? Math.round(cat.total / 1000) + 'K' : cat.total.toLocaleString('es-AR')}
+                              </span>
+                            </div>
+                            <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${pct}%`, borderRadius: '2px', background: barColor, transition: 'width 0.6s ease' }} />
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </section>

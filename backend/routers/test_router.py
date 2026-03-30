@@ -261,28 +261,41 @@ async def ventas_rango(desde: str, hasta: str):
 
             # Agrupar por día para el gráfico
             por_dia = defaultdict(lambda: {"total": 0, "ordenes": 0})
+            # Agrupar por categoría
+            categorias = defaultdict(lambda: {"total": 0, "cantidad": 0})
             for o in ordenes:
                 dia = fecha_art(o.get("date_created", ""))
                 por_dia[dia]["total"] += o.get("total_amount", 0)
                 por_dia[dia]["ordenes"] += 1
+                for item in o.get("order_items", []):
+                    cat_id = item.get("item", {}).get("category_id")
+                    if cat_id:
+                        qty = item.get("quantity", 1)
+                        unit_price = item.get("unit_price", 0)
+                        categorias[cat_id]["cantidad"] += qty
+                        categorias[cat_id]["total"] += unit_price * qty
 
             return marca, {
                 "total": sum(o.get("total_amount", 0) for o in ordenes),
                 "ordenes": len(ordenes),
                 "productos": extract_sku_productos(ordenes)[:10]
-            }, dict(por_dia)
+            }, dict(por_dia), dict(categorias)
 
         except Exception as e:
-            return marca, {"error": str(e)}, {}
+            return marca, {"error": str(e)}, {}, {}
 
     results = await asyncio.gather(*[fetch_cuenta(cn, uid, marca) for cn, (uid, marca) in CUENTAS.items()])
 
     resultado = {}
     diario_por_marca = {}
-    for marca, data, diario in results:
+    categorias_global = defaultdict(lambda: {"total": 0, "cantidad": 0})
+    for marca, data, diario, cats in results:
         resultado[marca] = data
         if diario:
             diario_por_marca[marca] = diario
+        for cat_id, vals in cats.items():
+            categorias_global[cat_id]["total"] += vals["total"]
+            categorias_global[cat_id]["cantidad"] += vals["cantidad"]
 
     total_general = sum(v.get("total", 0) for v in resultado.values() if "total" in v)
     ordenes_general = sum(v.get("ordenes", 0) for v in resultado.values() if "ordenes" in v)
@@ -305,6 +318,32 @@ async def ventas_rango(desde: str, hasta: str):
         ]
 
     resultado["diario"] = {"dias": dias, "marcas": marcas_diario}
+
+    # Resolver nombres de categorías (top 10)
+    top_cats = sorted(categorias_global.items(), key=lambda x: x[1]["cantidad"], reverse=True)[:10]
+    if top_cats:
+        cat_names = {}
+        async with httpx.AsyncClient(timeout=10) as client:
+            cat_tasks = []
+            for cat_id, _ in top_cats:
+                cat_tasks.append(client.get(f"https://api.mercadolibre.com/categories/{cat_id}"))
+            cat_responses = await asyncio.gather(*cat_tasks, return_exceptions=True)
+            for i, resp in enumerate(cat_responses):
+                cat_id = top_cats[i][0]
+                if isinstance(resp, Exception):
+                    cat_names[cat_id] = cat_id
+                elif resp.status_code == 200:
+                    cdata = resp.json()
+                    cat_names[cat_id] = cdata.get("name", cat_id)
+                else:
+                    cat_names[cat_id] = cat_id
+
+        resultado["categorias"] = [
+            {"id": cat_id, "nombre": cat_names.get(cat_id, cat_id), "cantidad": vals["cantidad"], "total": round(vals["total"])}
+            for cat_id, vals in top_cats
+        ]
+    else:
+        resultado["categorias"] = []
 
     return resultado
 

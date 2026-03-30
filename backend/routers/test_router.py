@@ -642,27 +642,13 @@ async def envios_detalle(desde: str, hasta: str):
     for e in all_envios:
         por_estado[e.get("status", "unknown")] += 1
 
-    # Geocodificar localidades para heatmap (no bloquea si falla)
-    heatmap_points = []
-    try:
-        localidades = defaultdict(int)
-        for e in all_envios:
-            ciudad = e.get("ciudad")
-            provincia = e.get("provincia")
-            if ciudad and provincia:
-                localidades[(ciudad, provincia)] += 1
-        if localidades:
-            heatmap_points = await geocode_localidades(localidades)
-    except Exception as e:
-        print(f"Error geocoding heatmap: {e}")
-
     return {
         "total": len(all_envios),
         "por_marca": por_marca,
         "por_estado": dict(por_estado),
         "por_provincia": dict(sorted(por_provincia.items(), key=lambda x: x[1], reverse=True)),
         "envios": all_envios,
-        "heatmap": heatmap_points,
+        "heatmap": [],
     }
 
 

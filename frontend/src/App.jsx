@@ -45,7 +45,13 @@ const BRAND_LOGOS = {
 import './App.css'
 
 // Función para formatear montos sin centavos
-const fmtMoney = (n) => Math.round(n).toLocaleString('es-AR')
+const fmtMoney = (n) => {
+  const s = Math.round(n).toString()
+  if (s.length <= 3) return s
+  const last3 = s.slice(-3)
+  const rest = s.slice(0, -3).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return rest + ',' + last3
+}
 
 // Función para formatear fecha en español
 const formatDateSpanish = (date) => {

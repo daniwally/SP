@@ -1420,6 +1420,22 @@ function App() {
                 <EnviosHeatMap points={filteredHeatmap} />
               )}
 
+              {/* Filtro por marca debajo del mapa */}
+              {enviosHeatmap && enviosHeatmap.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '12px' }}>
+                  <button onClick={() => setEnviosMarcaFilter(null)}
+                    style={{ padding: '4px 14px', borderRadius: '20px', border: enviosMarcaFilter === null ? '1px solid #06b6d4' : '1px solid rgba(255,255,255,0.1)', background: enviosMarcaFilter === null ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.05)', color: enviosMarcaFilter === null ? '#06b6d4' : '#999', fontSize: '0.82em', fontWeight: 600, cursor: 'pointer' }}>
+                    Todas
+                  </button>
+                  {Object.keys(enviosDetalle.por_marca || {}).map(marca => (
+                    <button key={marca} onClick={() => setEnviosMarcaFilter(enviosMarcaFilter === marca ? null : marca)}
+                      style={{ padding: '4px 14px', borderRadius: '20px', border: enviosMarcaFilter === marca ? '1px solid #d946ef' : '1px solid rgba(255,255,255,0.1)', background: enviosMarcaFilter === marca ? 'rgba(217,70,239,0.15)' : 'rgba(255,255,255,0.05)', color: enviosMarcaFilter === marca ? '#d946ef' : '#999', fontSize: '0.82em', fontWeight: 600, cursor: 'pointer' }}>
+                      {marca}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Listado de envíos — collapsible */}
               <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
                 <h3 onClick={() => setEnviosListaOpen(!enviosListaOpen)} style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

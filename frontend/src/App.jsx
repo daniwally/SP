@@ -240,6 +240,7 @@ function App() {
             <div className="ring-segment" />
             <div className="ring-segment" />
           </div>
+          <h1 className="brand-logo" style={{ fontSize: '2em', marginBottom: '20px' }}><span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
           <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
         </div>
       </div>

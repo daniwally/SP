@@ -793,7 +793,14 @@ body {
 /* RESPONSIVE */
 
 /* Tablet */
+.categorias-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
 @media (max-width: 768px) {
+  .categorias-grid {
+    grid-template-columns: 1fr !important;
+  }
   .header {
     padding: 15px;
     flex-direction: column;

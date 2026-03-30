@@ -251,10 +251,23 @@ function App() {
       const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 60000 })
       setEnviosDetalle(resp.data)
       setEnviosLoading(false)
-      // Heatmap aparte — no bloquea los datos principales
-      axios.get(`${API}/test/envios-heatmap?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 120000 })
-        .then(r => setEnviosHeatmap(r.data.heatmap || []))
-        .catch(() => setEnviosHeatmap([]))
+      // Heatmap: agregar localidades del resultado y mandar a geocodificar
+      const locs = {}
+      ;(resp.data.envios || []).forEach(e => {
+        if (e.ciudad && e.provincia) {
+          const k = `${e.ciudad}|${e.provincia}`
+          if (!locs[k]) locs[k] = { ciudad: e.ciudad, provincia: e.provincia, cantidad: 0 }
+          locs[k].cantidad += 1
+        }
+      })
+      const topLocs = Object.values(locs).sort((a, b) => b.cantidad - a.cantidad).slice(0, 50)
+      if (topLocs.length > 0) {
+        axios.post(`${API}/test/geocode-localidades`, { localidades: topLocs }, { timeout: 120000 })
+          .then(r => setEnviosHeatmap(r.data.heatmap || []))
+          .catch(() => setEnviosHeatmap([]))
+      } else {
+        setEnviosHeatmap([])
+      }
     } catch (e) {
       console.error('Error fetching envios detalle:', e)
       setEnviosDetalle(null)

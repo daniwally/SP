@@ -1205,23 +1205,54 @@ function App() {
 
           {enviosDetalle && (
             <>
-              {/* Totales y stats */}
               <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
                 <div className="total-item">
-                  <span>Total Envíos:</span>
-                  <span className="total-item-ordenes">{enviosDetalle.total}</span>
+                  <span>Total Rango:</span>
+                  <span className="total-item-ordenes">{enviosDetalle.total} envíos</span>
+                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney((enviosDetalle.envios || []).reduce((s, e) => s + (e.monto || 0), 0))}</span>
                 </div>
-                {Object.entries(enviosDetalle.por_marca || {}).map(([marca, cant]) => (
-                  <div key={marca} className="total-item">
-                    <span>{marca}:</span>
-                    <span className="total-item-ordenes">{cant} envíos</span>
-                  </div>
-                ))}
+                <div className="total-item">
+                  <span>Prom. diario:</span>
+                  <span className="total-item-ordenes">{Math.round(enviosDetalle.total / Math.max(1, Math.ceil((enviosHasta - enviosDesde) / 86400000) + 1))} envíos</span>
+                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(Math.round((enviosDetalle.envios || []).reduce((s, e) => s + (e.monto || 0), 0) / Math.max(1, Math.ceil((enviosHasta - enviosDesde) / 86400000) + 1)))}</span>
+                </div>
+              </div>
+              <div className="cards-grid">
+                {Object.entries(enviosDetalle.por_marca || {}).map(([marca, cant]) => {
+                  const marcaEnvios = (enviosDetalle.envios || []).filter(e => e.marca === marca)
+                  const montoMarca = marcaEnvios.reduce((s, e) => s + (e.monto || 0), 0)
+                  const statusCounts = {}
+                  marcaEnvios.forEach(e => { statusCounts[e.status] = (statusCounts[e.status] || 0) + 1 })
+                  const colors = { delivered: '#22c55e', shipped: '#06b6d4', ready_to_ship: '#eab308', handling: '#f59e0b', pending: '#999', cancelled: '#ef4444', not_delivered: '#ef4444' }
+                  return (
+                    <div key={marca} className="card">
+                      {BRAND_LOGOS[marca] ? (
+                        <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                      ) : (
+                        <h3>{marca}</h3>
+                      )}
+                      <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
+                        <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{cant}</p>
+                        <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>envíos</p>
+                      </div>
+                      <p className="value" style={{ fontSize: '0.68em' }}>${fmtMoney(montoMarca)}</p>
+                      {Object.keys(statusCounts).length > 0 && (
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '8px' }}>
+                          {Object.entries(statusCounts).sort((a, b) => b[1] - a[1]).map(([st, c]) => (
+                            <span key={st} style={{ padding: '2px 6px', borderRadius: '10px', fontSize: '0.7em', background: `${colors[st] || '#666'}22`, color: colors[st] || '#999' }}>
+                              {st.replace(/_/g, ' ')} {c}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
-              {/* Estados */}
+              {/* Estados globales */}
               {enviosDetalle.por_estado && Object.keys(enviosDetalle.por_estado).length > 0 && (
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px', marginBottom: '16px' }}>
                   {Object.entries(enviosDetalle.por_estado).sort((a, b) => b[1] - a[1]).map(([estado, cant]) => {
                     const colors = { delivered: '#22c55e', shipped: '#06b6d4', ready_to_ship: '#eab308', handling: '#f59e0b', pending: '#999', cancelled: '#ef4444', not_delivered: '#ef4444' }
                     return (
@@ -1233,9 +1264,9 @@ function App() {
                 </div>
               )}
 
-              {/* Top provincias */}
+              {/* Envíos por Provincia */}
               {enviosDetalle.por_provincia && Object.keys(enviosDetalle.por_provincia).length > 0 && (
-                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '20px' }}>
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
                   <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Envíos por Provincia</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {Object.entries(enviosDetalle.por_provincia).slice(0, 15).map(([prov, cant], idx) => {
@@ -1262,7 +1293,7 @@ function App() {
               )}
 
               {/* Listado de envíos */}
-              <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
                 <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Listado de Envíos ({enviosDetalle.envios?.length || 0})</h3>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82em' }}>

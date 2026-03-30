@@ -23,6 +23,7 @@ import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
 import VentasUnifiedTab from './components/VentasUnifiedTab'
 import MonitorTab from './components/MonitorTab'
+import EnviosHeatMap from './components/EnviosHeatMap'
 
 const BRAND_COLORS = {
   'SHAQ': '#f59e0b',
@@ -1342,6 +1343,9 @@ function App() {
                   </div>
                 </div>
               )}
+
+              {/* Mapa de calor */}
+              <EnviosHeatMap points={enviosDetalle.heatmap} />
 
               {/* Listado de envíos — collapsible */}
               <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>

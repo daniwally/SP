@@ -649,3 +649,66 @@ async def envios_detalle(desde: str, hasta: str):
         "por_provincia": dict(sorted(por_provincia.items(), key=lambda x: x[1], reverse=True)),
         "envios": all_envios,
     }
+
+    # Geocodificar localidades para heatmap
+    localidades = defaultdict(int)
+    for e in all_envios:
+        ciudad = e.get("ciudad")
+        provincia = e.get("provincia")
+        if ciudad and provincia:
+            localidades[(ciudad, provincia)] += 1
+
+    heatmap_points = await geocode_localidades(localidades)
+    resultado["heatmap"] = heatmap_points
+
+    return resultado
+
+
+# Cache global de geocoding — persiste mientras el server esté vivo
+_geocode_cache = {}
+
+
+async def geocode_localidades(localidades: dict) -> list:
+    """Geocodifica localidades únicas vía Nominatim y devuelve puntos para heatmap.
+    localidades: {(ciudad, provincia): cantidad}
+    """
+    points = []
+    to_resolve = []
+
+    for (ciudad, provincia), cantidad in localidades.items():
+        key = f"{ciudad}|{provincia}"
+        if key in _geocode_cache:
+            cached = _geocode_cache[key]
+            if cached:
+                points.append({"lat": cached[0], "lng": cached[1], "cantidad": cantidad, "ciudad": ciudad, "provincia": provincia})
+        else:
+            to_resolve.append((ciudad, provincia, cantidad))
+
+    # Geocodificar los que faltan — 1 req/sec para respetar Nominatim
+    if to_resolve:
+        async with httpx.AsyncClient(timeout=10) as client:
+            for ciudad, provincia, cantidad in to_resolve:
+                key = f"{ciudad}|{provincia}"
+                try:
+                    resp = await client.get(
+                        "https://nominatim.openstreetmap.org/search",
+                        params={"city": ciudad, "state": provincia, "country": "Argentina", "format": "json", "limit": 1},
+                        headers={"User-Agent": "ONEMANDO-Dashboard/1.0"}
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data:
+                            lat = float(data[0]["lat"])
+                            lng = float(data[0]["lon"])
+                            _geocode_cache[key] = (lat, lng)
+                            points.append({"lat": lat, "lng": lng, "cantidad": cantidad, "ciudad": ciudad, "provincia": provincia})
+                        else:
+                            _geocode_cache[key] = None
+                    else:
+                        _geocode_cache[key] = None
+                except Exception:
+                    _geocode_cache[key] = None
+                # Respetar rate limit de Nominatim
+                await asyncio.sleep(0.3)
+
+    return points

@@ -232,7 +232,7 @@ function App() {
   if (loading) {
     return (
       <div className="loading-screen">
-        <img src="/loading-bg.jpg" alt="" className="loading-bg" />
+        <img src="/on-loading-bg.jpg" alt="" className="loading-bg" />
         <div className="loading-overlay" />
         <div className="loading-content">
           <div className="loading-spinner-ring">

@@ -1152,11 +1152,13 @@ function App() {
                   <div className="total-item">
                     <span>Total Hoy:</span>
                     <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.hoy?.envios || 0), 0)} envíos</span>
-                    <span style={{ color: '#666', margin: '0 8px' }}>|</span>
-                    <span>Semana:</span>
+                  </div>
+                  <div className="total-item">
+                    <span>Total Semana:</span>
                     <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.semana?.envios || 0), 0)} envíos</span>
-                    <span style={{ color: '#666', margin: '0 8px' }}>|</span>
-                    <span>Mes:</span>
+                  </div>
+                  <div className="total-item">
+                    <span>Total Mes:</span>
                     <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.mes?.envios || 0), 0)} envíos</span>
                   </div>
                 </div>

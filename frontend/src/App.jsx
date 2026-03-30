@@ -107,6 +107,7 @@ function App() {
   const [enviosListaOpen, setEnviosListaOpen] = useState(false)
   const [enviosProvincia, setEnviosProvincia] = useState(null)
   const [enviosHeatmap, setEnviosHeatmap] = useState(null)
+  const [enviosMarcaFilter, setEnviosMarcaFilter] = useState(null)
 
   useEffect(() => {
     const today = new Date()
@@ -246,6 +247,7 @@ function App() {
     setEnviosLoading(true)
     setEnviosProvincia(null)
     setEnviosHeatmap(null)
+    setEnviosMarcaFilter(null)
     try {
       const API = window.location.origin + '/api'
       const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 60000 })
@@ -1229,22 +1231,67 @@ function App() {
             </button>
           </div>
 
-          {enviosDetalle && (
+          {enviosDetalle && (() => {
+            const filteredEnvios = enviosMarcaFilter
+              ? (enviosDetalle.envios || []).filter(e => e.marca === enviosMarcaFilter)
+              : (enviosDetalle.envios || [])
+            const filteredTotal = filteredEnvios.length
+            const filteredMonto = filteredEnvios.reduce((s, e) => s + (e.monto || 0), 0)
+            const filteredPorEstado = {}
+            filteredEnvios.forEach(e => { filteredPorEstado[e.status] = (filteredPorEstado[e.status] || 0) + 1 })
+            const filteredPorProvincia = {}
+            filteredEnvios.forEach(e => {
+              const p = e.provincia || 'Desconocida'
+              filteredPorProvincia[p] = (filteredPorProvincia[p] || 0) + 1
+            })
+            const sortedProvincias = Object.entries(filteredPorProvincia).sort((a, b) => b[1] - a[1])
+            // Heatmap filtrado
+            const filteredHeatmap = enviosHeatmap && enviosMarcaFilter
+              ? (() => {
+                  const locCounts = {}
+                  filteredEnvios.forEach(e => {
+                    if (e.ciudad && e.provincia) {
+                      const k = `${e.ciudad}|${e.provincia}`
+                      locCounts[k] = (locCounts[k] || 0) + 1
+                    }
+                  })
+                  return enviosHeatmap.map(p => {
+                    const k = `${p.ciudad}|${p.provincia}`
+                    return locCounts[k] ? { ...p, cantidad: locCounts[k] } : null
+                  }).filter(Boolean)
+                })()
+              : enviosHeatmap
+
+            return (
             <>
+              {/* Filtro por marca */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '16px' }}>
+                <button onClick={() => setEnviosMarcaFilter(null)}
+                  style={{ padding: '4px 14px', borderRadius: '20px', border: enviosMarcaFilter === null ? '1px solid #06b6d4' : '1px solid rgba(255,255,255,0.1)', background: enviosMarcaFilter === null ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.05)', color: enviosMarcaFilter === null ? '#06b6d4' : '#999', fontSize: '0.82em', fontWeight: 600, cursor: 'pointer' }}>
+                  Todas
+                </button>
+                {Object.keys(enviosDetalle.por_marca || {}).map(marca => (
+                  <button key={marca} onClick={() => setEnviosMarcaFilter(enviosMarcaFilter === marca ? null : marca)}
+                    style={{ padding: '4px 14px', borderRadius: '20px', border: enviosMarcaFilter === marca ? '1px solid #d946ef' : '1px solid rgba(255,255,255,0.1)', background: enviosMarcaFilter === marca ? 'rgba(217,70,239,0.15)' : 'rgba(255,255,255,0.05)', color: enviosMarcaFilter === marca ? '#d946ef' : '#999', fontSize: '0.82em', fontWeight: 600, cursor: 'pointer' }}>
+                    {marca}
+                  </button>
+                ))}
+              </div>
+
               <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
                 <div className="total-item">
                   <span>Total Rango:</span>
-                  <span className="total-item-ordenes">{enviosDetalle.total} envíos</span>
-                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney((enviosDetalle.envios || []).reduce((s, e) => s + (e.monto || 0), 0))}</span>
+                  <span className="total-item-ordenes">{filteredTotal} envíos</span>
+                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(filteredMonto)}</span>
                 </div>
                 <div className="total-item">
                   <span>Prom. diario:</span>
-                  <span className="total-item-ordenes">{Math.round(enviosDetalle.total / Math.max(1, Math.ceil((enviosHasta - enviosDesde) / 86400000) + 1))} envíos</span>
-                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(Math.round((enviosDetalle.envios || []).reduce((s, e) => s + (e.monto || 0), 0) / Math.max(1, Math.ceil((enviosHasta - enviosDesde) / 86400000) + 1)))}</span>
+                  <span className="total-item-ordenes">{Math.round(filteredTotal / Math.max(1, Math.ceil((enviosHasta - enviosDesde) / 86400000) + 1))} envíos</span>
+                  <span className="total-item-value" style={{ fontSize: '1.53em' }}>${fmtMoney(Math.round(filteredMonto / Math.max(1, Math.ceil((enviosHasta - enviosDesde) / 86400000) + 1)))}</span>
                 </div>
               </div>
               <div className="cards-grid">
-                {Object.entries(enviosDetalle.por_marca || {}).map(([marca, cant]) => {
+                {Object.entries(enviosDetalle.por_marca || {}).filter(([marca]) => !enviosMarcaFilter || marca === enviosMarcaFilter).map(([marca, cant]) => {
                   const marcaEnvios = (enviosDetalle.envios || []).filter(e => e.marca === marca)
                   const montoMarca = marcaEnvios.reduce((s, e) => s + (e.monto || 0), 0)
                   const statusCounts = {}
@@ -1276,10 +1323,10 @@ function App() {
                 })}
               </div>
 
-              {/* Estados globales */}
-              {enviosDetalle.por_estado && Object.keys(enviosDetalle.por_estado).length > 0 && (
+              {/* Estados */}
+              {Object.keys(filteredPorEstado).length > 0 && (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px', marginBottom: '16px' }}>
-                  {Object.entries(enviosDetalle.por_estado).sort((a, b) => b[1] - a[1]).map(([estado, cant]) => {
+                  {Object.entries(filteredPorEstado).sort((a, b) => b[1] - a[1]).map(([estado, cant]) => {
                     const colors = { delivered: '#22c55e', shipped: '#06b6d4', ready_to_ship: '#eab308', handling: '#f59e0b', pending: '#999', cancelled: '#ef4444', not_delivered: '#ef4444' }
                     return (
                       <span key={estado} style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '0.8em', fontWeight: 600, background: `${colors[estado] || '#666'}22`, color: colors[estado] || '#999', border: `1px solid ${colors[estado] || '#666'}44` }}>
@@ -1291,14 +1338,14 @@ function App() {
               )}
 
               {/* Envíos por Provincia + Localidades */}
-              {enviosDetalle.por_provincia && Object.keys(enviosDetalle.por_provincia).length > 0 && (
+              {sortedProvincias.length > 0 && (
                 <div className="categorias-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '20px' }}>
                   {/* Provincias */}
-                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Envíos por Provincia</h3>
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', maxHeight: '450px', overflowY: 'auto' }}>
+                    <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Envíos por Provincia{enviosMarcaFilter ? ` — ${enviosMarcaFilter}` : ''}</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {Object.entries(enviosDetalle.por_provincia).slice(0, 15).map(([prov, cant], idx) => {
-                        const maxCant = Object.values(enviosDetalle.por_provincia)[0] || 1
+                      {sortedProvincias.slice(0, 15).map(([prov, cant], idx) => {
+                        const maxCant = sortedProvincias[0]?.[1] || 1
                         const pct = (cant / maxCant) * 100
                         const rankColors = ['#d946ef', '#06b6d4', '#a855f7']
                         const isSelected = enviosProvincia === prov
@@ -1321,13 +1368,13 @@ function App() {
                   </div>
 
                   {/* Localidades de la provincia seleccionada */}
-                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', maxHeight: '450px', overflowY: 'auto' }}>
                     <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>
                       {enviosProvincia ? `Localidades — ${enviosProvincia}` : 'Localidades'}
                     </h3>
                     {enviosProvincia ? (() => {
                       const localidades = {}
-                      ;(enviosDetalle.envios || []).filter(e => e.provincia === enviosProvincia).forEach(e => {
+                      ;filteredEnvios.filter(e => e.provincia === enviosProvincia).forEach(e => {
                         const loc = e.ciudad || 'Sin datos'
                         if (!localidades[loc]) localidades[loc] = { cantidad: 0, total: 0 }
                         localidades[loc].cantidad += 1
@@ -1365,18 +1412,18 @@ function App() {
               )}
 
               {/* Mapa de calor */}
-              {enviosHeatmap === null ? (
+              {filteredHeatmap === null ? (
                 <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '40px 20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px', textAlign: 'center' }}>
                   <p style={{ color: '#06b6d4', fontSize: '0.85em' }}>Geocodificando localidades para el mapa de calor...</p>
                 </div>
               ) : (
-                <EnviosHeatMap points={enviosHeatmap} />
+                <EnviosHeatMap points={filteredHeatmap} />
               )}
 
               {/* Listado de envíos — collapsible */}
               <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
                 <h3 onClick={() => setEnviosListaOpen(!enviosListaOpen)} style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>Listado de Envíos ({enviosDetalle.envios?.length || 0})</span>
+                  <span>Listado de Envíos ({filteredEnvios.length})</span>
                   <span style={{ fontSize: '0.8em', color: '#666', transition: 'transform 0.2s', transform: enviosListaOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                 </h3>
                 {enviosListaOpen && <div style={{ overflowX: 'auto', marginTop: '12px' }}>
@@ -1392,7 +1439,7 @@ function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(enviosDetalle.envios || []).slice(0, 100).map((e, idx) => {
+                      {filteredEnvios.slice(0, 100).map((e, idx) => {
                         const colors = { delivered: '#22c55e', shipped: '#06b6d4', ready_to_ship: '#eab308', handling: '#f59e0b', pending: '#999', cancelled: '#ef4444', not_delivered: '#ef4444' }
                         return (
                           <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -1414,13 +1461,13 @@ function App() {
                       })}
                     </tbody>
                   </table>
-                  {(enviosDetalle.envios || []).length > 100 && (
-                    <p style={{ color: '#666', fontSize: '0.8em', textAlign: 'center', marginTop: '8px' }}>Mostrando 100 de {enviosDetalle.envios.length} envíos</p>
+                  {filteredEnvios.length > 100 && (
+                    <p style={{ color: '#666', fontSize: '0.8em', textAlign: 'center', marginTop: '8px' }}>Mostrando 100 de {filteredEnvios.length} envíos</p>
                   )}
                 </div>}
               </div>
             </>
-          )}
+          )})()}
         </section>
         </>
         )}

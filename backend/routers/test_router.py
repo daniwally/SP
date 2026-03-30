@@ -323,6 +323,7 @@ async def ventas_rango(desde: str, hasta: str):
     top_cats = sorted(categorias_global.items(), key=lambda x: x[1]["cantidad"], reverse=True)[:10]
     if top_cats:
         cat_names = {}
+        cat_paths = {}
         async with httpx.AsyncClient(timeout=10) as client:
             cat_tasks = []
             for cat_id, _ in top_cats:
@@ -332,14 +333,18 @@ async def ventas_rango(desde: str, hasta: str):
                 cat_id = top_cats[i][0]
                 if isinstance(resp, Exception):
                     cat_names[cat_id] = cat_id
+                    cat_paths[cat_id] = cat_id
                 elif resp.status_code == 200:
                     cdata = resp.json()
                     cat_names[cat_id] = cdata.get("name", cat_id)
+                    path_from_root = cdata.get("path_from_root", [])
+                    cat_paths[cat_id] = " > ".join(p.get("name", "") for p in path_from_root) if path_from_root else cat_names[cat_id]
                 else:
                     cat_names[cat_id] = cat_id
+                    cat_paths[cat_id] = cat_id
 
         resultado["categorias"] = [
-            {"id": cat_id, "nombre": cat_names.get(cat_id, cat_id), "cantidad": vals["cantidad"], "total": round(vals["total"])}
+            {"id": cat_id, "nombre": cat_names.get(cat_id, cat_id), "path": cat_paths.get(cat_id, cat_id), "cantidad": vals["cantidad"], "total": round(vals["total"])}
             for cat_id, vals in top_cats
         ]
     else:

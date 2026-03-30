@@ -98,6 +98,11 @@ function App() {
   const [rangoHasta, setRangoHasta] = useState(null)
   const [rangoData, setRangoData] = useState(null)
   const [rangoLoading, setRangoLoading] = useState(false)
+  const [enviosData, setEnviosData] = useState(null)
+  const [enviosDesde, setEnviosDesde] = useState(null)
+  const [enviosHasta, setEnviosHasta] = useState(null)
+  const [enviosDetalle, setEnviosDetalle] = useState(null)
+  const [enviosLoading, setEnviosLoading] = useState(false)
 
   useEffect(() => {
     const today = new Date()
@@ -164,7 +169,8 @@ function App() {
         axios.get(API + '/test/ventas-detallado', axiosConfig),
         axios.get(API + '/debug/all-accounts', axiosConfig),
         axios.get(API + '/publicaciones/precios-promedio', axiosConfig),
-        axios.get(API + '/system-status', axiosConfig)
+        axios.get(API + '/system-status', axiosConfig),
+        axios.get(API + '/test/envios', axiosConfig)
       ])
 
       const ventasHoy = results[0].status === 'fulfilled' ? results[0].value.data : {}
@@ -178,6 +184,7 @@ function App() {
       const tokens = results[6].status === 'fulfilled' ? results[6].value.data : {}
       const mlPrecios = results[7].status === 'fulfilled' ? results[7].value.data : {}
       const sysStatus = results[8].status === 'fulfilled' ? results[8].value.data : null
+      const enviosResumen = results[9].status === 'fulfilled' ? results[9].value.data : null
       
       console.log('✅ Data fetched:', { ventasHoy, ventas7dias, ventasMes, stock, valuacion })
       
@@ -195,6 +202,7 @@ function App() {
       setTokenStatus(tokens)
       setMlPreciosData(mlPrecios.precios || {})
       if (sysStatus) setSystemStatus(sysStatus)
+      if (enviosResumen) setEnviosData(enviosResumen)
 
       setLoading(false)
 
@@ -227,6 +235,20 @@ function App() {
       setRangoData(null)
     }
     setRangoLoading(false)
+  }
+
+  const fetchEnviosDetalle = async () => {
+    if (!enviosDesde || !enviosHasta) return
+    setEnviosLoading(true)
+    try {
+      const API = window.location.origin + '/api'
+      const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 60000 })
+      setEnviosDetalle(resp.data)
+    } catch (e) {
+      console.error('Error fetching envios detalle:', e)
+      setEnviosDetalle(null)
+    }
+    setEnviosLoading(false)
   }
 
   if (loading) {
@@ -313,6 +335,13 @@ function App() {
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
               Stock
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'envios' ? 'active' : ''}`}
+              onClick={() => setActiveTab('envios')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              Envíos
             </button>
             <button
               className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}
@@ -1088,6 +1117,198 @@ function App() {
           </div>
         </section>
 
+        </>
+        )}
+
+        {activeTab === 'envios' && (
+        <>
+        {/* ENVÍOS DEL DÍA */}
+        <div className="stacked-sections">
+          <section className="section">
+            <h2>Envíos del Día</h2>
+            <p className="section-date">{dateInfo.today}</p>
+            {enviosData ? (
+              <>
+                <div className="cards-grid">
+                  {Object.entries(enviosData).filter(([, d]) => !d.error).map(([marca, data]) => (
+                    <div key={marca} className="card">
+                      {BRAND_LOGOS[marca] ? (
+                        <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                      ) : (
+                        <h3>{marca}</h3>
+                      )}
+                      <div style={{ textAlign: 'center', margin: '8px 0 4px 0' }}>
+                        <p className="total-item-ordenes" style={{ fontSize: '2.21em', margin: 0 }}>{data.hoy?.envios || 0}</p>
+                        <p className="total-item-ordenes" style={{ fontSize: '0.85em', margin: '0 0 4px 0' }}>envíos hoy</p>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '8px', fontSize: '0.8em', color: '#999' }}>
+                        <span>Semana: <strong style={{ color: '#fff' }}>{data.semana?.envios || 0}</strong></span>
+                        <span>Mes: <strong style={{ color: '#fff' }}>{data.mes?.envios || 0}</strong></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="totals-row totals-row-small" style={{ marginTop: '16px' }}>
+                  <div className="total-item">
+                    <span>Total Hoy:</span>
+                    <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.hoy?.envios || 0), 0)} envíos</span>
+                  </div>
+                  <div className="total-item">
+                    <span>Total Semana:</span>
+                    <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.semana?.envios || 0), 0)} envíos</span>
+                  </div>
+                  <div className="total-item">
+                    <span>Total Mes:</span>
+                    <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.mes?.envios || 0), 0)} envíos</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p style={{ color: '#999', textAlign: 'center' }}>Cargando datos de envíos...</p>
+            )}
+          </section>
+        </div>
+
+        {/* CONSULTA DE ENVÍOS POR RANGO */}
+        <section className="section">
+          <h2>Consulta de Envíos por Rango</h2>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+            <DatePicker
+              selected={enviosDesde}
+              onChange={date => setEnviosDesde(date)}
+              selectsStart
+              startDate={enviosDesde}
+              endDate={enviosHasta}
+              maxDate={new Date()}
+              locale="es"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Desde"
+              className="rango-datepicker"
+            />
+            <span style={{ color: '#7f8c8d' }}>a</span>
+            <DatePicker
+              selected={enviosHasta}
+              onChange={date => setEnviosHasta(date)}
+              selectsEnd
+              startDate={enviosDesde}
+              endDate={enviosHasta}
+              minDate={enviosDesde}
+              maxDate={new Date()}
+              locale="es"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Hasta"
+              className="rango-datepicker"
+            />
+            <button onClick={fetchEnviosDetalle} disabled={enviosLoading || !enviosDesde || !enviosHasta}
+              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: enviosLoading ? '#555' : 'linear-gradient(135deg, #d946ef, #06b6d4)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
+              {enviosLoading ? 'Buscando...' : 'Buscar'}
+            </button>
+          </div>
+
+          {enviosDetalle && (
+            <>
+              {/* Totales y stats */}
+              <div className="totals-row totals-row-small" style={{ marginBottom: '16px' }}>
+                <div className="total-item">
+                  <span>Total Envíos:</span>
+                  <span className="total-item-ordenes">{enviosDetalle.total}</span>
+                </div>
+                {Object.entries(enviosDetalle.por_marca || {}).map(([marca, cant]) => (
+                  <div key={marca} className="total-item">
+                    <span>{marca}:</span>
+                    <span className="total-item-ordenes">{cant} envíos</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Estados */}
+              {enviosDetalle.por_estado && Object.keys(enviosDetalle.por_estado).length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '16px' }}>
+                  {Object.entries(enviosDetalle.por_estado).sort((a, b) => b[1] - a[1]).map(([estado, cant]) => {
+                    const colors = { delivered: '#22c55e', shipped: '#06b6d4', ready_to_ship: '#eab308', handling: '#f59e0b', pending: '#999', cancelled: '#ef4444', not_delivered: '#ef4444' }
+                    return (
+                      <span key={estado} style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '0.8em', fontWeight: 600, background: `${colors[estado] || '#666'}22`, color: colors[estado] || '#999', border: `1px solid ${colors[estado] || '#666'}44` }}>
+                        {estado.replace(/_/g, ' ')} · {cant}
+                      </span>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Top provincias */}
+              {enviosDetalle.por_provincia && Object.keys(enviosDetalle.por_provincia).length > 0 && (
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '20px' }}>
+                  <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Envíos por Provincia</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {Object.entries(enviosDetalle.por_provincia).slice(0, 15).map(([prov, cant], idx) => {
+                      const maxCant = Object.values(enviosDetalle.por_provincia)[0] || 1
+                      const pct = (cant / maxCant) * 100
+                      const rankColors = ['#d946ef', '#06b6d4', '#a855f7']
+                      return (
+                        <div key={prov} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px' }}>
+                          <span style={{ width: '24px', textAlign: 'center', fontSize: '0.75em', fontWeight: 700, color: idx < 3 ? rankColors[idx] : '#666' }}>{idx + 1}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                              <span style={{ color: '#fff', fontSize: '0.85em' }}>{prov}</span>
+                              <span style={{ color: '#ccc', fontSize: '0.8em' }}>{cant} envíos</span>
+                            </div>
+                            <div style={{ height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)' }}>
+                              <div style={{ height: '100%', width: `${pct}%`, borderRadius: '2px', background: idx < 3 ? rankColors[idx] : 'rgba(255,255,255,0.15)', transition: 'width 0.6s ease' }} />
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Listado de envíos */}
+              <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Listado de Envíos ({enviosDetalle.envios?.length || 0})</h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82em' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', color: '#999', fontWeight: 600 }}>Fecha</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', color: '#999', fontWeight: 600 }}>Marca</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', color: '#999', fontWeight: 600 }}>Producto</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'right', color: '#999', fontWeight: 600 }}>Monto</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center', color: '#999', fontWeight: 600 }}>Estado</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', color: '#999', fontWeight: 600 }}>Destino</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(enviosDetalle.envios || []).slice(0, 100).map((e, idx) => {
+                        const colors = { delivered: '#22c55e', shipped: '#06b6d4', ready_to_ship: '#eab308', handling: '#f59e0b', pending: '#999', cancelled: '#ef4444', not_delivered: '#ef4444' }
+                        return (
+                          <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                            <td style={{ padding: '8px 10px', color: '#ccc', whiteSpace: 'nowrap' }}>{e.fecha}</td>
+                            <td style={{ padding: '8px 10px', color: '#fff', fontWeight: 500 }}>{e.marca}</td>
+                            <td style={{ padding: '8px 10px', color: '#ccc', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.producto || '-'}</td>
+                            <td style={{ padding: '8px 10px', color: '#fff', textAlign: 'right', whiteSpace: 'nowrap' }}>${fmtMoney(e.monto || 0)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                              <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '0.85em', background: `${colors[e.status] || '#666'}22`, color: colors[e.status] || '#999' }}>
+                                {e.status?.replace(/_/g, ' ') || '?'}
+                              </span>
+                            </td>
+                            <td style={{ padding: '8px 10px', color: '#ccc', whiteSpace: 'nowrap' }}>
+                              {e.ciudad && e.provincia ? `${e.ciudad}, ${e.provincia}` : e.provincia || e.ciudad || '-'}
+                              {e.cp && <span style={{ color: '#666', marginLeft: '4px' }}>({e.cp})</span>}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                  {(enviosDetalle.envios || []).length > 100 && (
+                    <p style={{ color: '#666', fontSize: '0.8em', textAlign: 'center', marginTop: '8px' }}>Mostrando 100 de {enviosDetalle.envios.length} envíos</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </section>
         </>
         )}
 

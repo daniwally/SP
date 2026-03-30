@@ -16,15 +16,16 @@ function HeatLayer({ points }) {
     if (points && points.length > 0) {
       const heatData = points.map(p => [p.lat, p.lng, p.cantidad])
       heatLayerRef.current = L.heatLayer(heatData, {
-        radius: 30,
-        blur: 20,
-        maxZoom: 12,
+        radius: 50,
+        blur: 35,
+        maxZoom: 14,
+        minOpacity: 0.4,
         max: Math.max(...points.map(p => p.cantidad)),
         gradient: {
-          0.2: '#06b6d4',
-          0.4: '#a855f7',
-          0.6: '#d946ef',
-          0.8: '#f59e0b',
+          0.15: '#06b6d4',
+          0.35: '#a855f7',
+          0.55: '#d946ef',
+          0.75: '#f59e0b',
           1.0: '#ef4444'
         }
       }).addTo(map)
@@ -46,6 +47,29 @@ function ResizeMap() {
     setTimeout(() => map.invalidateSize(), 100)
   })
   return null
+}
+
+function ZoomFullscreen({ onFullscreen }) {
+  const map = useMap()
+  return (
+    <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <button
+        onClick={() => map.zoomIn()}
+        style={{ width: '32px', height: '32px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '1.1em', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >+</button>
+      <button
+        onClick={() => map.zoomOut()}
+        style={{ width: '32px', height: '32px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '1.1em', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >−</button>
+      <button
+        onClick={onFullscreen}
+        title="Pantalla completa"
+        style={{ width: '32px', height: '32px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.7)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+    </div>
+  )
 }
 
 export default function EnviosHeatMap({ points }) {
@@ -72,45 +96,45 @@ export default function EnviosHeatMap({ points }) {
 
   return (
     <div style={containerStyle}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: fullscreen ? '12px 16px' : '0 8px 8px 8px' }}>
-        <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: 0 }}>
+      {fullscreen && (
+        <div style={{ position: 'absolute', top: '12px', left: '16px', zIndex: 10000, display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+            Mapa de Calor — Envíos por Localidad
+          </h3>
+          <button
+            onClick={() => setFullscreen(false)}
+            style={{
+              background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '6px', padding: '4px 10px', color: '#ccc', fontSize: '0.8em',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            Salir
+          </button>
+        </div>
+      )}
+      {!fullscreen && (
+        <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '8px 8px 12px 8px' }}>
           Mapa de Calor — Envíos por Localidad
         </h3>
-        <button
-          onClick={() => setFullscreen(!fullscreen)}
-          style={{
-            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '6px', padding: '4px 10px', color: '#ccc', fontSize: '0.8em',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-          }}
-        >
-          {fullscreen ? (
-            <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-              Salir
-            </>
-          ) : (
-            <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-              Pantalla completa
-            </>
-          )}
-        </button>
-      </div>
-      <div style={{ borderRadius: fullscreen ? 0 : '8px', overflow: 'hidden', height: mapHeight }}>
+      )}
+      <div style={{ borderRadius: fullscreen ? 0 : '8px', overflow: 'hidden', height: mapHeight, position: 'relative' }}>
         <MapContainer
           center={[-34.6, -58.4]}
           zoom={5}
-          style={{ height: '100%', width: '100%', background: '#1a1a2e' }}
-          zoomControl={true}
+          style={{ height: '100%', width: '100%', background: '#0a0a1a' }}
+          zoomControl={false}
           scrollWheelZoom={true}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+            opacity={0.6}
           />
           <HeatLayer points={points} />
           <ResizeMap />
+          <ZoomFullscreen onFullscreen={() => setFullscreen(!fullscreen)} />
         </MapContainer>
       </div>
       {!fullscreen && (

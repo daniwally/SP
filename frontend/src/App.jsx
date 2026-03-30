@@ -275,7 +275,7 @@ function App() {
       <RotatingBackground />
       <div className="app">
         <header className="header">
-        <h1 className="brand-logo"><span className="brand-command">COMMAND</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
+        <h1 className="brand-logo"><span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
         <div className="header-actions">
           <div className="tabs">
             <button

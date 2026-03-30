@@ -1371,7 +1371,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>Actualizado en tiempo real • Rudolf Dashboard</p>
+        <p>Powered by <span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span> • Actualizado en tiempo real</p>
       </footer>
       </div>
     </>

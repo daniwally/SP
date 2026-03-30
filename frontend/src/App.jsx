@@ -104,6 +104,7 @@ function App() {
   const [enviosDetalle, setEnviosDetalle] = useState(null)
   const [enviosLoading, setEnviosLoading] = useState(false)
   const [enviosListaOpen, setEnviosListaOpen] = useState(false)
+  const [enviosProvincia, setEnviosProvincia] = useState(null)
 
   useEffect(() => {
     const today = new Date()
@@ -241,6 +242,7 @@ function App() {
   const fetchEnviosDetalle = async () => {
     if (!enviosDesde || !enviosHasta) return
     setEnviosLoading(true)
+    setEnviosProvincia(null)
     try {
       const API = window.location.origin + '/api'
       const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 60000 })
@@ -1267,30 +1269,76 @@ function App() {
                 </div>
               )}
 
-              {/* Envíos por Provincia */}
+              {/* Envíos por Provincia + Localidades */}
               {enviosDetalle.por_provincia && Object.keys(enviosDetalle.por_provincia).length > 0 && (
-                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
-                  <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Envíos por Provincia</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {Object.entries(enviosDetalle.por_provincia).slice(0, 15).map(([prov, cant], idx) => {
-                      const maxCant = Object.values(enviosDetalle.por_provincia)[0] || 1
-                      const pct = (cant / maxCant) * 100
-                      const rankColors = ['#d946ef', '#06b6d4', '#a855f7']
-                      return (
-                        <div key={prov} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px' }}>
-                          <span style={{ width: '24px', textAlign: 'center', fontSize: '0.75em', fontWeight: 700, color: idx < 3 ? rankColors[idx] : '#666' }}>{idx + 1}</span>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-                              <span style={{ color: '#fff', fontSize: '0.85em' }}>{prov}</span>
-                              <span style={{ color: '#ccc', fontSize: '0.8em' }}>{cant} envíos</span>
-                            </div>
-                            <div style={{ height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)' }}>
-                              <div style={{ height: '100%', width: `${pct}%`, borderRadius: '2px', background: idx < 3 ? rankColors[idx] : 'rgba(255,255,255,0.15)', transition: 'width 0.6s ease' }} />
+                <div className="categorias-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '20px' }}>
+                  {/* Provincias */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Envíos por Provincia</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {Object.entries(enviosDetalle.por_provincia).slice(0, 15).map(([prov, cant], idx) => {
+                        const maxCant = Object.values(enviosDetalle.por_provincia)[0] || 1
+                        const pct = (cant / maxCant) * 100
+                        const rankColors = ['#d946ef', '#06b6d4', '#a855f7']
+                        const isSelected = enviosProvincia === prov
+                        return (
+                          <div key={prov} onClick={() => setEnviosProvincia(isSelected ? null : prov)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 10px', background: isSelected ? 'rgba(6,182,212,0.12)' : 'rgba(255,255,255,0.03)', borderRadius: '6px', cursor: 'pointer', border: isSelected ? '1px solid rgba(6,182,212,0.3)' : '1px solid transparent', transition: 'all 0.2s' }}>
+                            <span style={{ width: '24px', textAlign: 'center', fontSize: '0.75em', fontWeight: 700, color: idx < 3 ? rankColors[idx] : '#666' }}>{idx + 1}</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                                <span style={{ color: isSelected ? '#06b6d4' : '#fff', fontSize: '0.85em' }}>{prov}</span>
+                                <span style={{ color: '#ccc', fontSize: '0.8em' }}>{cant} envíos</span>
+                              </div>
+                              <div style={{ height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)' }}>
+                                <div style={{ height: '100%', width: `${pct}%`, borderRadius: '2px', background: idx < 3 ? rankColors[idx] : 'rgba(255,255,255,0.15)', transition: 'width 0.6s ease' }} />
+                              </div>
                             </div>
                           </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Localidades de la provincia seleccionada */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>
+                      {enviosProvincia ? `Localidades — ${enviosProvincia}` : 'Localidades'}
+                    </h3>
+                    {enviosProvincia ? (() => {
+                      const localidades = {}
+                      ;(enviosDetalle.envios || []).filter(e => e.provincia === enviosProvincia).forEach(e => {
+                        const loc = e.ciudad || 'Sin datos'
+                        if (!localidades[loc]) localidades[loc] = { cantidad: 0, total: 0 }
+                        localidades[loc].cantidad += 1
+                        localidades[loc].total += e.monto || 0
+                      })
+                      const sorted = Object.entries(localidades).sort((a, b) => b[1].cantidad - a[1].cantidad)
+                      const maxCant = sorted[0]?.[1]?.cantidad || 1
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {sorted.map(([loc, data], idx) => {
+                            const pct = (data.cantidad / maxCant) * 100
+                            const rankColors = ['#d946ef', '#06b6d4', '#a855f7']
+                            return (
+                              <div key={loc} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px' }}>
+                                <span style={{ width: '24px', textAlign: 'center', fontSize: '0.75em', fontWeight: 700, color: idx < 3 ? rankColors[idx] : '#666' }}>{idx + 1}</span>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                                    <span style={{ color: '#fff', fontSize: '0.85em' }}>{loc}</span>
+                                    <span style={{ color: '#ccc', fontSize: '0.8em' }}>{data.cantidad} envíos · ${fmtMoney(data.total)}</span>
+                                  </div>
+                                  <div style={{ height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)' }}>
+                                    <div style={{ height: '100%', width: `${pct}%`, borderRadius: '2px', background: idx < 3 ? rankColors[idx] : 'rgba(255,255,255,0.15)', transition: 'width 0.6s ease' }} />
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
                       )
-                    })}
+                    })() : (
+                      <p style={{ color: '#666', fontSize: '0.85em', textAlign: 'center', marginTop: '20px' }}>Hacé click en una provincia para ver sus localidades</p>
+                    )}
                   </div>
                 </div>
               )}

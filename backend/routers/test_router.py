@@ -642,15 +642,19 @@ async def envios_detalle(desde: str, hasta: str):
     for e in all_envios:
         por_estado[e.get("status", "unknown")] += 1
 
-    # Geocodificar localidades para heatmap
-    localidades = defaultdict(int)
-    for e in all_envios:
-        ciudad = e.get("ciudad")
-        provincia = e.get("provincia")
-        if ciudad and provincia:
-            localidades[(ciudad, provincia)] += 1
-
-    heatmap_points = await geocode_localidades(localidades)
+    # Geocodificar localidades para heatmap (no bloquea si falla)
+    heatmap_points = []
+    try:
+        localidades = defaultdict(int)
+        for e in all_envios:
+            ciudad = e.get("ciudad")
+            provincia = e.get("provincia")
+            if ciudad and provincia:
+                localidades[(ciudad, provincia)] += 1
+        if localidades:
+            heatmap_points = await geocode_localidades(localidades)
+    except Exception as e:
+        print(f"Error geocoding heatmap: {e}")
 
     return {
         "total": len(all_envios),
@@ -682,9 +686,11 @@ async def geocode_localidades(localidades: dict) -> list:
         else:
             to_resolve.append((ciudad, provincia, cantidad))
 
-    # Geocodificar los que faltan — 1 req/sec para respetar Nominatim
+    # Geocodificar los que faltan — top 50 por cantidad, 0.15s entre requests
+    to_resolve.sort(key=lambda x: x[2], reverse=True)
+    to_resolve = to_resolve[:50]
     if to_resolve:
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with httpx.AsyncClient(timeout=8) as client:
             for ciudad, provincia, cantidad in to_resolve:
                 key = f"{ciudad}|{provincia}"
                 try:
@@ -706,7 +712,6 @@ async def geocode_localidades(localidades: dict) -> list:
                         _geocode_cache[key] = None
                 except Exception:
                     _geocode_cache[key] = None
-                # Respetar rate limit de Nominatim
-                await asyncio.sleep(0.3)
+                await asyncio.sleep(0.15)
 
     return points

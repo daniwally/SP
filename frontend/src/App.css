@@ -584,7 +584,7 @@ body {
   height: 100%;
   object-fit: cover;
   opacity: 0.35;
-  filter: blur(2px) saturate(0.7);
+  filter: saturate(0.7);
 }
 
 .loading-overlay {

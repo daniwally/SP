@@ -2,13 +2,14 @@ from fastapi import APIRouter
 import xmlrpc.client
 from collections import defaultdict
 import asyncio
+import os
 
 router = APIRouter(prefix="/api/odoo", tags=["odoo"])
 
-ODOO_URL = 'https://gedvera-sobrepatas.odoo.com'
-ODOO_DB = 'gedvera-sobrepatas-main-25353401'
-ODOO_USER = 'rudolf@sobrepatas.com'
-ODOO_KEY = '0115ec6a78f7a7329a152fe95f41b8152a22f4b9'
+ODOO_URL = os.getenv("ODOO_URL", 'https://gedvera-sobrepatas.odoo.com')
+ODOO_DB = os.getenv("ODOO_DB", 'gedvera-sobrepatas-main-25353401')
+ODOO_USER = os.getenv("ODOO_USER", 'rudolf@sobrepatas.com')
+ODOO_KEY = os.getenv("ODOO_KEY", '')
 
 # Precios temporales
 PRECIO_TEMPORAL = {

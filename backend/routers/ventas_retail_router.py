@@ -9,7 +9,7 @@ router = APIRouter()
 ODOO_URL = os.getenv("ODOO_URL", "https://gedvera-sobrepatas.odoo.com")
 ODOO_DB = os.getenv("ODOO_DB", "gedvera-sobrepatas-main-25353401")
 ODOO_USER = os.getenv("ODOO_USER", "rudolf@sobrepatas.com")
-ODOO_KEY = os.getenv("ODOO_KEY", "0115ec6a78f7a7329a152fe95f41b8152a22f4b9")
+ODOO_KEY = os.getenv("ODOO_KEY", "")
 
 EMPTY_PEDIDOS = {"pedidos": [], "resumen": {"total_pedidos": 0, "total_monto": 0, "total_items": 0, "ticket_promedio": 0, "top_productos": []}}
 EMPTY_COMPRAS = {"compras": [], "resumen": {"total_compras": 0, "total_monto": 0, "compra_promedio": 0}}

@@ -648,8 +648,32 @@ async def envios_detalle(desde: str, hasta: str):
         "por_estado": dict(por_estado),
         "por_provincia": dict(sorted(por_provincia.items(), key=lambda x: x[1], reverse=True)),
         "envios": all_envios,
-        "heatmap": [],
     }
+
+
+@router.get("/envios-heatmap")
+async def envios_heatmap(desde: str, hasta: str):
+    """Geocodifica localidades de envíos para heatmap — endpoint separado para no bloquear"""
+    # Primero obtener los envíos (reutiliza la lógica)
+    data = await envios_detalle(desde, hasta)
+    all_envios = data.get("envios", [])
+
+    localidades = defaultdict(int)
+    for e in all_envios:
+        ciudad = e.get("ciudad")
+        provincia = e.get("provincia")
+        if ciudad and provincia:
+            localidades[(ciudad, provincia)] += 1
+
+    if not localidades:
+        return {"heatmap": []}
+
+    try:
+        points = await geocode_localidades(localidades)
+        return {"heatmap": points}
+    except Exception as e:
+        print(f"Error geocoding heatmap: {e}")
+        return {"heatmap": []}
 
 
 # Cache global de geocoding — persiste mientras el server esté vivo

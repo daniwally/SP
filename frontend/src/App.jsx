@@ -246,7 +246,7 @@ function App() {
     setEnviosProvincia(null)
     try {
       const API = window.location.origin + '/api'
-      const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 60000 })
+      const resp = await axios.get(`${API}/test/envios-detalle?desde=${fmtDate(enviosDesde)}&hasta=${fmtDate(enviosHasta)}`, { timeout: 120000 })
       setEnviosDetalle(resp.data)
     } catch (e) {
       console.error('Error fetching envios detalle:', e)

@@ -1148,7 +1148,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <div className="totals-row totals-row-small" style={{ marginTop: '16px' }}>
+                <div className="totals-row totals-row-small" style={{ marginTop: '16px', gridTemplateColumns: '1fr 1fr 1fr' }}>
                   <div className="total-item">
                     <span>Total Hoy:</span>
                     <span className="total-item-ordenes">{Object.values(enviosData).reduce((s, d) => s + (d.hoy?.envios || 0), 0)} envíos</span>

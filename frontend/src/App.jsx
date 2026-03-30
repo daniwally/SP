@@ -554,7 +554,7 @@ function App() {
                 </div>
               </div>
               <div className="cards-grid">
-                {Object.entries(rangoData).filter(([k]) => k !== 'totales' && k !== 'diario').map(([marca, data]) => (
+                {Object.entries(rangoData).filter(([k]) => k !== 'totales' && k !== 'diario' && k !== 'categorias').map(([marca, data]) => (
                   <div key={marca} className="card">
                     {BRAND_LOGOS[marca] ? (
                       <img src={BRAND_LOGOS[marca]} alt={marca} style={{ height: '32px', maxWidth: '140px', objectFit: 'contain', marginBottom: '8px' }} />

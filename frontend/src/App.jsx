@@ -103,6 +103,7 @@ function App() {
   const [enviosHasta, setEnviosHasta] = useState(null)
   const [enviosDetalle, setEnviosDetalle] = useState(null)
   const [enviosLoading, setEnviosLoading] = useState(false)
+  const [enviosListaOpen, setEnviosListaOpen] = useState(false)
 
   useEffect(() => {
     const today = new Date()
@@ -1294,10 +1295,13 @@ function App() {
                 </div>
               )}
 
-              {/* Listado de envíos */}
+              {/* Listado de envíos — collapsible */}
               <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.06)', marginTop: '20px' }}>
-                <h3 style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: '0 0 12px 0' }}>Listado de Envíos ({enviosDetalle.envios?.length || 0})</h3>
-                <div style={{ overflowX: 'auto' }}>
+                <h3 onClick={() => setEnviosListaOpen(!enviosListaOpen)} style={{ color: '#fff', fontSize: '1em', fontWeight: 600, margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>Listado de Envíos ({enviosDetalle.envios?.length || 0})</span>
+                  <span style={{ fontSize: '0.8em', color: '#666', transition: 'transform 0.2s', transform: enviosListaOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+                </h3>
+                {enviosListaOpen && <div style={{ overflowX: 'auto', marginTop: '12px' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82em' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -1335,7 +1339,7 @@ function App() {
                   {(enviosDetalle.envios || []).length > 100 && (
                     <p style={{ color: '#666', fontSize: '0.8em', textAlign: 'center', marginTop: '8px' }}>Mostrando 100 de {enviosDetalle.envios.length} envíos</p>
                   )}
-                </div>
+                </div>}
               </div>
             </>
           )}

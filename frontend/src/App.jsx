@@ -540,7 +540,7 @@ function App() {
               className="rango-datepicker"
             />
             <button onClick={fetchVentasRango} disabled={rangoLoading || !rangoDesde || !rangoHasta}
-              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: rangoLoading ? '#555' : 'linear-gradient(135deg, #d946ef, #06b6d4)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
+              style={{ padding: '8px 20px', borderRadius: '20px', border: '1px solid rgba(6, 182, 212, 0.5)', background: rangoLoading ? '#555' : 'rgba(6, 182, 212, 0.2)', color: '#06b6d4', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
               {rangoLoading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
@@ -1232,7 +1232,7 @@ function App() {
               className="rango-datepicker"
             />
             <button onClick={fetchEnviosDetalle} disabled={enviosLoading || !enviosDesde || !enviosHasta}
-              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: enviosLoading ? '#555' : 'linear-gradient(135deg, #d946ef, #06b6d4)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
+              style={{ padding: '8px 20px', borderRadius: '20px', border: '1px solid rgba(6, 182, 212, 0.5)', background: enviosLoading ? '#555' : 'rgba(6, 182, 212, 0.2)', color: '#06b6d4', fontWeight: 600, cursor: 'pointer', fontSize: '0.9em' }}>
               {enviosLoading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>

@@ -1691,7 +1691,6 @@ function App() {
 
       <footer className="footer">
         <p>Powered by <span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span> • Actualizado en tiempo real</p>
-        <p style={{ fontSize: '0.8em', opacity: 0.5, marginTop: '6px' }}>Integraciones: Mercado Libre • Tienda Nube • Shopify • Odoo ERP</p>
       </footer>
       </div>
     </>

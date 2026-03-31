@@ -452,13 +452,13 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
           {!preguntasData || Object.keys(preguntasData).length === 0 ? (
             <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Sin preguntas pendientes</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(${isFullscreen ? '280px' : '220px'}, 1fr))`, gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)`, gap: '12px' }}>
               {Object.entries(preguntasData).map(([brandKey, brandData]) => {
                 const preguntas = brandData.preguntas || []
                 const count = brandData.sin_responder || 0
                 return (
                   <div key={brandKey} style={{
-                    background: 'rgba(0,0,0,0.5)', borderRadius: '12px', padding: isFullscreen ? '20px' : '16px',
+                    background: 'rgba(0,0,0,0.5)', borderRadius: '12px', padding: isFullscreen ? '20px' : '12px',
                     border: `1px solid ${count > 10 ? 'rgba(239,68,68,0.3)' : count > 0 ? 'rgba(251,191,36,0.3)' : 'rgba(134,239,172,0.3)'}`,
                   }}>
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -468,9 +468,9 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
                       <span style={{
                         background: count > 10 ? 'rgba(239,68,68,0.2)' : count > 0 ? 'rgba(251,191,36,0.2)' : 'rgba(134,239,172,0.2)',
                         color: count > 10 ? '#ef4444' : count > 0 ? '#fbbf24' : '#86efac',
-                        padding: '2px 10px', borderRadius: '12px', fontSize: isFullscreen ? '0.95em' : '0.85em', fontWeight: 600
+                        padding: '2px 8px', borderRadius: '12px', fontWeight: 600, whiteSpace: 'nowrap', lineHeight: 1.2, textAlign: 'center'
                       }}>
-                        {count} sin responder
+                        {count} <span style={{ fontSize: '0.7em' }}>sin responder</span>
                       </span>
                     </div>
                     {preguntas.length === 0 ? (

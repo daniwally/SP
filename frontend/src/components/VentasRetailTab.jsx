@@ -91,6 +91,7 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
           <div className="retail-kpi">
             <div className="kpi-value cyan">{fmtMoney(v.total_monto || 0)}</div>
             <div className="kpi-label">Ventas Total</div>
+            {v.total_neto > 0 && <div style={{ color: '#888', fontSize: '0.75em', marginTop: '2px' }}>Neto: ${fmtMoney(v.total_neto)}</div>}
           </div>
           <div className="retail-kpi">
             <div className="kpi-value amber">{fmtMoney(v.ticket_promedio || 0)}</div>

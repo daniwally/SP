@@ -57,7 +57,7 @@ def _pedidos_sync(desde: str, hasta: str, states=None):
             [domain],
             {
                 'fields': [
-                    'name', 'partner_id', 'date_order', 'amount_total',
+                    'name', 'partner_id', 'date_order', 'amount_total', 'amount_untaxed',
                     'state', 'invoice_status', 'order_line',
                 ],
                 'order': 'date_order desc',
@@ -134,6 +134,7 @@ def _pedidos_sync(desde: str, hasta: str, states=None):
 
         pedidos = []
         total_monto = 0
+        total_neto = 0
         total_items = 0
 
         for o in orders:
@@ -141,7 +142,9 @@ def _pedidos_sync(desde: str, hasta: str, states=None):
             lineas = lines_by_order.get(oid, [])
             qty = sum(l['cantidad'] for l in lineas)
             monto = o.get('amount_total', 0)
+            neto = o.get('amount_untaxed', 0)
             total_monto += monto
+            total_neto += neto
             total_items += qty
 
             # Get unique brands for this order
@@ -178,6 +181,7 @@ def _pedidos_sync(desde: str, hasta: str, states=None):
         resumen = {
             'total_pedidos': len(pedidos),
             'total_monto': round(total_monto, 2),
+            'total_neto': round(total_neto, 2),
             'total_items': int(total_items),
             'ticket_promedio': round(total_monto / len(pedidos), 2) if pedidos else 0,
             'top_marcas': top_marcas,

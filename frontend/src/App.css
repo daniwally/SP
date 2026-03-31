@@ -72,19 +72,20 @@ body {
 }
 
 .tab-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 4px 14px;
+  border-radius: 20px;
   border: 1px solid rgba(217, 70, 239, 0.3);
-  background: transparent;
+  background: rgba(217, 70, 239, 0.1);
   color: #b0b0c0;
   font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  font-size: 0.9em;
+  font-weight: 600;
+  font-size: 0.85em;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .tab-btn svg {
@@ -98,13 +99,14 @@ body {
 }
 
 .tab-btn:hover {
-  border-color: rgba(217, 70, 239, 0.6);
+  background: rgba(217, 70, 239, 0.25);
+  border-color: rgba(217, 70, 239, 0.5);
   color: #d946ef;
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.2), rgba(6, 182, 212, 0.1));
-  border-color: rgba(217, 70, 239, 0.6);
+  background: rgba(217, 70, 239, 0.25);
+  border-color: rgba(217, 70, 239, 0.5);
   color: #d946ef;
 }
 

@@ -55,6 +55,7 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
   const [dailyData, setDailyData] = useState(null)
   const [preguntasData, setPreguntasData] = useState(null)
   const [liveTestData, setLiveTestData] = useState(null)
+  const [monitorBg, setMonitorBg] = useState('https://raw.githubusercontent.com/daniwally/SP/main/backgrounds/bg1.jpg')
   const containerRef = useRef(null)
   const PANEL_COUNT = 5
   const ROTATE_INTERVAL = 12000
@@ -62,6 +63,24 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
   useEffect(() => {
     const interval = setInterval(() => setClock(fmtTime()), 1000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Fetch and rotate backgrounds from GitHub
+  useEffect(() => {
+    let bgs = []
+    let idx = 0
+    fetch('/api/backgrounds').then(r => r.json()).then(data => {
+      if (data.backgrounds && data.backgrounds.length > 0) {
+        bgs = data.backgrounds.sort(() => Math.random() - 0.5)
+        setMonitorBg(bgs[0])
+        const iv = setInterval(() => {
+          idx = (idx + 1) % bgs.length
+          if (idx === 0) bgs.sort(() => Math.random() - 0.5)
+          setMonitorBg(bgs[idx])
+        }, 15000)
+        return () => clearInterval(iv)
+      }
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -212,7 +231,7 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
       {isFullscreen && (
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundImage: `url('https://raw.githubusercontent.com/daniwally/SP/main/backgrounds/bg1.jpg')`,
+          backgroundImage: `url('${monitorBg}')`,
           backgroundSize: 'cover', backgroundPosition: 'center',
           opacity: 0.45, zIndex: 0,
         }} />

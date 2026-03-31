@@ -74,8 +74,8 @@ body {
 .tab-btn {
   padding: 4px 14px;
   border-radius: 20px;
-  border: 1px solid rgba(217, 70, 239, 0.3);
-  background: rgba(217, 70, 239, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: rgba(6, 182, 212, 0.1);
   color: #b0b0c0;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
@@ -99,15 +99,15 @@ body {
 }
 
 .tab-btn:hover {
-  background: rgba(217, 70, 239, 0.25);
-  border-color: rgba(217, 70, 239, 0.5);
-  color: #d946ef;
+  background: rgba(6, 182, 212, 0.25);
+  border-color: rgba(6, 182, 212, 0.5);
+  color: #06b6d4;
 }
 
 .tab-btn.active {
-  background: rgba(217, 70, 239, 0.25);
-  border-color: rgba(217, 70, 239, 0.5);
-  color: #d946ef;
+  background: rgba(6, 182, 212, 0.25);
+  border-color: rgba(6, 182, 212, 0.5);
+  color: #06b6d4;
 }
 
 .header h1 {

@@ -653,7 +653,7 @@ export default function PublicacionesTab({ ventasMesMl = {}, refreshKey = 0 }) {
                   )}
                   {tiempoPromedio != null && (
                     <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82em', textAlign: 'center', color: '#888' }}>
-                      Tiempo promedio de respuesta: <span style={{ color: tiempoPromedio <= 2 ? '#86efac' : tiempoPromedio <= 5 ? '#fbbf24' : '#ef4444', fontWeight: 600 }}>{tiempoPromedio.toFixed(1)}h</span>
+                      Tiempo promedio: <span style={{ color: tiempoPromedio <= 2 ? '#86efac' : tiempoPromedio <= 5 ? '#fbbf24' : '#ef4444', fontWeight: 600 }}>{tiempoPromedio.toFixed(1)}h</span>
                     </div>
                   )}
                 </div>

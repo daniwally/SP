@@ -614,9 +614,9 @@ export default function PublicacionesTab({ ventasMesMl = {}, refreshKey = 0 }) {
                     <span style={{
                       background: count > 10 ? 'rgba(239,68,68,0.2)' : count > 0 ? 'rgba(251,191,36,0.2)' : 'rgba(134,239,172,0.2)',
                       color: count > 10 ? '#ef4444' : count > 0 ? '#fbbf24' : '#86efac',
-                      padding: '2px 10px', borderRadius: '12px', fontSize: '0.85em', fontWeight: 600
+                      padding: '2px 8px', borderRadius: '12px', fontWeight: 600, whiteSpace: 'nowrap', lineHeight: 1.2, textAlign: 'center'
                     }}>
-                      {count} sin responder
+                      {count} <span style={{ fontSize: '0.7em' }}>sin responder</span>
                     </span>
                   </div>
                   {preguntas.length === 0 ? (

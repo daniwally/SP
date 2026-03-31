@@ -56,7 +56,7 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
   const [preguntasData, setPreguntasData] = useState(null)
   const [liveTestData, setLiveTestData] = useState(null)
   const containerRef = useRef(null)
-  const PANEL_COUNT = 4
+  const PANEL_COUNT = 5
   const ROTATE_INTERVAL = 12000
 
   useEffect(() => {
@@ -424,6 +424,62 @@ export default function MonitorTab({ testData: initialTestData = {}, salesData =
             </div>
           ) : (
             <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Cargando gráfico...</p>
+          )}
+        </div>
+        {/* PANEL 4: Preguntas sin responder */}
+        <div className={`monitor-panel ${activePanel === 4 ? 'monitor-panel-active' : ''}`}>
+          <h2 className="monitor-panel-title">Preguntas Sin Responder</h2>
+          <p style={{ textAlign: 'center', color: '#888', fontSize: '0.9em', marginTop: '-12px', marginBottom: '16px' }}>últimos 15 días</p>
+          {!preguntasData || Object.keys(preguntasData).length === 0 ? (
+            <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Sin preguntas pendientes</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(${isFullscreen ? '280px' : '220px'}, 1fr))`, gap: '16px' }}>
+              {Object.entries(preguntasData).map(([brandKey, brandData]) => {
+                const preguntas = brandData.preguntas || []
+                const count = brandData.sin_responder || 0
+                return (
+                  <div key={brandKey} style={{
+                    background: 'rgba(0,0,0,0.5)', borderRadius: '12px', padding: isFullscreen ? '20px' : '16px',
+                    border: `1px solid ${count > 10 ? 'rgba(239,68,68,0.3)' : count > 0 ? 'rgba(251,191,36,0.3)' : 'rgba(134,239,172,0.3)'}`,
+                  }}>
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      {BRAND_LOGOS[brandKey]
+                        ? <img src={BRAND_LOGOS[brandKey]} alt={brandKey} style={{ height: isFullscreen ? '36px' : '28px', objectFit: 'contain' }} />
+                        : <span style={{ color: BRAND_COLORS[brandKey] || '#06b6d4', fontWeight: 800 }}>{brandKey}</span>}
+                      <span style={{
+                        background: count > 10 ? 'rgba(239,68,68,0.2)' : count > 0 ? 'rgba(251,191,36,0.2)' : 'rgba(134,239,172,0.2)',
+                        color: count > 10 ? '#ef4444' : count > 0 ? '#fbbf24' : '#86efac',
+                        padding: '2px 10px', borderRadius: '12px', fontSize: isFullscreen ? '0.95em' : '0.85em', fontWeight: 600
+                      }}>
+                        {count} sin responder
+                      </span>
+                    </div>
+                    {preguntas.length === 0 ? (
+                      <p style={{ color: '#86efac', fontSize: '0.85em', textAlign: 'center' }}>Sin preguntas pendientes</p>
+                    ) : (
+                      <div style={{ maxHeight: isFullscreen ? '45vh' : '280px', overflowY: 'auto', fontSize: isFullscreen ? '0.9em' : '0.82em' }}>
+                        {preguntas.slice(0, 8).map((q, idx) => (
+                          <div key={q.id || idx} style={{
+                            padding: '8px 0',
+                            borderBottom: idx < Math.min(preguntas.length, 8) - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none'
+                          }}>
+                            <p style={{ margin: '0 0 4px 0', color: '#e2e8f0', lineHeight: '1.4' }}>"{q.text}"</p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ color: '#06b6d4', fontSize: '0.9em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                                {q.item_title ? (q.item_title.length > 35 ? q.item_title.slice(0, 35) + '…' : q.item_title) : q.item_id}
+                              </span>
+                              <span style={{ color: '#666', fontSize: '0.85em', whiteSpace: 'nowrap' }}>
+                                {q.date_created ? new Date(q.date_created).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }) : ''}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
       </div>

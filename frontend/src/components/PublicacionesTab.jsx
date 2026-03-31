@@ -591,9 +591,8 @@ export default function PublicacionesTab({ ventasMesMl = {}, refreshKey = 0 }) {
 
       {/* PREGUNTAS SIN RESPONDER (últimos 15 días) */}
       <section className="section" style={{ marginTop: '32px' }}>
-        <h2 style={{ marginBottom: '16px', textAlign: 'center', color: '#f59e0b' }}>
-          Preguntas Sin Responder
-          <span style={{ fontSize: '0.6em', color: '#888', marginLeft: '8px' }}>(últimos 15 días)</span>
+        <h2 style={{ marginBottom: '16px', textAlign: 'center', color: '#06b6d4' }}>
+          Preguntas Sin Responder <span style={{ fontSize: '0.6em', color: '#888' }}>(últimos 15 días)</span>
         </h2>
         {preguntasLoading ? (
           <p style={{ textAlign: 'center', color: '#888' }}>Cargando preguntas...</p>

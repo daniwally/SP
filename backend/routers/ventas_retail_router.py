@@ -161,6 +161,7 @@ def _pedidos_sync(desde: str, hasta: str, states=None):
                 'cliente_id': o['partner_id'][0] if o.get('partner_id') else None,
                 'fecha': o.get('date_order', ''),
                 'total': monto,
+                'neto': neto,
                 'estado': o.get('state', ''),
                 'facturacion': o.get('invoice_status', ''),
                 'items': int(qty),
@@ -539,10 +540,12 @@ def _dashboard_sync(desde: str, hasta: str):
     # Filter pedidos for user-selected range for the KPI resumen
     pedidos_rango = [p for p in all_pedidos if desde <= (p.get('fecha') or '')[:10] <= hasta]
     total_monto_rango = sum(p.get('total', 0) for p in pedidos_rango)
+    total_neto_rango = sum(p.get('neto', 0) for p in pedidos_rango)
     total_items_rango = sum(p.get('items', 0) for p in pedidos_rango)
     resumen_rango = {
         'total_pedidos': len(pedidos_rango),
         'total_monto': round(total_monto_rango, 2),
+        'total_neto': round(total_neto_rango, 2),
         'total_items': int(total_items_rango),
         'ticket_promedio': round(total_monto_rango / len(pedidos_rango), 2) if pedidos_rango else 0,
     }

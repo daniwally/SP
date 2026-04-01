@@ -289,7 +289,7 @@ function App() {
         <img src="/on-loading-bg.jpg" alt="" className="loading-bg" />
         <div className="loading-overlay" />
         <div className="loading-content">
-          <h1 className="brand-logo" style={{ fontSize: '3.5em', marginBottom: '4px' }}><span className="brand-command">ONEMANDO</span><span style={{ color: '#fff', fontWeight: 900 }}>.</span><span className="brand-ai">ai</span></h1>
+          <h1 className="brand-logo" style={{ fontSize: '3.5em', marginBottom: '4px' }}><span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
           <p className="loading-tagline">EL CONTROL, HECHO SISTEMA.</p>
           <div className="loading-spinner-ring" style={{ marginTop: '20px' }}>
             <div className="ring-segment" />

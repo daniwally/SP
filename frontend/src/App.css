@@ -127,18 +127,18 @@ body {
 
 .brand-command {
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: -1px;
   text-transform: uppercase;
   color: #fff;
 }
 
 .brand-dot {
-  color: #06b6d4;
+  color: #fff;
   font-weight: 900;
 }
 
 .brand-ai {
-  color: #06b6d4;
+  color: #4da6e8;
   font-weight: 700;
   letter-spacing: 0;
 }

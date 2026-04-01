@@ -20,9 +20,13 @@ EMPTY_PRESUPUESTOS = {"presupuestos": {"total": 0, "monto": 0}}
 def _get_uid():
     try:
         if not ODOO_KEY:
+            print(f"Retail: ODOO_KEY is empty")
             return None
         common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
-        return common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
+        uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_KEY, {})
+        if not uid:
+            print(f"Retail: auth failed, uid={uid}")
+        return uid
     except Exception as e:
         print(f"Retail auth error: {e}")
         return None
@@ -61,7 +65,7 @@ def _pedidos_sync(desde: str, hasta: str, states=None):
                     'state', 'invoice_status', 'order_line',
                 ],
                 'order': 'date_order desc',
-                'limit': 500,
+                'limit': 2000,
             }
         )
 

@@ -24,9 +24,10 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Date range: 1ro del mes actual hasta hoy por defecto
-  const today = new Date().toISOString().slice(0, 10)
-  const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10)
+  // Date range: 1ro del mes actual hasta hoy (Argentina local time)
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const firstOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
   const [desde, setDesde] = useState(firstOfMonth)
   const [hasta, setHasta] = useState(today)
 

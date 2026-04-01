@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Query
 import xmlrpc.client
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import asyncio
+
+# Argentina timezone (UTC-3)
+ART = timezone(timedelta(hours=-3))
 
 router = APIRouter()
 
@@ -204,7 +207,7 @@ async def pedidos(
     desde: str = Query(None),
     hasta: str = Query(None),
 ):
-    today = datetime.now()
+    today = datetime.now(ART)
     if not desde:
         desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
@@ -218,7 +221,7 @@ async def presupuestos_detalle(
     desde: str = Query(None),
     hasta: str = Query(None),
 ):
-    today = datetime.now()
+    today = datetime.now(ART)
     if not desde:
         desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
@@ -322,7 +325,7 @@ async def compras(
     desde: str = Query(None),
     hasta: str = Query(None),
 ):
-    today = datetime.now()
+    today = datetime.now(ART)
     if not desde:
         desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
@@ -420,7 +423,7 @@ async def clientes(
     desde: str = Query(None),
     hasta: str = Query(None),
 ):
-    today = datetime.now()
+    today = datetime.now(ART)
     if not desde:
         desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:
@@ -525,13 +528,24 @@ def _resumen_periodo(pedidos_list, desde_str, hasta_str):
 
 
 def _dashboard_sync(desde: str, hasta: str):
-    today = datetime.now()
-    monday = today - timedelta(days=today.weekday())
-    semana_desde = monday.strftime('%Y-%m-%d')
-    mes_desde = today.replace(day=1).strftime('%Y-%m-%d')
+    today = datetime.now(ART)
     hoy = today.strftime('%Y-%m-%d')
 
-    # Always fetch from 1st of month (or earlier if week starts before)
+    # ventas_mes uses the month of the selected 'desde' date
+    desde_dt = datetime.strptime(desde, '%Y-%m-%d')
+    mes_desde = desde_dt.replace(day=1).strftime('%Y-%m-%d')
+    # End of that month: go to next month's 1st and subtract 1 day
+    if desde_dt.month == 12:
+        mes_hasta = desde_dt.replace(year=desde_dt.year + 1, month=1, day=1) - timedelta(days=1)
+    else:
+        mes_hasta = desde_dt.replace(month=desde_dt.month + 1, day=1) - timedelta(days=1)
+    mes_hasta_str = min(mes_hasta.strftime('%Y-%m-%d'), hoy)  # Don't go beyond today
+
+    # ventas_semana: week of today
+    monday = today - timedelta(days=today.weekday())
+    semana_desde = monday.strftime('%Y-%m-%d')
+
+    # Always fetch from earliest needed date
     fetch_desde = min(desde, mes_desde, semana_desde)
 
     pedidos = _pedidos_sync(fetch_desde, hasta)
@@ -567,9 +581,9 @@ def _dashboard_sync(desde: str, hasta: str):
             "hasta": hoy,
         },
         "ventas_mes": {
-            **_resumen_periodo(all_pedidos, mes_desde, hoy),
+            **_resumen_periodo(all_pedidos, mes_desde, mes_hasta_str),
             "desde": mes_desde,
-            "hasta": hoy,
+            "hasta": mes_hasta_str,
         },
     }
 
@@ -588,7 +602,7 @@ async def debug_presupuestos():
     if not uid:
         return {"error": "Sin conexión"}
     models = _get_models()
-    today = datetime.now()
+    today = datetime.now(ART)
     desde = today.replace(day=1).strftime('%Y-%m-%d')
     hasta = today.strftime('%Y-%m-%d')
 
@@ -625,7 +639,7 @@ async def dashboard(
     desde: str = Query(None),
     hasta: str = Query(None),
 ):
-    today = datetime.now()
+    today = datetime.now(ART)
     if not desde:
         desde = today.replace(day=1).strftime('%Y-%m-%d')
     if not hasta:

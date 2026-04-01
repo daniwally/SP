@@ -138,9 +138,12 @@ body {
 }
 
 .brand-ai {
-  color: #06b6d4;
   font-weight: 700;
   letter-spacing: 0;
+  background: linear-gradient(180deg, #06b6d4 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .btn-refresh {

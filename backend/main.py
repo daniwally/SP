@@ -330,6 +330,26 @@ async def list_backgrounds():
     return {"backgrounds": images}
 
 
+@app.get("/api/screens")
+async def list_screens():
+    """Lista imágenes para loading/pantallas del sistema desde GitHub (carpeta screens/ del repo)"""
+    github_api = "https://api.github.com/repos/daniwally/SP/contents/screens"
+    raw_base = "https://raw.githubusercontent.com/daniwally/SP/main/screens"
+    extensions = ('.jpg', '.jpeg', '.png', '.webp')
+    images = []
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(github_api)
+            if resp.status_code == 200:
+                for item in resp.json():
+                    name = item.get("name", "")
+                    if any(name.lower().endswith(ext) for ext in extensions):
+                        images.append(f"{raw_base}/{name}")
+    except Exception:
+        pass
+    return {"screens": images}
+
+
 # Servir archivos estáticos (frontend build + backgrounds)
 _static_dir = Path(__file__).parent.parent / "static"
 if not _static_dir.exists():

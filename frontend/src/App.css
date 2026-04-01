@@ -1501,14 +1501,3 @@ body {
   border-top-color: rgba(10, 10, 26, 0.9) !important;
 }
 
-/* Override markercluster default styles */
-.marker-cluster-small,
-.marker-cluster-medium,
-.marker-cluster-large {
-  background: transparent !important;
-}
-.marker-cluster-small div,
-.marker-cluster-medium div,
-.marker-cluster-large div {
-  background: transparent !important;
-}

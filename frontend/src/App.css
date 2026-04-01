@@ -606,17 +606,15 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.3;
-  filter: saturate(0.5) brightness(0.6);
+  opacity: 0.35;
+  filter: saturate(0.3) brightness(0.5);
 }
 
 .loading-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 30% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 30%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.6) 100%);
+    linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.7) 100%);
 }
 
 .loading-content {
@@ -684,12 +682,12 @@ body {
 }
 
 .loading-tagline {
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.85em;
-  font-weight: 400;
-  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9em;
+  font-weight: 300;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
-  margin: 0;
+  margin: 8px 0 0 0;
 }
 
 /* Keep spinner class for other components */

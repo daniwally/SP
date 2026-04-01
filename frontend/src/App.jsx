@@ -289,12 +289,13 @@ function App() {
         <img src="/on-loading-bg.jpg" alt="" className="loading-bg" />
         <div className="loading-overlay" />
         <div className="loading-content">
-          <div className="loading-spinner-ring">
+          <h1 className="brand-logo" style={{ fontSize: '3.5em', marginBottom: '4px' }}><span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
+          <p className="loading-tagline">El control, hecho sistema.</p>
+          <div className="loading-spinner-ring" style={{ marginTop: '20px' }}>
             <div className="ring-segment" />
             <div className="ring-segment" />
             <div className="ring-segment" />
           </div>
-          <h1 className="brand-logo" style={{ fontSize: '2em', marginBottom: '20px' }}><span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
           <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
         </div>
       </div>

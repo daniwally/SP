@@ -31,6 +31,7 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
   const [desde, setDesde] = useState(firstOfMonth)
   const [hasta, setHasta] = useState(today)
 
+  const [loadingBg, setLoadingBg] = useState(null)
   const [dashboard, setDashboard] = useState(null)
   const [pedidos, setPedidos] = useState(null)
   const [preVentas, setPreVentas] = useState(null)
@@ -38,6 +39,16 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
   const [expandedRows, setExpandedRows] = useState({})
   const [pedidosOpen, setPedidosOpen] = useState(false)
   const [preVentasOpen, setPreVentasOpen] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/screens').then(r => r.json()).then(data => {
+      if (data.screens && data.screens.length > 0) {
+        setLoadingBg(data.screens[Math.floor(Math.random() * data.screens.length)])
+      } else {
+        setLoadingBg('/on-loading-bg.jpg')
+      }
+    }).catch(() => setLoadingBg('/on-loading-bg.jpg'))
+  }, [])
 
   const API = window.location.origin + '/api/retail'
 
@@ -463,16 +474,17 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
 
       {loading ? (
         <div className="loading-screen">
-          <img src="/loading-bg.jpg" alt="" className="loading-bg" />
+          {loadingBg && <img src={loadingBg} alt="" className="loading-bg" />}
           <div className="loading-overlay" />
           <div className="loading-content">
-            <div className="loading-spinner-ring">
+            <h1 className="brand-logo" style={{ fontSize: '4em', margin: '0', lineHeight: '1' }}><span className="brand-command">ONEMANDO</span><span className="brand-dot">.</span><span className="brand-ai">ai</span></h1>
+            <p className="loading-tagline" style={{ marginTop: '-2px' }}>EL CONTROL, HECHO SISTEMA.</p>
+            <div className="loading-spinner-ring" style={{ marginTop: '20px' }}>
               <div className="ring-segment" />
               <div className="ring-segment" />
               <div className="ring-segment" />
             </div>
             <h1 className="loading-title">Cargando datos<span className="loading-dots" /></h1>
-            <p className="loading-subtitle">Trayendo datos de Odoo</p>
           </div>
         </div>
       ) : (

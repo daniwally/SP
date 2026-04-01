@@ -52,7 +52,13 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
 
   const API = window.location.origin + '/api/retail'
 
-  const fetchData = async () => {
+  const fetchData = async (force = false) => {
+    // Skip fetch if data already loaded for this subtab (unless forced by Buscar/refresh)
+    if (!force) {
+      if (subTab === 'dashboard' && dashboard) return
+      if (subTab === 'pedidos' && pedidos) return
+      if (subTab === 'clientes' && clientes) return
+    }
     setLoading(true)
     setError(null)
     try {
@@ -81,9 +87,14 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
     setLoading(false)
   }
 
+  // Fetch on subtab change (uses cache) or refreshKey change (force)
   useEffect(() => {
     fetchData()
-  }, [subTab, refreshKey])
+  }, [subTab])
+
+  useEffect(() => {
+    fetchData(true)
+  }, [refreshKey])
 
   // ---- DASHBOARD ----
   const renderDashboard = () => {
@@ -455,7 +466,7 @@ export default function VentasRetailTab({ refreshKey = 0 }) {
         <input type="date" value={desde} onChange={e => setDesde(e.target.value)} />
         <label>Hasta</label>
         <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} />
-        <button onClick={fetchData}>Buscar</button>
+        <button onClick={() => { setDashboard(null); setPedidos(null); setPreVentas(null); setClientes(null); fetchData(true) }}>Buscar</button>
       </div>
 
       <div className="retail-subtabs">

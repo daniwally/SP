@@ -3,22 +3,6 @@ import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.heat'
-import 'leaflet.markercluster'
-import 'leaflet.markercluster/dist/MarkerCluster.css'
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-
-// Argentina provinces GeoJSON (simplified centroids for choropleth)
-const PROVINCIA_COORDS = {
-  'Buenos Aires': [-36.6, -60.0], 'Capital Federal': [-34.6, -58.4], 'CABA': [-34.6, -58.4],
-  'Catamarca': [-28.47, -65.78], 'Chaco': [-27.43, -59.02], 'Chubut': [-43.3, -65.1],
-  'Córdoba': [-31.42, -64.18], 'Corrientes': [-27.47, -58.83], 'Entre Ríos': [-31.73, -60.52],
-  'Formosa': [-26.18, -58.17], 'Jujuy': [-24.19, -65.3], 'La Pampa': [-36.62, -64.28],
-  'La Rioja': [-29.41, -66.85], 'Mendoza': [-32.89, -68.83], 'Misiones': [-27.36, -55.9],
-  'Neuquén': [-38.95, -68.05], 'Río Negro': [-40.8, -63.0], 'Salta': [-24.78, -65.41],
-  'San Juan': [-31.54, -68.54], 'San Luis': [-33.3, -66.34], 'Santa Cruz': [-51.62, -69.22],
-  'Santa Fe': [-31.63, -60.7], 'Santiago del Estero': [-27.78, -64.26],
-  'Tierra del Fuego': [-54.8, -68.3], 'Tucumán': [-26.82, -65.22],
-}
 
 /* ── Heat Layer ─────────────────────────────── */
 function HeatLayer({ points }) {
@@ -65,106 +49,6 @@ function CircleLayer({ points }) {
   return null
 }
 
-/* ── Clustered Markers Layer ────────────────── */
-function ClusterLayer({ points }) {
-  const map = useMap()
-  const layerRef = useRef(null)
-
-  useEffect(() => {
-    if (layerRef.current) map.removeLayer(layerRef.current)
-    if (points && points.length > 0) {
-      const cluster = L.markerClusterGroup({
-        iconCreateFunction: (c) => {
-          const count = c.getAllChildMarkers().reduce((s, m) => s + (m.options.envioCount || 0), 0)
-          const size = count > 100 ? 50 : count > 30 ? 40 : 32
-          return L.divIcon({
-            html: `<div style="background:rgba(6,182,212,0.85);color:#fff;border-radius:50%;width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${size > 40 ? '13' : '11'}px;border:2px solid rgba(6,182,212,0.4);box-shadow:0 0 12px rgba(6,182,212,0.4)">${count}</div>`,
-            className: '', iconSize: [size, size],
-          })
-        },
-        maxClusterRadius: 60,
-      })
-      points.forEach(p => {
-        const marker = L.marker([p.lat, p.lng], {
-          envioCount: p.cantidad,
-          icon: L.divIcon({
-            html: `<div style="background:rgba(6,182,212,0.9);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;border:2px solid rgba(6,182,212,0.4)">${p.cantidad}</div>`,
-            className: '', iconSize: [26, 26],
-          })
-        }).bindTooltip(`${p.ciudad || ''}, ${p.provincia || ''}: ${p.cantidad} envíos`, { className: 'dark-tooltip' })
-        cluster.addLayer(marker)
-      })
-      layerRef.current = cluster
-      map.addLayer(cluster)
-    }
-    return () => { if (layerRef.current) map.removeLayer(layerRef.current) }
-  }, [points, map])
-  return null
-}
-
-/* ── Choropleth Layer (by province) ─────────── */
-function ChoroplethLayer({ points }) {
-  const map = useMap()
-  const layerRef = useRef(null)
-
-  useEffect(() => {
-    if (layerRef.current) map.removeLayer(layerRef.current)
-    if (points && points.length > 0) {
-      // Aggregate by province
-      const byProv = {}
-      points.forEach(p => {
-        const prov = p.provincia || 'Desconocida'
-        byProv[prov] = (byProv[prov] || 0) + p.cantidad
-      })
-      const maxCant = Math.max(...Object.values(byProv))
-      const group = L.layerGroup()
-
-      Object.entries(byProv).forEach(([prov, cant]) => {
-        const coords = PROVINCIA_COORDS[prov]
-        if (!coords) return
-        const intensity = cant / maxCant
-        const r = 25000 + intensity * 120000
-        const color = intensity > 0.7 ? '#ef4444' : intensity > 0.4 ? '#f59e0b' : intensity > 0.2 ? '#a855f7' : '#06b6d4'
-        L.circle(coords, {
-          radius: r, fillColor: color, color: color,
-          weight: 2, fillOpacity: 0.35, opacity: 0.6,
-        }).bindTooltip(`${prov}: ${cant} envíos`, { className: 'dark-tooltip' })
-          .addTo(group)
-      })
-      layerRef.current = group.addTo(map)
-    }
-    return () => { if (layerRef.current) map.removeLayer(layerRef.current) }
-  }, [points, map])
-  return null
-}
-
-/* ── Bubble Map Layer ───────────────────────── */
-function BubbleLayer({ points }) {
-  const map = useMap()
-  const layerRef = useRef(null)
-
-  useEffect(() => {
-    if (layerRef.current) map.removeLayer(layerRef.current)
-    if (points && points.length > 0) {
-      const maxCant = Math.max(...points.map(p => p.cantidad))
-      const group = L.layerGroup()
-      points.forEach(p => {
-        const size = 24 + (p.cantidad / maxCant) * 40
-        const icon = L.divIcon({
-          html: `<div style="background:rgba(6,182,212,0.2);border:2px solid #06b6d4;border-radius:50%;width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${size > 45 ? '13' : '10'}px;color:#06b6d4;box-shadow:0 0 10px rgba(6,182,212,0.3)">${p.cantidad}</div>`,
-          className: '', iconSize: [size, size],
-        })
-        L.marker([p.lat, p.lng], { icon })
-          .bindTooltip(`${p.ciudad || ''}, ${p.provincia || ''}: ${p.cantidad} envíos`, { className: 'dark-tooltip' })
-          .addTo(group)
-      })
-      layerRef.current = group.addTo(map)
-    }
-    return () => { if (layerRef.current) map.removeLayer(layerRef.current) }
-  }, [points, map])
-  return null
-}
-
 /* ── Utility Components ─────────────────────── */
 function ResizeMap() {
   const map = useMap()
@@ -192,9 +76,6 @@ function ZoomFullscreen({ onFullscreen }) {
 const MODES = [
   { key: 'heat', label: 'Mapa de Calor' },
   { key: 'circles', label: 'Circle Markers' },
-  { key: 'cluster', label: 'Clustered Markers' },
-  { key: 'choropleth', label: 'Choropleth' },
-  { key: 'bubble', label: 'Bubble Map' },
 ]
 
 /* ── Main Component ─────────────────────────── */
@@ -248,15 +129,12 @@ export default function EnviosHeatMap({ points }) {
           zoomControl={false} scrollWheelZoom={true}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://carto.com/">CARTO</a>'
             opacity={0.6}
           />
           {mode === 'heat' && <HeatLayer points={points} />}
           {mode === 'circles' && <CircleLayer points={points} />}
-          {mode === 'cluster' && <ClusterLayer points={points} />}
-          {mode === 'choropleth' && <ChoroplethLayer points={points} />}
-          {mode === 'bubble' && <BubbleLayer points={points} />}
           <ResizeMap />
           <ZoomFullscreen onFullscreen={() => setFullscreen(!fullscreen)} />
         </MapContainer>

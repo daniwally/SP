@@ -720,6 +720,17 @@ body {
   margin-top: auto;
 }
 
+.footer-link {
+  color: #06b6d4;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.footer-link:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
 /* STOCK DASHBOARD */
 .stock-container {
   display: grid;

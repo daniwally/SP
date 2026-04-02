@@ -1030,15 +1030,24 @@ body {
   }
 
   .cards-grid .card {
-    flex: 1 1 100%;
+    flex: 1 1 45%;
+    min-width: 0;
   }
 
   .card {
-    padding: 14px;
+    padding: 10px;
   }
 
   .card .value {
-    font-size: 1em;
+    font-size: 0.9em;
+  }
+
+  .card .label {
+    font-size: 0.7em;
+  }
+
+  .cards-grid {
+    gap: 8px;
   }
 
   .big-number {

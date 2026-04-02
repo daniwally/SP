@@ -339,9 +339,12 @@ body {
 }
 
 .total-item span:first-child {
-  color: #95a5a6;
-  font-weight: 600;
-  font-size: 0.95em;
+  font-weight: 700;
+  font-size: 1.53em;
+  background: linear-gradient(135deg, #d946ef, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Inter', sans-serif;
 }
 
 .totals-row-small {

@@ -436,12 +436,12 @@ function App() {
           {/* TOTALES EN LÍNEA - entre día y semana */}
           <div className="totals-row totals-row-small">
             <div className="total-item">
-              <span>Total Hoy:</span>
+              <span>Hoy</span>
               <span className="total-item-ordenes">{ordenesHoy} ventas</span>
               <span className="total-item-value">${fmtMoney(totalHoy)}</span>
             </div>
             <div className="total-item">
-              <span>Total Semana:</span>
+              <span>Semana</span>
               <span className="total-item-ordenes">{ordenes7d} ventas</span>
               <span className="total-item-value">${fmtMoney(total7d)}</span>
             </div>

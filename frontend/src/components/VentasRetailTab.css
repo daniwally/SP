@@ -525,3 +525,202 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ===== MOBILE RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .retail-container {
+    padding: 12px;
+  }
+
+  .retail-container h2 {
+    font-size: 1.3em;
+    margin-bottom: 14px;
+  }
+
+  .retail-controls {
+    gap: 8px;
+  }
+
+  .retail-controls label {
+    display: none;
+  }
+
+  .retail-controls input[type="date"] {
+    min-width: 120px;
+    font-size: 0.8em;
+    padding: 6px 10px;
+  }
+
+  .retail-subtabs {
+    gap: 6px;
+  }
+
+  .retail-subtab {
+    padding: 6px 14px;
+    font-size: 0.8em;
+  }
+
+  .retail-kpis {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .retail-kpi {
+    padding: 12px;
+  }
+
+  .retail-kpi .kpi-value {
+    font-size: 1.4em;
+  }
+
+  .retail-kpi .kpi-label {
+    font-size: 0.7em;
+  }
+
+  .ventas-period-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .ventas-period-card {
+    padding: 14px;
+  }
+
+  .period-amount {
+    font-size: 1.2em;
+  }
+
+  .period-order-item {
+    gap: 6px;
+  }
+
+  .order-name {
+    font-size: 0.78em;
+    max-width: 100px;
+  }
+
+  .order-date {
+    display: none;
+  }
+
+  .order-amount {
+    font-size: 0.8em;
+    min-width: 70px;
+  }
+
+  .retail-top-productos {
+    max-width: 100%;
+  }
+
+  .retail-table {
+    font-size: 0.75em;
+  }
+
+  .retail-table th,
+  .retail-table td {
+    padding: 6px 8px;
+  }
+
+  .pedido-detail {
+    padding: 8px 10px 8px 16px;
+  }
+
+  .pedido-lineas-table td:first-child {
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .retail-container {
+    padding: 8px;
+  }
+
+  .retail-container h2 {
+    font-size: 1.1em;
+  }
+
+  .retail-controls {
+    gap: 6px;
+  }
+
+  .retail-controls input[type="date"] {
+    min-width: 110px;
+    font-size: 0.75em;
+    padding: 5px 8px;
+  }
+
+  .retail-controls button {
+    padding: 5px 12px;
+    font-size: 0.78em;
+  }
+
+  .retail-subtab {
+    padding: 5px 10px;
+    font-size: 0.75em;
+  }
+
+  .retail-kpis {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .retail-kpi {
+    padding: 10px;
+  }
+
+  .retail-kpi .kpi-value {
+    font-size: 1.2em;
+  }
+
+  .retail-kpi .kpi-label {
+    font-size: 0.65em;
+  }
+
+  .ventas-period-card {
+    padding: 12px;
+  }
+
+  .ventas-period-card h3 {
+    font-size: 0.85em;
+  }
+
+  .period-amount {
+    font-size: 1.1em;
+  }
+
+  .period-total {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .order-name {
+    max-width: 80px;
+    font-size: 0.75em;
+  }
+
+  .order-amount {
+    font-size: 0.75em;
+    min-width: 60px;
+  }
+
+  .top-prod-bar {
+    display: none;
+  }
+
+  .top-prod-amount {
+    font-size: 0.8em;
+    min-width: 70px;
+  }
+
+  .retail-table {
+    font-size: 0.7em;
+  }
+
+  .retail-table th,
+  .retail-table td {
+    padding: 5px 6px;
+  }
+}

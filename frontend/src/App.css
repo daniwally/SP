@@ -908,7 +908,8 @@ body {
   }
 
   .totals-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
 
   .top3-container {
@@ -1144,8 +1145,13 @@ body {
     font-size: 1.4em;
   }
 
-  .totals-row-small {
+  .totals-row {
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
+  }
+
+  .totals-row-small {
+    gap: 6px;
   }
 
   .total-item-value {

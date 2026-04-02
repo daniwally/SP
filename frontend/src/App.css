@@ -827,7 +827,8 @@ body {
   .header {
     padding: 15px;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    position: relative;
   }
 
   .header h1 {
@@ -836,13 +837,15 @@ body {
 
   .header-actions {
     width: 100%;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .tabs {
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
+    width: 100%;
   }
 
   .tab-btn {
@@ -851,11 +854,14 @@ body {
   }
 
   .btn-refresh {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    font-size: 1.1em;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 1em;
   }
 
   .dashboard {
@@ -1008,7 +1014,7 @@ body {
 /* Mobile */
 @media (max-width: 480px) {
   .header {
-    padding: 12px 10px;
+    padding: 10px 8px;
   }
 
   .header h1 {
@@ -1017,11 +1023,26 @@ body {
 
   .tabs {
     gap: 4px;
+    width: 100%;
   }
 
   .tab-btn {
     padding: 5px 8px;
     font-size: 0.7em;
+  }
+
+  .tab-btn svg {
+    display: none;
+  }
+
+  .btn-refresh {
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 0.9em;
   }
 
   .dashboard {

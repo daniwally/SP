@@ -893,6 +893,11 @@ body {
 
   .section h2 {
     font-size: 1.1em;
+    text-align: center;
+  }
+
+  .section-date {
+    text-align: center;
   }
 
   .big-number {
@@ -1158,6 +1163,11 @@ body {
 
   .section h2 {
     font-size: 1em;
+    text-align: center;
+  }
+
+  .section-date {
+    text-align: center;
   }
 
   .section-date {

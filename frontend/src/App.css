@@ -1046,6 +1046,10 @@ body {
     display: none;
   }
 
+  .tab-monitor {
+    display: none;
+  }
+
   .btn-refresh {
     top: 8px;
     right: 8px;

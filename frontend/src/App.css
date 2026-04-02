@@ -894,10 +894,12 @@ body {
   .section h2 {
     font-size: 1.1em;
     text-align: center;
+    margin-bottom: 2px;
   }
 
   .section-date {
     text-align: center;
+    margin-top: 0;
   }
 
   .big-number {
@@ -1164,10 +1166,12 @@ body {
   .section h2 {
     font-size: 1em;
     text-align: center;
+    margin-bottom: 2px;
   }
 
   .section-date {
     text-align: center;
+    margin-top: 0;
   }
 
   .section-date {

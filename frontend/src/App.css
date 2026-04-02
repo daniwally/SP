@@ -943,6 +943,15 @@ body {
     font-size: 1.6em;
   }
 
+  .brand-logo {
+    font-size: 1.8em !important;
+  }
+
+  .loading-tagline {
+    font-size: 0.8em !important;
+    letter-spacing: 0.15em !important;
+  }
+
   .ventas-2col-grid {
     grid-template-columns: 1fr !important;
   }
@@ -1042,6 +1051,24 @@ body {
 
   .acumulado-grid {
     grid-template-columns: 1fr !important;
+  }
+
+  .questions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-logo {
+    font-size: 1.4em !important;
+  }
+
+  .loading-tagline {
+    font-size: 0.7em !important;
+    letter-spacing: 0.1em !important;
+  }
+
+  .loading-spinner-ring {
+    width: 40px;
+    height: 40px;
   }
 
   .total-bar {

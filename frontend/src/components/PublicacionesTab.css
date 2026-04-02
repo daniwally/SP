@@ -568,6 +568,14 @@
 }
 
 @media (max-width: 768px) {
+  .publicaciones-container {
+    padding: 12px;
+  }
+
+  .publicaciones-container h2 {
+    font-size: 1.3em;
+  }
+
   .controls-bar {
     gap: 8px;
   }
@@ -582,5 +590,73 @@
 
   .titulo .thumb {
     display: none;
+  }
+
+  .kpis-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .kpi-card {
+    padding: 10px;
+  }
+
+  .kpi-value {
+    font-size: 1.2em;
+  }
+
+  .marca-kpis-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .publicaciones-table {
+    font-size: 0.72em;
+  }
+}
+
+@media (max-width: 480px) {
+  .publicaciones-container {
+    padding: 8px;
+  }
+
+  .publicaciones-container h2 {
+    font-size: 1.1em;
+  }
+
+  .kpis-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .kpi-card {
+    padding: 8px;
+  }
+
+  .kpi-value {
+    font-size: 1em;
+  }
+
+  .kpi-label {
+    font-size: 0.6em;
+  }
+
+  .marca-kpis-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .publicaciones-table {
+    font-size: 0.65em;
+  }
+
+  .publicaciones-table th,
+  .publicaciones-table td {
+    padding: 4px 5px;
+  }
+
+  .titulo {
+    max-width: 100px;
+    font-size: 0.7em;
   }
 }

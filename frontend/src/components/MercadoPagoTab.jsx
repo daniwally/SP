@@ -100,9 +100,10 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
       net: p.net || 0,
       chargebacks: sum_chargebacks(brand),
       chargebacks_count: brand.chargebacks?.total || 0,
-      balance_available: brand.balance?.available || 0,
-      balance_total: brand.balance?.total || 0,
-      balance_unavailable: brand.balance?.unavailable || 0,
+      por_cobrar: brand.payments?.por_cobrar?.amount || 0,
+      por_cobrar_count: brand.payments?.por_cobrar?.count || 0,
+      liberado: brand.payments?.liberado?.amount || 0,
+      liberado_count: brand.payments?.liberado?.count || 0,
     }
   }
 
@@ -212,19 +213,17 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
             </div>
           </div>
 
-          {/* Balance */}
-          <div className="mp-kpis" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {/* Por Cobrar / Liberado */}
+          <div className="mp-kpis" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
             <div className="mp-kpi">
-              <div className="mp-kpi-value green">${fmtMoney(totals.balance_available || 0)}</div>
-              <div className="mp-kpi-label">Disponible</div>
-            </div>
-            <div className="mp-kpi">
-              <div className="mp-kpi-value amber">${fmtMoney(totals.balance_unavailable || 0)}</div>
+              <div className="mp-kpi-value amber">${fmtMoney(totals.por_cobrar || 0)}</div>
+              <div className="mp-kpi-sub">{totals.por_cobrar_count || 0} pagos pendientes</div>
               <div className="mp-kpi-label">Por Cobrar</div>
             </div>
             <div className="mp-kpi">
-              <div className="mp-kpi-value cyan">${fmtMoney(totals.balance_total || 0)}</div>
-              <div className="mp-kpi-label">Total en Cuenta</div>
+              <div className="mp-kpi-value green">${fmtMoney(totals.liberado || 0)}</div>
+              <div className="mp-kpi-sub">{totals.liberado_count || 0} pagos liberados</div>
+              <div className="mp-kpi-label">Liberado</div>
             </div>
           </div>
 
@@ -278,7 +277,7 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
                     <div className="mp-brand-card-amount">${fmtMoney(p.approved?.amount || 0)}</div>
                     <div className="mp-brand-card-count">{p.approved?.count || 0} cobros</div>
                     {p.net > 0 && <div className="mp-brand-card-net">Neto: ${fmtMoney(p.net)}</div>}
-                    {data.balance?.available > 0 && <div className="mp-brand-card-net" style={{ color: '#22c55e' }}>Saldo: ${fmtMoney(data.balance.available)}</div>}
+                    {data.payments?.por_cobrar?.amount > 0 && <div className="mp-brand-card-net" style={{ color: '#eab308' }}>Por cobrar: ${fmtMoney(data.payments.por_cobrar.amount)}</div>}
                   </div>
                 )
               })}

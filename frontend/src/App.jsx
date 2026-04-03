@@ -21,6 +21,7 @@ registerLocale('es', es)
 import RotatingBackground from './components/RotatingBackground'
 import PublicacionesTab from './components/PublicacionesTab'
 import VentasRetailTab from './components/VentasRetailTab'
+import MercadoPagoTab from './components/MercadoPagoTab'
 import VentasUnifiedTab from './components/VentasUnifiedTab'
 import MonitorTab from './components/MonitorTab'
 import EnviosHeatMap from './components/EnviosHeatMap'
@@ -357,6 +358,13 @@ function App() {
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               Retail
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'mercadopago' ? 'active' : ''}`}
+              onClick={() => setActiveTab('mercadopago')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              MP
             </button>
             <button
               className={`tab-btn ${activeTab === 'ventas' ? 'active' : ''}`}
@@ -1686,6 +1694,10 @@ function App() {
         <div style={{ display: activeTab === 'retail' ? 'block' : 'none' }}>
           <VentasRetailTab refreshKey={refreshKey} />
         </div>
+
+        {activeTab === 'mercadopago' && (
+          <MercadoPagoTab refreshKey={refreshKey} />
+        )}
 
         {activeTab === 'monitor' && (
           <MonitorTab testData={testData} salesData={salesData} />

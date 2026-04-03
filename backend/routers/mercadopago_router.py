@@ -80,7 +80,18 @@ async def _fetch_payments(token: str, desde: str, hasta: str) -> dict:
     total_pending = sum(p.get("transaction_amount", 0) for p in pending)
     total_rejected = sum(p.get("transaction_amount", 0) for p in rejected)
     total_refunded = sum(p.get("transaction_amount", 0) for p in refunded)
-    total_fees = sum(p.get("fee_details", [{}])[0].get("amount", 0) if p.get("fee_details") else 0 for p in approved)
+    total_fees = sum(
+        sum(fee.get("amount", 0) for fee in p.get("fee_details", []))
+        for p in approved
+    )
+    # Also try transaction_details.net_received_amount as fallback
+    total_net_received = sum(
+        (p.get("transaction_details") or {}).get("net_received_amount", 0)
+        for p in approved
+    )
+    # If fee_details is empty, calculate fees from difference
+    if total_fees == 0 and total_net_received > 0:
+        total_fees = total_approved - total_net_received
     total_net = total_approved - total_fees
 
     # Por cobrar: approved payments where money is not yet released

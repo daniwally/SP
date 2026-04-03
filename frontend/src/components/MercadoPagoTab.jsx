@@ -212,13 +212,24 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
             </div>
           </div>
 
-          {/* Balance & Secondary KPIs */}
-          <div className="mp-kpis mp-kpis-secondary" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          {/* Balance */}
+          <div className="mp-kpis" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <div className="mp-kpi">
               <div className="mp-kpi-value green">${fmtMoney(totals.balance_available || 0)}</div>
-              <div className="mp-kpi-sub">{selectedBrand ? '' : 'todas las cuentas'}</div>
-              <div className="mp-kpi-label">Dinero en Cuenta</div>
+              <div className="mp-kpi-label">Disponible</div>
             </div>
+            <div className="mp-kpi">
+              <div className="mp-kpi-value amber">${fmtMoney(totals.balance_unavailable || 0)}</div>
+              <div className="mp-kpi-label">Por Cobrar</div>
+            </div>
+            <div className="mp-kpi">
+              <div className="mp-kpi-value cyan">${fmtMoney(totals.balance_total || 0)}</div>
+              <div className="mp-kpi-label">Total en Cuenta</div>
+            </div>
+          </div>
+
+          {/* Refunds, Chargebacks, Fees */}
+          <div className="mp-kpis mp-kpis-secondary" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <div className="mp-kpi">
               <div className="mp-kpi-value" style={{ color: '#f97316' }}>${fmtMoney(totals.refunded || 0)}</div>
               <div className="mp-kpi-sub">{totals.refunded_count || 0} devoluciones</div>

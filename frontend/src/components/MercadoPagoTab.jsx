@@ -202,28 +202,14 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
               <div className="mp-kpi-label">Neto</div>
             </div>
             <div className="mp-kpi">
-              <div className="mp-kpi-value amber">${fmtMoney(totals.pending || 0)}</div>
-              <div className="mp-kpi-sub">{totals.pending_count || 0} pendientes</div>
-              <div className="mp-kpi-label">Pendientes</div>
+              <div className="mp-kpi-value amber">${fmtMoney(totals.por_cobrar || 0)}</div>
+              <div className="mp-kpi-sub">{totals.por_cobrar_count || 0} pagos por liberar</div>
+              <div className="mp-kpi-label">Por Cobrar</div>
             </div>
             <div className="mp-kpi">
               <div className="mp-kpi-value red">${fmtMoney(totals.rejected || 0)}</div>
               <div className="mp-kpi-sub">{totals.rejected_count || 0} rechazados</div>
               <div className="mp-kpi-label">Rechazados</div>
-            </div>
-          </div>
-
-          {/* Por Cobrar / Liberado */}
-          <div className="mp-kpis" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-            <div className="mp-kpi">
-              <div className="mp-kpi-value amber">${fmtMoney(totals.por_cobrar || 0)}</div>
-              <div className="mp-kpi-sub">{totals.por_cobrar_count || 0} pagos pendientes</div>
-              <div className="mp-kpi-label">Por Cobrar</div>
-            </div>
-            <div className="mp-kpi">
-              <div className="mp-kpi-value green">${fmtMoney(totals.liberado || 0)}</div>
-              <div className="mp-kpi-sub">{totals.liberado_count || 0} pagos liberados</div>
-              <div className="mp-kpi-label">Liberado</div>
             </div>
           </div>
 

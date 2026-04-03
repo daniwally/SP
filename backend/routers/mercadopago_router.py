@@ -148,10 +148,13 @@ async def _fetch_balance(token: str, user_id: int) -> dict:
     """Fetch account balance."""
     try:
         data = await _mp_get(token, f"/users/{user_id}/mercadopago_account/balance")
+        print(f"[MP] Balance raw response keys: {list(data.keys()) if isinstance(data, dict) else type(data)}")
+        print(f"[MP] Balance raw: {data}")
         return {
             "available": data.get("available_balance", 0),
             "total": data.get("total_amount", 0),
             "unavailable": data.get("unavailable_balance", 0),
+            "_raw": data,
         }
     except Exception as e:
         print(f"[MP] Error fetching balance: {e}")
@@ -307,3 +310,20 @@ async def mp_status():
             statuses[marca] = {"connected": False, "error": str(e)}
 
     return statuses
+
+
+@router.get("/debug/balance")
+async def mp_debug_balance():
+    """Debug: ver respuesta raw del balance de cada cuenta."""
+    results = {}
+    for marca, (cuenta_num, user_id) in BRANDS.items():
+        token = await _get_mp_token(marca)
+        if not token:
+            results[marca] = {"error": "sin token"}
+            continue
+        try:
+            data = await _mp_get(token, f"/users/{user_id}/mercadopago_account/balance")
+            results[marca] = data
+        except Exception as e:
+            results[marca] = {"error": str(e)}
+    return results

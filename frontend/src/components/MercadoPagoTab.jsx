@@ -100,6 +100,9 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
       net: p.net || 0,
       chargebacks: sum_chargebacks(brand),
       chargebacks_count: brand.chargebacks?.total || 0,
+      balance_available: brand.balance?.available || 0,
+      balance_total: brand.balance?.total || 0,
+      balance_unavailable: brand.balance?.unavailable || 0,
     }
   }
 
@@ -209,8 +212,13 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
             </div>
           </div>
 
-          {/* Refunds & Chargebacks */}
-          <div className="mp-kpis mp-kpis-secondary">
+          {/* Balance & Secondary KPIs */}
+          <div className="mp-kpis mp-kpis-secondary" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            <div className="mp-kpi">
+              <div className="mp-kpi-value green">${fmtMoney(totals.balance_available || 0)}</div>
+              <div className="mp-kpi-sub">{selectedBrand ? '' : 'todas las cuentas'}</div>
+              <div className="mp-kpi-label">Dinero en Cuenta</div>
+            </div>
             <div className="mp-kpi">
               <div className="mp-kpi-value" style={{ color: '#f97316' }}>${fmtMoney(totals.refunded || 0)}</div>
               <div className="mp-kpi-sub">{totals.refunded_count || 0} devoluciones</div>
@@ -259,6 +267,7 @@ export default function MercadoPagoTab({ refreshKey = 0 }) {
                     <div className="mp-brand-card-amount">${fmtMoney(p.approved?.amount || 0)}</div>
                     <div className="mp-brand-card-count">{p.approved?.count || 0} cobros</div>
                     {p.net > 0 && <div className="mp-brand-card-net">Neto: ${fmtMoney(p.net)}</div>}
+                    {data.balance?.available > 0 && <div className="mp-brand-card-net" style={{ color: '#22c55e' }}>Saldo: ${fmtMoney(data.balance.available)}</div>}
                   </div>
                 )
               })}

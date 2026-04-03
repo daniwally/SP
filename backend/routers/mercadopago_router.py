@@ -16,15 +16,22 @@ ART = timezone(timedelta(hours=-3))
 
 MP_BASE = "https://api.mercadopago.com"
 
-BRANDS = {marca: num for num, (uid, marca) in CUENTAS.items()}
+BRANDS = {marca: (num, uid) for num, (uid, marca) in CUENTAS.items()}
 
 
 async def _get_mp_token(marca: str) -> str | None:
     """Get token for a brand using the existing ML token_manager."""
-    cuenta_num = BRANDS.get(marca)
-    if cuenta_num is None:
+    entry = BRANDS.get(marca)
+    if entry is None:
         return None
+    cuenta_num, _ = entry
     return await get_token(cuenta_num)
+
+
+def _get_user_id(marca: str) -> int | None:
+    """Get MercadoLibre user_id for a brand."""
+    entry = BRANDS.get(marca)
+    return entry[1] if entry else None
 
 
 async def _mp_get(token: str, path: str, params: dict = None) -> dict:
@@ -137,6 +144,20 @@ async def _fetch_payments(token: str, desde: str, hasta: str) -> dict:
     }
 
 
+async def _fetch_balance(token: str, user_id: int) -> dict:
+    """Fetch account balance."""
+    try:
+        data = await _mp_get(token, f"/users/{user_id}/mercadopago_account/balance")
+        return {
+            "available": data.get("available_balance", 0),
+            "total": data.get("total_amount", 0),
+            "unavailable": data.get("unavailable_balance", 0),
+        }
+    except Exception as e:
+        print(f"[MP] Error fetching balance: {e}")
+        return {"available": 0, "total": 0, "unavailable": 0, "error": str(e)}
+
+
 async def _fetch_chargebacks(token: str) -> dict:
     """Fetch chargebacks (contracargos)."""
     try:
@@ -186,6 +207,7 @@ async def mp_dashboard(
         "refunded": 0, "refunded_count": 0,
         "fees": 0, "net": 0,
         "chargebacks": 0, "chargebacks_count": 0,
+        "balance_available": 0, "balance_total": 0, "balance_unavailable": 0,
     }
     all_methods = {}
     all_daily = {}
@@ -199,9 +221,11 @@ async def mp_dashboard(
             continue
 
         try:
-            payments, chargebacks = await asyncio.gather(
+            user_id = _get_user_id(marca)
+            payments, chargebacks, balance = await asyncio.gather(
                 _fetch_payments(token, desde, hasta),
                 _fetch_chargebacks(token),
+                _fetch_balance(token, user_id),
             )
 
             if payments.get("error"):
@@ -210,6 +234,7 @@ async def mp_dashboard(
             results[marca] = {
                 "payments": payments,
                 "chargebacks": chargebacks,
+                "balance": balance,
             }
 
             # Accumulate totals
@@ -225,6 +250,9 @@ async def mp_dashboard(
             totals["net"] += payments.get("net", 0)
             totals["chargebacks"] += sum(c.get("amount", 0) for c in chargebacks.get("chargebacks", []))
             totals["chargebacks_count"] += chargebacks.get("total", 0)
+            totals["balance_available"] += balance.get("available", 0)
+            totals["balance_total"] += balance.get("total", 0)
+            totals["balance_unavailable"] += balance.get("unavailable", 0)
 
             # Merge methods
             for method, count in payments.get("methods", {}).items():
@@ -243,7 +271,7 @@ async def mp_dashboard(
             errors.append(f"{marca}: {str(e)}")
 
     # Round totals
-    for k in ["approved", "pending", "rejected", "refunded", "fees", "net", "chargebacks"]:
+    for k in ["approved", "pending", "rejected", "refunded", "fees", "net", "chargebacks", "balance_available", "balance_total", "balance_unavailable"]:
         totals[k] = round(totals[k], 2)
 
     response = {

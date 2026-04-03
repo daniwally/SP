@@ -328,7 +328,7 @@
   .mp-container { padding: 12px; }
   .mp-container h2 { font-size: 1.3em; }
   .mp-kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .mp-kpis-secondary { grid-template-columns: repeat(2, 1fr); }
+  .mp-kpis-secondary { grid-template-columns: repeat(2, 1fr) !important; }
   .mp-kpi { padding: 12px; }
   .mp-kpi-value { font-size: 1.3em; }
   .mp-brands-grid { grid-template-columns: repeat(2, 1fr); }

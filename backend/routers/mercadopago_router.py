@@ -1,13 +1,14 @@
 """
-MercadoPago API router.
+MercadoPago API router (read-only).
 Fetches payments, refunds, chargebacks per brand account.
-Requires MP_ACCESS_TOKEN_<MARCA> env vars (or a single MP_ACCESS_TOKEN).
+Uses the same ML tokens from token_manager.
 """
 from fastapi import APIRouter, Query
 from datetime import datetime, timedelta, timezone
 import httpx
-import os
 import asyncio
+
+from routers.token_manager import CUENTAS, get_token
 
 router = APIRouter()
 
@@ -15,18 +16,15 @@ ART = timezone(timedelta(hours=-3))
 
 MP_BASE = "https://api.mercadopago.com"
 
-# Brand → MP access token mapping
-# Supports per-brand tokens: MP_ACCESS_TOKEN_SHAQ, MP_ACCESS_TOKEN_STARTER, etc.
-# Falls back to single MP_ACCESS_TOKEN if per-brand not found
-BRANDS = ["SHAQ", "STARTER", "HYDRATE", "TIMBERLAND", "URBAN_FLOW"]
+BRANDS = {marca: num for num, (uid, marca) in CUENTAS.items()}
 
 
-def _get_mp_token(marca: str) -> str | None:
-    """Get MercadoPago access token for a brand."""
-    token = os.getenv(f"MP_ACCESS_TOKEN_{marca}", "")
-    if token:
-        return token
-    return os.getenv("MP_ACCESS_TOKEN", "") or None
+async def _get_mp_token(marca: str) -> str | None:
+    """Get token for a brand using the existing ML token_manager."""
+    cuenta_num = BRANDS.get(marca)
+    if cuenta_num is None:
+        return None
+    return await get_token(cuenta_num)
 
 
 async def _mp_get(token: str, path: str, params: dict = None) -> dict:
@@ -194,7 +192,7 @@ async def mp_dashboard(
     errors = []
 
     for marca in BRANDS:
-        token = _get_mp_token(marca)
+        token = await _get_mp_token(marca)
         if not token:
             results[marca] = {"error": "Sin token configurado"}
             errors.append(f"{marca}: sin token")
@@ -267,7 +265,7 @@ async def mp_status():
     """Check connection status for all MP accounts."""
     statuses = {}
     for marca in BRANDS:
-        token = _get_mp_token(marca)
+        token = await _get_mp_token(marca)
         if not token:
             statuses[marca] = {"connected": False, "error": "Sin token"}
             continue
